@@ -12,10 +12,12 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     includes/AvionEngineCore/render/render.hpp
     includes/AvionEngineCore/render/text_rendering.hpp
     includes/AvionEngineCore/render/shader.hpp
+    includes/AvionEngineCore/controller/controller.hpp
     src/AvionEngineCore/logger/logger.cpp
     src/AvionEngineCore/render/render.cpp
     src/AvionEngineCore/render/text_rendering.cpp
     src/AvionEngineCore/render/shader.cpp
+    src/AvionEngineCore/controller/controller.cpp
     src/AvionEngineCore/external/glad.c
 )
 
