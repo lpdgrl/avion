@@ -110,13 +110,13 @@ private:
     TextRender* text_;
 
     // TODO: Хранить путь к шейдерам в классе рендера неправильно!
-    const char* PATH_TO_FILE_VERTEX_SHADER = "../../AvionEngineCore/src/AvionEngineCore/shaders/shader.vs";
-    const char* PATH_TO_FILE_FRAGMENT_SHADER = "../../AvionEngineCore/src/AvionEngineCore/shaders/shader.fs";
+    const char* PATH_TO_FILE_VERTEX_SHADER = "../avion/AvionEngineCore/src/AvionEngineCore/shaders/shader.vs";
+    const char* PATH_TO_FILE_FRAGMENT_SHADER = "../avion/AvionEngineCore/src/AvionEngineCore/shaders/shader.fs";
 
     // TODO: Хранить путь к шейдерам в классе рендера неправильно!
-    const char* PATH_TO_VERTEX_SHADER_TEXT = "../../AvionEngineCore/src/AvionEngineCore/shaders/text.vs";
-    const char* PATH_TO_FRAGMENT_SHADER_TEXT = "../../AvionEngineCore/src/AvionEngineCore/shaders/text.fs";
+    const char* PATH_TO_VERTEX_SHADER_TEXT = "../avion/AvionEngineCore/src/AvionEngineCore/shaders/text.vs";
+    const char* PATH_TO_FRAGMENT_SHADER_TEXT = "../avion/AvionEngineCore/src/AvionEngineCore/shaders/text.fs";
 
     // TODO: Хранение пути в внутри классе рендера неправильно!
-    const char* PATH_TO_FONT = "../../AvionEngineCore/data/fonts/dejavusans.ttf";
+    const char* PATH_TO_FONT = "../avion/AvionEngineCore/data/fonts/dejavusans.ttf";
 };

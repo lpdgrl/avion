@@ -20,7 +20,7 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
 )
 
 target_include_directories(${ENGINE_PROJECT_NAME} 
-    PUBLIC includes
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/includes
     PUBLIC ${FREETYPE_INCLUDE_DIRS}
 )
 
