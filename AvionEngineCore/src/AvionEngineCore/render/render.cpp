@@ -22,18 +22,40 @@ void Render::InitWindow() {
 }
 
 void Render::InitRender() {
-    float vertices_objects[] = {
+    /*float vertices_objects[] = {
         // positions         // colors
         1.f,  1.f, 0.0f,  1.0f, 1.0f, 1.0f,  // top right
         1.f,  -1.f, 0.0f,  1.0f, 1.0f, 1.0f,  // bottom right
         -1.f,  1.f, 0.0f,  .0f, 1.0f, .0f,  // bottom left
         -1.f, -1.f, 0.0f,  .0f, 1.0f, .0f   // top left 
-    };
+    };*/ 
 
+    // float vertices_objects[] = {
+    //     // positions          
+    //      0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   // top right
+    //      0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f, // bottom right
+    //     -0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f, // bottom left
+    //     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f   // top left 
+    // };
+
+    float vertices_objects[] = {
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
+       -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
+       -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.f
+    };
+    
     unsigned int indices_objects[] = {
         0, 1, 3,
         0, 3, 2
-    };
+    }; 
+
+    //  unsigned int indices_objects[] = {
+    //     0, 1, 3,
+    //     1, 2, 3
+    // }; 
     
     //Buffers for objects
     GenerateBuffer(1, TypeBuffers::VAO, MapKey::OBJECTS);
@@ -146,11 +168,23 @@ void Render::SetOrthoProjection(float left, float right, float bottom, float top
     glm::mat4 projectionMatrix = glm::ortho(left, static_cast<float>(scr_width_), bottom, static_cast<float>(scr_height_), zNear, zFar);
 
     shader_->use();
-    shader_->setMat4("projectionMat", projectionMatrix);
+    shader_->setMat4("projection", projectionMatrix);
     BindVertexArray(GetVAO(MapKey::OBJECTS));
 
     shader_text_->use();
     glUniformMatrix4fv(glGetUniformLocation(shader_text_->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    BindVertexArray(GetVAO(MapKey::TEXT));
+}
+
+void Render::SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far) {
+    glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), static_cast<float>(width) / static_cast<float>(height), near, far);
+
+    shader_->use();
+    shader_->setMat4("projection", projection_matrix);
+    BindVertexArray(GetVAO(MapKey::OBJECTS));
+
+    shader_text_->use();
+    glUniformMatrix4fv(glGetUniformLocation(shader_text_->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection_matrix));
     BindVertexArray(GetVAO(MapKey::TEXT));
 }
 
@@ -166,11 +200,33 @@ void Render::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate a
     model_matrix = RotateMatrix(model_matrix, axis, rotate);
     model_matrix = ScaleMatrix(model_matrix, size);
 
-    shader_->setMat4("modelMat", model_matrix);
+    shader_->setMat4("model", model_matrix);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     BindVertexArray(GetVAO(MapKey::OBJECTS));
     
+}
+
+void Render::Draw(const glm::vec3& position, const glm::vec3& size, AxisRotate axis, GLfloat rotate) {
+    shader_->use();
+    BindVertexArray(GetVAO(MapKey::OBJECTS));
+
+    glm::mat4 model_matrix = glm::mat4(1.f);
+
+    model_matrix = TranslateMatrix(model_matrix, position);
+    model_matrix = RotateMatrix(model_matrix, axis, rotate);
+    model_matrix = ScaleMatrix(model_matrix, size);
+
+    glm::mat4 view_matrix = glm::mat4(1.f);
+    view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
+
+    shader_->setMat4("model", model_matrix);
+    shader_->setMat4("view", view_matrix);
+
+    BindVertexArray(GetVAO(MapKey::OBJECTS));
+    //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
 }
 
 void Render::DrawText(std::string text, float x, float y, float scale, glm::vec3 color) {
@@ -245,6 +301,14 @@ glm::mat4 Render::TranslateMatrix(glm::mat4& model, const glm::vec2& position) {
     return glm::translate(model, glm::vec3(position, 0.f));
 }
 
+glm::mat4 Render::TranslateMatrix(glm::mat4& model, const glm::vec3& position) {
+    return glm::translate(model, glm::vec3(position));
+}
+
 glm::mat4 Render::ScaleMatrix(glm::mat4& model, const glm::vec2& size) {
     return glm::scale(model, glm::vec3(size.x, size.y, 0.f));
+}
+
+glm::mat4 Render::ScaleMatrix(glm::mat4& model, const glm::vec3& size) {
+    return glm::scale(model, glm::vec3(size));
 }

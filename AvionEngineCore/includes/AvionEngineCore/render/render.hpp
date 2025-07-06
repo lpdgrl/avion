@@ -73,8 +73,10 @@ public:
     void InitRender();
     void InitRenderText();
     void Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate);
+    void Draw(const glm::vec3& position, const glm::vec3& size, AxisRotate axis, GLfloat rotate);
     void DrawText(std::string text, float x, float y, float scale, glm::vec3 color);
     void SetOrthoProjection(float left, float right, float bottom, float top, float zNear, float zFar);
+    void SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far);
 
 private:
     GLFWwindow* CreateWindow(const char* nw, unsigned int scr_w, unsigned int scr_h);
@@ -90,7 +92,9 @@ private:
 
     glm::mat4 RotateMatrix(glm::mat4& model, AxisRotate axis, GLfloat rotate);
     glm::mat4 TranslateMatrix(glm::mat4& model, const glm::vec2& position);
+    glm::mat4 TranslateMatrix(glm::mat4& model, const glm::vec3& position);
     glm::mat4 ScaleMatrix(glm::mat4& model, const glm::vec2& size);
+    glm::mat4 ScaleMatrix(glm::mat4& model, const glm::vec3& size);
 
 private:
     Shader* shader_;
@@ -110,13 +114,13 @@ private:
     TextRender* text_;
 
     // TODO: Хранить путь к шейдерам в классе рендера неправильно!
-    const char* PATH_TO_FILE_VERTEX_SHADER = "../avion/AvionEngineCore/src/AvionEngineCore/shaders/shader.vs";
-    const char* PATH_TO_FILE_FRAGMENT_SHADER = "../avion/AvionEngineCore/src/AvionEngineCore/shaders/shader.fs";
+    const char* PATH_TO_FILE_VERTEX_SHADER = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/shader.vs";
+    const char* PATH_TO_FILE_FRAGMENT_SHADER = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/shader.fs";
 
     // TODO: Хранить путь к шейдерам в классе рендера неправильно!
-    const char* PATH_TO_VERTEX_SHADER_TEXT = "../avion/AvionEngineCore/src/AvionEngineCore/shaders/text.vs";
-    const char* PATH_TO_FRAGMENT_SHADER_TEXT = "../avion/AvionEngineCore/src/AvionEngineCore/shaders/text.fs";
+    const char* PATH_TO_VERTEX_SHADER_TEXT = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/text.vs";
+    const char* PATH_TO_FRAGMENT_SHADER_TEXT = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/text.fs";
 
     // TODO: Хранение пути в внутри классе рендера неправильно!
-    const char* PATH_TO_FONT = "../avion/AvionEngineCore/data/fonts/dejavusans.ttf";
+    const char* PATH_TO_FONT = "/home/lpdgrl/Project/code/avion/AvionEngineCore/data/fonts/dejavusans.ttf";
 };
