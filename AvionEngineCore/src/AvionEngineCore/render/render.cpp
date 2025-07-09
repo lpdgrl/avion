@@ -39,48 +39,92 @@ void Render::InitRender() {
     // };
 
     float vertices_objects[] = {
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
 
-        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f, 
+        -0.5f,  0.5f,  0.5f, 
+        -0.5f, -0.5f,  0.5f,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
 
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
 
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f
+        -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f, 
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f, 
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
     };
+
+    // float vertices_objects[] = {
+    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+
+    //     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+
+    //     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+
+    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+
+    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+
+    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f
+    // };
 
     // float vertices_objects[] = {
     //     -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,
@@ -114,15 +158,14 @@ void Render::InitRender() {
     // BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_objects), indices_objects, GL_DYNAMIC_DRAW);
 
     // Attribute of position player
+    SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     EnableVertexAttribArray(0);
-    SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    // // Attribute of color player
+    // EnableVertexAttribArray(1);
+    // SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
-    // Attribute of color player
-    EnableVertexAttribArray(1);
-    SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    BindBuffer(GL_ARRAY_BUFFER, 0);
-    BindVertexArray(0);
+    // BindBuffer(GL_ARRAY_BUFFER, 0);
+    // BindVertexArray(0);
 }
 
 void Render::InitRenderText() {
@@ -232,6 +275,12 @@ void Render::SetPerspectiveProjection(float fov, unsigned int width, unsigned in
     BindVertexArray(GetVAO(MapKey::TEXT));
 }
 
+void Render::SetLigth(glm::vec3 ligthColor, glm::vec3 objectColor) {
+    shader_->use();
+    shader_->setVec3("objectColor", objectColor);
+    shader_->setVec3("lightColor", ligthColor);
+}
+
 void Render::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate) {
     
     shader_->use();
@@ -252,8 +301,8 @@ void Render::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate a
 }
 
 void Render::Draw(const glm::vec3& position, const glm::vec3& size, AxisRotate axis, GLfloat rotate) {
-    shader_->use();
-    BindVertexArray(GetVAO(MapKey::OBJECTS));
+    // shader_->use();
+    // BindVertexArray(GetVAO(MapKey::OBJECTS));
 
     glm::mat4 model_matrix = glm::mat4(1.f);
 

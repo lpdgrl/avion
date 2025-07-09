@@ -20,26 +20,30 @@ int main() {
 
     std::cout << "Test Engine" << std::endl;
 
-    std::array<glm::vec3, 10> cube_positions {
+    std::array<glm::vec3, 2> cube_positions {
         glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
+        // glm::vec3( 2.0f,  5.0f, -15.0f),
+        // glm::vec3(-1.5f, -2.2f, -2.5f),
+        // glm::vec3(-3.8f, -2.0f, -12.3f),
+        // glm::vec3( 2.4f, -0.4f, -3.5f),
+        // glm::vec3(-1.7f,  3.0f, -7.5f),
+        // glm::vec3( 1.3f, -2.0f, -2.5f),
+        // glm::vec3( 1.5f,  2.0f, -2.5f),
+        // glm::vec3( 1.5f,  0.2f, -1.5f),
+        // glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
     glm::vec3 size{1.f, 1.f, 1.f};
-
+    glm::vec3 objectColor{1.0f, 0.5f, 0.31f};
+    glm::vec3 colorLigth{1.0f, 1.0f, 1.0f};
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.3f, 0.45f, 0.3f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        
+
         for (const auto& cube_pos : cube_positions) {
+            render->SetLigth(colorLigth, objectColor);
             render->Draw(cube_pos, size, AxisRotate::AXIS_Y, 34.f);
         }
     

@@ -74,6 +74,7 @@ public:
     void InitRenderText();
     void Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate);
     void Draw(const glm::vec3& position, const glm::vec3& size, AxisRotate axis, GLfloat rotate);
+    void SetLigth(glm::vec3 ligthColor, glm::vec3 objectColor);
     void DrawText(std::string text, float x, float y, float scale, glm::vec3 color);
     void SetOrthoProjection(float left, float right, float bottom, float top, float zNear, float zFar);
     void SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far);
