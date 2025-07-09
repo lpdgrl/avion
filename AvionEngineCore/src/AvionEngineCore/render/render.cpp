@@ -39,18 +39,62 @@ void Render::InitRender() {
     // };
 
     float vertices_objects[] = {
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
-       -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
-       -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.f
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+
+        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f
     };
+
+    // float vertices_objects[] = {
+    //     -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,
+    //     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
+    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
+    //    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
+    //    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.f
+    // };
     
-    unsigned int indices_objects[] = {
-        0, 1, 3,
-        0, 3, 2
-    }; 
+    // unsigned int indices_objects[] = {
+    //     0, 1, 3,
+    //     0, 3, 2
+    // }; 
 
     //  unsigned int indices_objects[] = {
     //     0, 1, 3,
@@ -67,7 +111,7 @@ void Render::InitRender() {
     BufferData(GL_ARRAY_BUFFER, sizeof(vertices_objects), vertices_objects, GL_DYNAMIC_DRAW);
 
     BindBuffer(GL_ELEMENT_ARRAY_BUFFER, GetEBO(MapKey::OBJECTS));
-    BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_objects), indices_objects, GL_DYNAMIC_DRAW);
+    // BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_objects), indices_objects, GL_DYNAMIC_DRAW);
 
     // Attribute of position player
     EnableVertexAttribArray(0);

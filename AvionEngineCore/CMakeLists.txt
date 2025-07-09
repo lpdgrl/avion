@@ -8,11 +8,6 @@ find_package(glfw3 REQUIRED)
 SET(CMAKE_EXE_LINKER_FLAGS "-v")
 
 add_library(${ENGINE_PROJECT_NAME} SHARED
-    includes/AvionEngineCore/logger/logger.hpp
-    includes/AvionEngineCore/render/render.hpp
-    includes/AvionEngineCore/render/text_rendering.hpp
-    includes/AvionEngineCore/render/shader.hpp
-    includes/AvionEngineCore/controller/controller.hpp
     src/AvionEngineCore/logger/logger.cpp
     src/AvionEngineCore/render/render.cpp
     src/AvionEngineCore/render/text_rendering.cpp
