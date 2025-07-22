@@ -22,6 +22,7 @@ enum class TypeBuffers {
 enum class MapKey {
     OBJECTS = 0,
     TEXT = 1,
+    LIGHT = 2
 };
 
 enum class AxisRotate {
@@ -49,6 +50,8 @@ public:
 
     ~Render() {
         delete shader_;
+        delete shader_text_;
+        delete shader_ligth_;
     }
 
     inline GLFWwindow* GetWindow() const { return window_; }
@@ -61,8 +64,6 @@ public:
     inline GLuint GetVAO(MapKey key) const { return vao_.at(key); }
     inline GLuint GetEBO(MapKey key) const { return ebo_.at(key); }
 
-    inline Shader* GetShaderPointer() const { return shader_; }
-
     inline unsigned int GetWindowWidth() const { return scr_width_; }
     inline unsigned int GetWindowHeight() const { return scr_height_; }
 
@@ -73,11 +74,14 @@ public:
     void InitRender();
     void InitRenderText();
     void Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate);
-    void Draw(const glm::vec3& position, const glm::vec3& size, AxisRotate axis, GLfloat rotate);
-    void SetLigth(glm::vec3 ligthColor, glm::vec3 objectColor);
+    void Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, 
+        AxisRotate axis, GLfloat rotate, MapKey key);
+    void SetLigth(Shader* shader, glm::vec3& colorLigth, glm::vec3& objectColor);
     void DrawText(std::string text, float x, float y, float scale, glm::vec3 color);
     void SetOrthoProjection(float left, float right, float bottom, float top, float zNear, float zFar);
     void SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far);
+
+    Shader* GetShaderPtr(std::string name) const;
 
 private:
     GLFWwindow* CreateWindow(const char* nw, unsigned int scr_w, unsigned int scr_h);
@@ -100,6 +104,7 @@ private:
 private:
     Shader* shader_;
     Shader* shader_text_;
+    Shader* shader_ligth_;
 
     TypeBuffers type_buffers_;
 
@@ -121,6 +126,10 @@ private:
     // TODO: Хранить путь к шейдерам в классе рендера неправильно!
     const char* PATH_TO_VERTEX_SHADER_TEXT = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/text.vs";
     const char* PATH_TO_FRAGMENT_SHADER_TEXT = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/text.fs";
+
+     // TODO: Хранить путь к шейдерам в классе рендера неправильно!
+     const char* PATH_TO_VERTEX_SHADER_LIGTH = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/ligth_shader.vs";
+     const char* PATH_TO_FRAGMENT_SHADER_LIGTH = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/ligth_shader.fs";
 
     // TODO: Хранение пути в внутри классе рендера неправильно!
     const char* PATH_TO_FONT = "/home/lpdgrl/Project/code/avion/AvionEngineCore/data/fonts/dejavusans.ttf";

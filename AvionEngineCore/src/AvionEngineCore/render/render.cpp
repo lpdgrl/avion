@@ -17,6 +17,8 @@ void Render::InitWindow() {
 
     shader_ = new Shader(PATH_TO_FILE_VERTEX_SHADER, PATH_TO_FILE_FRAGMENT_SHADER);
     shader_text_ = new Shader(PATH_TO_VERTEX_SHADER_TEXT, PATH_TO_FRAGMENT_SHADER_TEXT);
+    shader_ligth_ = new Shader(PATH_TO_VERTEX_SHADER_LIGTH, PATH_TO_FRAGMENT_SHADER_LIGTH);
+
     text_ = new TextRender(PATH_TO_FONT);
     text_->Initialaztion();
 }
@@ -38,48 +40,92 @@ void Render::InitRender() {
     //     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f   // top left 
     // };
 
+    // float vertices_objects[] = {
+    //     -0.5f, -0.5f, -0.5f,
+    //      0.5f, -0.5f, -0.5f,
+    //      0.5f,  0.5f, -0.5f,
+    //      0.5f,  0.5f, -0.5f,
+    //     -0.5f,  0.5f, -0.5f,
+    //     -0.5f, -0.5f, -0.5f,
+
+    //     -0.5f, -0.5f,  0.5f,
+    //      0.5f, -0.5f,  0.5f,
+    //      0.5f,  0.5f,  0.5f,
+    //      0.5f,  0.5f,  0.5f, 
+    //     -0.5f,  0.5f,  0.5f, 
+    //     -0.5f, -0.5f,  0.5f,
+
+    //     -0.5f,  0.5f,  0.5f,
+    //     -0.5f,  0.5f, -0.5f,
+    //     -0.5f, -0.5f, -0.5f,
+    //     -0.5f, -0.5f, -0.5f,
+    //     -0.5f, -0.5f,  0.5f,
+    //     -0.5f,  0.5f,  0.5f,
+
+    //      0.5f,  0.5f,  0.5f,
+    //      0.5f,  0.5f, -0.5f,
+    //      0.5f, -0.5f, -0.5f,
+    //      0.5f, -0.5f, -0.5f,
+    //      0.5f, -0.5f,  0.5f,
+    //      0.5f,  0.5f,  0.5f,
+
+    //     -0.5f, -0.5f, -0.5f,
+    //      0.5f, -0.5f, -0.5f,
+    //      0.5f, -0.5f,  0.5f,
+    //      0.5f, -0.5f,  0.5f,
+    //     -0.5f, -0.5f,  0.5f,
+    //     -0.5f, -0.5f, -0.5f,
+
+    //     -0.5f,  0.5f, -0.5f,
+    //      0.5f,  0.5f, -0.5f, 
+    //      0.5f,  0.5f,  0.5f,
+    //      0.5f,  0.5f,  0.5f, 
+    //     -0.5f,  0.5f,  0.5f,
+    //     -0.5f,  0.5f, -0.5f,
+    // };
+
     float vertices_objects[] = {
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-
-        -0.5f, -0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f, -0.5f,  0.5f,
-
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-
-         0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
-
-        -0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f, 
-         0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+    
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+    
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
     // float vertices_objects[] = {
@@ -135,31 +181,36 @@ void Render::InitRender() {
     //    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.f
     // };
     
-    // unsigned int indices_objects[] = {
-    //     0, 1, 3,
-    //     0, 3, 2
-    // }; 
-
-    //  unsigned int indices_objects[] = {
-    //     0, 1, 3,
-    //     1, 2, 3
-    // }; 
-    
     //Buffers for objects
     GenerateBuffer(1, TypeBuffers::VAO, MapKey::OBJECTS);
     GenerateBuffer(1, TypeBuffers::VBO, MapKey::OBJECTS);
-    GenerateBuffer(1, TypeBuffers::EBO, MapKey::OBJECTS);
+
+    BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::OBJECTS));
+    BufferData(GL_ARRAY_BUFFER, sizeof(vertices_objects), vertices_objects, GL_STATIC_DRAW);
 
     BindVertexArray(GetVAO(MapKey::OBJECTS));
-    BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::OBJECTS));
-    BufferData(GL_ARRAY_BUFFER, sizeof(vertices_objects), vertices_objects, GL_DYNAMIC_DRAW);
 
-    BindBuffer(GL_ELEMENT_ARRAY_BUFFER, GetEBO(MapKey::OBJECTS));
+    // BindBuffer(GL_ELEMENT_ARRAY_BUFFER, GetEBO(MapKey::OBJECTS));
     // BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_objects), indices_objects, GL_DYNAMIC_DRAW);
 
     // Attribute of position player
-    SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
     EnableVertexAttribArray(0);
+
+    // Normal attribute
+    SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    EnableVertexAttribArray(1);
+    BindVertexArray(0);
+
+    // Create VAO and set vertex attrib for Ligth
+    GenerateBuffer(1, TypeBuffers::VAO, MapKey::LIGHT);
+    BindVertexArray(GetVAO(MapKey::LIGHT));
+
+    BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::OBJECTS));
+    SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    EnableVertexAttribArray(0);
+    BindVertexArray(0);
+
     // // Attribute of color player
     // EnableVertexAttribArray(1);
     // SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -270,15 +321,19 @@ void Render::SetPerspectiveProjection(float fov, unsigned int width, unsigned in
     shader_->setMat4("projection", projection_matrix);
     BindVertexArray(GetVAO(MapKey::OBJECTS));
 
+    shader_ligth_->use();
+    shader_ligth_->setMat4("projection", projection_matrix);
+    BindVertexArray(GetVAO(MapKey::OBJECTS));
+
     shader_text_->use();
     glUniformMatrix4fv(glGetUniformLocation(shader_text_->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection_matrix));
     BindVertexArray(GetVAO(MapKey::TEXT));
 }
 
-void Render::SetLigth(glm::vec3 ligthColor, glm::vec3 objectColor) {
-    shader_->use();
-    shader_->setVec3("objectColor", objectColor);
-    shader_->setVec3("lightColor", ligthColor);
+void Render::SetLigth(Shader* shader, glm::vec3& colorLigth, glm::vec3& objectColor) {
+    shader->use();
+    shader->setVec3("objectColor", objectColor);
+    shader->setVec3("ligthColor", colorLigth);
 }
 
 void Render::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate) {
@@ -300,9 +355,9 @@ void Render::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate a
     
 }
 
-void Render::Draw(const glm::vec3& position, const glm::vec3& size, AxisRotate axis, GLfloat rotate) {
-    // shader_->use();
-    // BindVertexArray(GetVAO(MapKey::OBJECTS));
+void Render::Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, AxisRotate axis, 
+                    GLfloat rotate, MapKey key) {
+    shader->use();
 
     glm::mat4 model_matrix = glm::mat4(1.f);
 
@@ -313,12 +368,13 @@ void Render::Draw(const glm::vec3& position, const glm::vec3& size, AxisRotate a
     glm::mat4 view_matrix = glm::mat4(1.f);
     view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
 
-    shader_->setMat4("model", model_matrix);
-    shader_->setMat4("view", view_matrix);
+    shader->setMat4("model", model_matrix);
+    shader->setMat4("view", view_matrix);
 
-    BindVertexArray(GetVAO(MapKey::OBJECTS));
+    BindVertexArray(GetVAO(key));
     //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+    BindVertexArray(0);
 
 }
 
@@ -404,4 +460,16 @@ glm::mat4 Render::ScaleMatrix(glm::mat4& model, const glm::vec2& size) {
 
 glm::mat4 Render::ScaleMatrix(glm::mat4& model, const glm::vec3& size) {
     return glm::scale(model, glm::vec3(size));
+}
+
+Shader* Render::GetShaderPtr(std::string name) const {
+    if (name == "object") {
+        return shader_;
+    }
+
+    else if (name == "ligth") {
+        return shader_ligth_;
+    }
+    
+    return nullptr;
 }

@@ -16,12 +16,12 @@ int main() {
     render->InitRenderText();
 
     GLFWwindow* window = render->GetWindow();
-    render->SetPerspectiveProjection(45.f, SCR_WIDTH, SCR_HEIGHT, 0.1f, 100.f);
+    render->SetPerspectiveProjection(45.f, SCR_WIDTH, SCR_HEIGHT, 0.1f, 50.f);
 
     std::cout << "Test Engine" << std::endl;
 
-    std::array<glm::vec3, 2> cube_positions {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
+    std::array<glm::vec3, 1> cube_positions {
+        glm::vec3(0.0f,  -0.8f,  0.0f),
         // glm::vec3( 2.0f,  5.0f, -15.0f),
         // glm::vec3(-1.5f, -2.2f, -2.5f),
         // glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -32,20 +32,41 @@ int main() {
         // glm::vec3( 1.5f,  0.2f, -1.5f),
         // glm::vec3(-1.3f,  1.0f, -1.5f)
     };
-
+    
+    glm::vec3 cube_pos{0.f, -0.8f, 0.f};
     glm::vec3 size{1.f, 1.f, 1.f};
+    glm::vec3 size_other{0.5f, 0.5f, 0.5f};
     glm::vec3 objectColor{1.0f, 0.5f, 0.31f};
     glm::vec3 colorLigth{1.0f, 1.0f, 1.0f};
+    glm::vec3 ligth_position{-1.3f,  -0.5f, -1.f};
+
+    Shader* shader = render->GetShaderPtr("object");
+    Shader* shader_ligth = render->GetShaderPtr("ligth");
+    
+    GLfloat delta_time = 0.f;
+    GLfloat last_frame = 0.f;
+    
     while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.3f, 0.45f, 0.3f, 1.f);
+
+        GLfloat current_frame = glfwGetTime();
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
+
+        ligth_position.x += sin(glfwGetTime()) * delta_time * 0.5f;
+        ligth_position.y += sin(glfwGetTime()) * delta_time * 0.5f;
+        ligth_position.z += sin(glfwGetTime()) * delta_time * 2.5f;
+
+
+        glClearColor(0.2f, 0.2f, 0.2f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        render->SetLigth(shader, colorLigth, objectColor);
         
+        shader->setVec3("ligthPos", ligth_position);
 
-        for (const auto& cube_pos : cube_positions) {
-            render->SetLigth(colorLigth, objectColor);
-            render->Draw(cube_pos, size, AxisRotate::AXIS_Y, 34.f);
-        }
+        render->Draw(shader, cube_pos, size, AxisRotate::AXIS_Y, sin(glfwGetTime()) * 50.f, MapKey::OBJECTS);
+        render->Draw(shader_ligth, ligth_position, size_other, AxisRotate::AXIS_X, 10.f, MapKey::LIGHT);
+
     
         glfwSwapBuffers(window);
         glfwPollEvents();
