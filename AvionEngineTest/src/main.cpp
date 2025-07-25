@@ -39,6 +39,7 @@ int main() {
     glm::vec3 objectColor{1.0f, 0.5f, 0.31f};
     glm::vec3 colorLigth{1.0f, 1.0f, 1.0f};
     glm::vec3 ligth_position{-1.3f,  -0.5f, -1.f};
+    glm::vec3 view_pos{0.f, 0.f, 0.f};
 
     Shader* shader = render->GetShaderPtr("object");
     Shader* shader_ligth = render->GetShaderPtr("ligth");
@@ -63,6 +64,7 @@ int main() {
         render->SetLigth(shader, colorLigth, objectColor);
         
         shader->setVec3("ligthPos", ligth_position);
+        shader->setVec3("view_pos", view_pos);
 
         render->Draw(shader, cube_pos, size, AxisRotate::AXIS_Y, sin(glfwGetTime()) * 50.f, MapKey::OBJECTS);
         render->Draw(shader_ligth, ligth_position, size_other, AxisRotate::AXIS_X, 10.f, MapKey::LIGHT);
