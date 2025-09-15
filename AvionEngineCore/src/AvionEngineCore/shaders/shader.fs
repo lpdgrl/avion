@@ -18,6 +18,7 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 ligthDir = normalize(ligthPos - FragPos);
 
+    vec3 view_dir = normalize(view_pos - FragPos);
     vec3 reflect_dir = reflect(-ligthDir, norm);
 
     // Diffuse ligth
@@ -29,7 +30,7 @@ void main()
     vec3 ambient = ambientStrength * ligthColor;
 
     // Specular ligth
-    float spec = pow(max(dot(view_dir, reflect_dir), 0.0f), 32);
+    float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
     vec3 specular = specular_strength * spec * ligthColor;
 
     vec3 result = (ambient + diffuse + specular) * objectColor;
