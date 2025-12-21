@@ -10,6 +10,7 @@ void Render::InitWindow() {
     window_ = CreateWindow(name_window_, scr_width_, scr_height_);
 
     glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
+    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -21,6 +22,49 @@ void Render::InitWindow() {
 
     text_ = new TextRender(PATH_TO_FONT);
     text_->Initialaztion();
+
+    InitCamera();
+
+    glfwSetWindowUserPointer(window_, &controller_);
+    glfwSetCursorPosCallback(window_, Controller::MouseCallback);
+    glfwSetCursorPos(window_, scr_width_, scr_height_ / 2);
+}
+
+void Render::InitCamera() {
+    glm::vec3 camera_pos    = glm::vec3(0.0f, 0.0f, 10.0f);
+    // glm::vec3 camera_front  = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 camera_up     = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    camera_ = new Camera(camera_pos, camera_up);
+}
+
+void Render::ProcessInputs() {
+    controller_.KeyPressed(window_);
+}
+
+void Render::UpdateCoordinatesCamera(GLfloat delta_time) {
+    const auto& state_pressed = controller_.GetPressKeys();
+
+    size_t key_w = GLFW_KEY_W;
+    size_t key_s = GLFW_KEY_S;
+    size_t key_a = GLFW_KEY_A;
+    size_t key_d = GLFW_KEY_D;
+    
+    if (state_pressed[key_w]) {
+        camera_->ProcessKeyboard(CameraMovement::FORWARD, delta_time);
+    }
+    if (state_pressed[key_a]) {
+        camera_->ProcessKeyboard(CameraMovement::LEFT, delta_time);
+    }
+    if (state_pressed[key_d]) {
+        camera_->ProcessKeyboard(CameraMovement::RIGHT, delta_time);
+    }
+    if (state_pressed[key_s]) {
+        camera_->ProcessKeyboard(CameraMovement::BACKWARD, delta_time);
+    }
+
+    auto [xoffset, yoffset] = controller_.GetOffset();
+    camera_->ProcessMouseMovement(xoffset, yoffset);
 }
 
 void Render::InitRender() {
@@ -360,14 +404,15 @@ void Render::Draw(Shader* shader, const glm::vec3& position, const glm::vec3& si
     shader->use();
 
     glm::mat4 model_matrix = glm::mat4(1.f);
-
     model_matrix = TranslateMatrix(model_matrix, position);
     model_matrix = RotateMatrix(model_matrix, axis, rotate);
     model_matrix = ScaleMatrix(model_matrix, size);
 
     glm::mat4 view_matrix = glm::mat4(1.f);
-    view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
+    // view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
 
+    view_matrix = camera_->GetViewMatrix();
+    
     shader->setMat4("model", model_matrix);
     shader->setMat4("view", view_matrix);
 

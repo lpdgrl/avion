@@ -26,6 +26,6 @@ public:
 
 private:
     Logger() {}
-    inline static Logger* logger_;
+    inline static Logger* logger_ = nullptr;
     inline static std::vector<std::pair<std::string, std::string>> log_array_;
 };
