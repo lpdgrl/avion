@@ -1,7 +1,7 @@
-#include <iostream>
 #include <cstdlib> 
 #include <array>
 
+#include "AvionEngineCore/render/scene.hpp"
 #include "AvionEngineCore/render/render.hpp"
 
 const unsigned int SCR_WIDTH = 800;
@@ -13,6 +13,8 @@ int main() {
 
     Render* render = new Render(name_window, SCR_WIDTH, SCR_HEIGHT);
 
+    Scene scene(20);
+
     render->InitWindow();
     render->InitRender();
     render->InitRenderText();
@@ -20,21 +22,18 @@ int main() {
     GLFWwindow* window = render->GetWindow();
     render->SetPerspectiveProjection(45.f, SCR_WIDTH, SCR_HEIGHT, 0.1f, 50.f);
 
-    std::array<glm::vec3, 10> cube_positions {
-        glm::vec3(0.0f,  -0.8f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
+    glm::vec3 sz{1.f, 1.f, 1.f};
+    scene.AddObjectToScene(glm::vec3(0.0f,  -0.8f,  0.0f), sz);
+    scene.AddObjectToScene(glm::vec3(2.0f,  5.0f, -15.0f), sz);
+    scene.AddObjectToScene(glm::vec3(-1.5f, -2.2f, -2.5f), sz);
+    scene.AddObjectToScene(glm::vec3(-3.8f, -2.0f, -12.3f), sz);
+    scene.AddObjectToScene(glm::vec3( 2.4f, -0.4f, -3.5f), sz);
+    scene.AddObjectToScene(glm::vec3(-1.7f,  3.0f, -7.5f), sz);
+    scene.AddObjectToScene(glm::vec3( 1.3f, -2.0f, -2.5f), sz);
+    scene.AddObjectToScene(glm::vec3( 1.5f,  2.0f, -2.5f), sz);
+    scene.AddObjectToScene(glm::vec3( 1.5f,  0.2f, -1.5f), sz);
+    scene.AddObjectToScene(glm::vec3(-1.3f,  1.0f, -1.5f), sz);
     
-    glm::vec3 cube_pos{0.f, -0.8f, 0.f};
-    glm::vec3 size{1.f, 1.f, 1.f};
     glm::vec3 size_other{0.5f, 0.5f, 0.5f};
     glm::vec3 objectColor{1.0f, 0.5f, 0.31f};
     glm::vec3 colorLigth{1.0f, 1.0f, 1.0f};
@@ -69,8 +68,10 @@ int main() {
         shader->setVec3("ligthPos", ligth_position);
         shader->setVec3("view_pos", view_pos);
 
-        for (const auto& cube : cube_positions) {
-            render->Draw(shader, cube, size, AxisRotate::AXIS_Y, sin(glfwGetTime()) * 50.f, MapKey::OBJECTS);
+        for (const auto& object : scene.GetAllObjects()) {
+            auto position = object.GetPosition().position;
+            auto size = object.GetSize().size;
+            render->Draw(shader, position, size, AxisRotate::AXIS_Y, sin(glfwGetTime()) * 50.f, MapKey::OBJECTS);
         }
         render->Draw(shader_ligth, ligth_position, size_other, AxisRotate::AXIS_X, 10.f, MapKey::LIGHT);
 

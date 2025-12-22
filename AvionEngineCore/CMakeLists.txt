@@ -13,6 +13,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/render/text_rendering.cpp
     src/AvionEngineCore/render/shader.cpp
     src/AvionEngineCore/render/camera.cpp
+    src/AvionEngineCore/render/scene.cpp
+    src/AvionEngineCore/render/object.cpp
     src/AvionEngineCore/controller/controller.cpp
     src/AvionEngineCore/external/glad.c
 )
