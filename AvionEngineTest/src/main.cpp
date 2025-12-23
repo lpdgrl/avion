@@ -1,6 +1,8 @@
 #include <cstdlib> 
 #include <array>
 
+
+#include "AvionEngineCore/render/gui.hpp"
 #include "AvionEngineCore/render/scene.hpp"
 #include "AvionEngineCore/render/render.hpp"
 
@@ -46,9 +48,23 @@ int main() {
     GLfloat delta_time = 0.f;
     GLfloat last_frame = 0.f;
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         render->ProcessInputs();
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow();
 
         GLfloat current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
@@ -75,8 +91,15 @@ int main() {
         }
         render->Draw(shader_ligth, ligth_position, size_other, AxisRotate::AXIS_X, 10.f, MapKey::LIGHT);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     return 0;
 }

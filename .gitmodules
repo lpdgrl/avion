@@ -1,0 +1,3 @@
+[submodule "AvionEngineCore/libs/imgui"]
+	path = AvionEngineCore/libs/imgui
+	url = https://github.com/ocornut/imgui.git
