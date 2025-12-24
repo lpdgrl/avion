@@ -10,7 +10,8 @@ void Render::InitWindow() {
     window_ = CreateWindow(name_window_, scr_width_, scr_height_);
 
     glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
-    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    // glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);

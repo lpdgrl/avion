@@ -23,6 +23,8 @@ int main() {
 
     GLFWwindow* window = render->GetWindow();
     render->SetPerspectiveProjection(45.f, SCR_WIDTH, SCR_HEIGHT, 0.1f, 50.f);
+    
+    ImGui::CreateContext();
 
     glm::vec3 sz{1.f, 1.f, 1.f};
     scene.AddObjectToScene(glm::vec3(0.0f,  -0.8f,  0.0f), sz);
@@ -48,23 +50,14 @@ int main() {
     GLfloat delta_time = 0.f;
     GLfloat last_frame = 0.f;
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init();
-
+    Gui gui(window);
+    gui.Init();
+ 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         render->ProcessInputs();
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
+        gui.Frame();
 
         GLfloat current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
@@ -91,15 +84,11 @@ int main() {
         }
         render->Draw(shader_ligth, ligth_position, size_other, AxisRotate::AXIS_X, 10.f, MapKey::LIGHT);
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        gui.CustomWindow();
+        gui.Render();
 
         glfwSwapBuffers(window);
     }
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
+    gui.CleanUp();
     return 0;
 }
