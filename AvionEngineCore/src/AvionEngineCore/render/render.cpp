@@ -39,6 +39,14 @@ void Render::InitCamera() {
     camera_ = new Camera(camera_pos, camera_up);
 }
 
+void Render::Update() {
+    if (cursor_state_) {
+        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    } else if (!cursor_state_) {
+        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+}
+
 void Render::ProcessInputs() {
     controller_.KeyPressed(window_);
 }
@@ -50,6 +58,7 @@ void Render::UpdateCoordinatesCamera(GLfloat delta_time) {
     size_t key_s = GLFW_KEY_S;
     size_t key_a = GLFW_KEY_A;
     size_t key_d = GLFW_KEY_D;
+    size_t key_h = GLFW_KEY_H;
     
     if (state_pressed[key_w]) {
         camera_->ProcessKeyboard(CameraMovement::FORWARD, delta_time);
@@ -64,8 +73,14 @@ void Render::UpdateCoordinatesCamera(GLfloat delta_time) {
         camera_->ProcessKeyboard(CameraMovement::BACKWARD, delta_time);
     }
 
-    auto [xoffset, yoffset] = controller_.GetOffset();
-    camera_->ProcessMouseMovement(xoffset, yoffset);
+    if (!cursor_state_) {
+        auto [xoffset, yoffset] = controller_.GetOffset();
+        camera_->ProcessMouseMovement(xoffset, yoffset);
+    }
+
+    if (state_pressed[key_h]) {
+        cursor_state_ = cursor_state_ ? false : true;
+    }    
 }
 
 void Render::InitRender() {

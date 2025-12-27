@@ -27,16 +27,17 @@ int main() {
     ImGui::CreateContext();
 
     glm::vec3 sz{1.f, 1.f, 1.f};
-    scene.AddObjectToScene(glm::vec3(0.0f,  -0.8f,  0.0f), sz);
-    scene.AddObjectToScene(glm::vec3(2.0f,  5.0f, -15.0f), sz);
-    scene.AddObjectToScene(glm::vec3(-1.5f, -2.2f, -2.5f), sz);
-    scene.AddObjectToScene(glm::vec3(-3.8f, -2.0f, -12.3f), sz);
-    scene.AddObjectToScene(glm::vec3( 2.4f, -0.4f, -3.5f), sz);
-    scene.AddObjectToScene(glm::vec3(-1.7f,  3.0f, -7.5f), sz);
-    scene.AddObjectToScene(glm::vec3( 1.3f, -2.0f, -2.5f), sz);
-    scene.AddObjectToScene(glm::vec3( 1.5f,  2.0f, -2.5f), sz);
-    scene.AddObjectToScene(glm::vec3( 1.5f,  0.2f, -1.5f), sz);
-    scene.AddObjectToScene(glm::vec3(-1.3f,  1.0f, -1.5f), sz);
+    glm::vec3 clr{0.f, 0.f, 0.f};
+    // scene.AddObjectToScene(glm::vec3(0.0f,  -0.8f,  0.0f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3(2.0f,  5.0f, -15.0f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3(-1.5f, -2.2f, -2.5f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3(-3.8f, -2.0f, -12.3f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3( 2.4f, -0.4f, -3.5f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3(-1.7f,  3.0f, -7.5f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3( 1.3f, -2.0f, -2.5f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3( 1.5f,  2.0f, -2.5f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3( 1.5f,  0.2f, -1.5f), sz, clr);
+    // scene.AddObjectToScene(glm::vec3(-1.3f,  1.0f, -1.5f), sz, clr);
     
     glm::vec3 size_other{0.5f, 0.5f, 0.5f};
     glm::vec3 objectColor{1.0f, 0.5f, 0.31f};
@@ -52,7 +53,13 @@ int main() {
 
     Gui gui(window);
     gui.Init();
- 
+
+    glm::vec3 color;
+    glm::vec3 position;
+    glm::vec3 size;
+
+    bool state_button_addobject = false;
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         render->ProcessInputs();
@@ -64,6 +71,7 @@ int main() {
         last_frame = current_frame;
         
         render->UpdateCoordinatesCamera(delta_time);
+        render->Update();
 
         ligth_position.x += sin(glfwGetTime()) * delta_time * 0.5f;
         ligth_position.y += sin(glfwGetTime()) * delta_time * 0.5f;
@@ -72,19 +80,30 @@ int main() {
         glClearColor(0.2f, 0.2f, 0.2f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        render->SetLigth(shader, colorLigth, objectColor);
+        gui.WindowAddObject(position, size, color, state_button_addobject);
+        gui.WindowLigthColor(colorLigth);
+
+        std::cout << "Result button: " << state_button_addobject << '\n';
         
-        shader->setVec3("ligthPos", ligth_position);
-        shader->setVec3("view_pos", view_pos);
+        if (state_button_addobject) {
+            scene.AddObjectToScene(position, size, color);
+        }
 
         for (const auto& object : scene.GetAllObjects()) {
             auto position = object.GetPosition().position;
             auto size = object.GetSize().size;
+            auto cube_color = object.GetColor().color;
+
+            render->SetLigth(shader, colorLigth, cube_color);
+            shader->setVec3("ligthPos", ligth_position);
+            shader->setVec3("view_pos", view_pos);
+
             render->Draw(shader, position, size, AxisRotate::AXIS_Y, sin(glfwGetTime()) * 50.f, MapKey::OBJECTS);
         }
+        
+        shader_ligth->setVec3("ligthColor", colorLigth);
         render->Draw(shader_ligth, ligth_position, size_other, AxisRotate::AXIS_X, 10.f, MapKey::LIGHT);
 
-        gui.CustomWindow();
         gui.Render();
 
         glfwSwapBuffers(window);

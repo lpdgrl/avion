@@ -1,4 +1,4 @@
-#include "../includes/AvionEngineCore/render/gui.hpp"
+#include "AvionEngineCore/render/gui.hpp"
 
 Gui::Gui(GLFWwindow* window): window_(window), io_(ImGui::GetIO()) {}
 
@@ -30,11 +30,20 @@ void Gui::CleanUp() {
     ImGui::DestroyContext();
 }
 
-void Gui::CustomWindow() {
-    ImGui::Begin("Hello, world!");
-    bool is_checked = false;
-    ImGui::Text("This text");
-    ImGui::Checkbox("Window", &is_checked);
-    ImGui::Button("Button");
+void Gui::WindowLigthColor(glm::vec3& color) const {
+    ImGui::Begin("Color source light");
+    ImGui::Text("Settings color");
+    ImGui::ColorEdit3("Color ligth", (float*)(&color));
+    ImGui::End();
+}
+
+void Gui::WindowAddObject(glm::vec3& position, glm::vec3& size, glm::vec3& color, bool& state_button) const {
+    ImGui::Begin("Object");
+    ImGui::Text("Settings object");
+    ImGui::ColorEdit3("Color", (float*)(&color));
+    ImGui::Text("x            y             z");
+    ImGui::InputFloat3("Position object",(float*)(&position));
+    ImGui::InputFloat3("Size object", (float*)(&size));
+    state_button = ImGui::Button("Add Object");
     ImGui::End();
 }   

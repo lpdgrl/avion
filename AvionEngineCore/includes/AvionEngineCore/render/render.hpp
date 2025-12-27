@@ -85,6 +85,7 @@ public:
     void ProcessInputs();
     void UpdateCoordinatesCamera(GLfloat delta_time);
     Shader* GetShaderPtr(std::string name) const;
+    void Update();
 
 private:
     void InitCamera();
@@ -126,6 +127,8 @@ private:
     std::map<MapKey, GLuint> ebo_;
 
     TextRender* text_;
+
+    bool cursor_state_ = false;
 
     // TODO: Хранить путь к шейдерам в классе рендера неправильно!
     const char* PATH_TO_FILE_VERTEX_SHADER = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/shader.vs";

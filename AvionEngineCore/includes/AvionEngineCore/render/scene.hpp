@@ -19,7 +19,7 @@ public:
 
     ~Scene() = default;
 
-    void AddObjectToScene(Position pos, Size sz);
+    void AddObjectToScene(Position pos, Size sz, Color color);
     const Objects& GetAllObjects() const;
     size_t GetNumberObjects() const;
 

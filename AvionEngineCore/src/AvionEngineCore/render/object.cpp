@@ -1,13 +1,13 @@
 #include "../../../includes/AvionEngineCore/render/object.hpp"
 
-Object::Object(Position position, Size size): position_(position), size_(size) {
+Object::Object(Position position, Size size, Color color): position_(position), size_(size), color_(color) {
     std::cout << "Object ctor " << position_ << '\n';
 }
 
-Object::Object(const Object& object): position_(object.position_), size_(object.size_) {
+Object::Object(const Object& object): position_(object.position_), size_(object.size_), color_(object.color_) {
     std::cout << "Object ctor copy " << position_  << '\n';
 }
-Object::Object(Object&& object): position_(object.position_), size_(object.size_) {
+Object::Object(Object&& object): position_(object.position_), size_(object.size_), color_(object.color_) {
     std::cout << "Object ctor move " << position_ <<  '\n';
 }
 
@@ -15,6 +15,7 @@ Object& Object::operator=(const Object& object) {
     if (this != &object) {
         position_ = object.position_;
         size_ = object.size_;
+        color_ = object.color_;
     }
     std::cout << "Object copy assingment " << position_  <<  '\n';    
     return *this; 
@@ -23,6 +24,7 @@ Object& Object::operator=(Object&& object) {
     if (this != &object) {
         position_ = object.position_;
         size_ = object.size_;
+        color_ = object.color_;
     }
     std::cout << "Object move assingment " << position_ << '\n';
     return *this; 
@@ -38,6 +40,10 @@ Position Object::GetPosition() const {
 
 Size Object::GetSize() const {
     return size_; 
+}
+
+Color Object::GetColor() const {
+    return color_;
 }
 
 std::ostream& operator<<(std::ostream& out, Size size) {
