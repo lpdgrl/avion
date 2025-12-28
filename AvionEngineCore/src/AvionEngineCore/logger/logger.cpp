@@ -1,6 +1,6 @@
 #include "AvionEngineCore/logger/logger.hpp"
 
-void Logger::Log(Render* render, float x, float y, float scale, glm::vec3 color) {
+void Logger::Log(Renderer* render, float x, float y, float scale, glm::vec3 color) {
     bool first = true;
     float offset = 10.f;
 

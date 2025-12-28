@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "../render/render.hpp"
+#include "../render/renderer.hpp"
 
 class Logger {
 
@@ -18,7 +18,7 @@ public:
         return logger_;
     }
 
-    static void Log(Render* render, float x, float y, float scale, glm::vec3 color);
+    static void Log(Renderer* render, float x, float y, float scale, glm::vec3 color);
     static void InitLogArray(std::vector<std::string>& vec);
     static std::vector<std::pair<std::string, std::string>>& GetLogArray();  
     static void UpdateDataLog(std::vector<std::string>& data_to_log);

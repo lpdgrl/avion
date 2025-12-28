@@ -20,6 +20,7 @@ void Controller::MouseCallback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 void Controller::OnMouseMove(double xpos, double ypos) {
+    // std::cout << "xpos: " << xpos << " ypos: " << ypos << '\n';
     xoffset_ = xpos - last_xpos_cursor_;
     yoffset_ = last_ypos_cursor_ - ypos;
 

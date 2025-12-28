@@ -3,6 +3,7 @@
 #include "glfw/glfw3.h"
 
 #include <array>
+#include <iostream>
 
 static const unsigned int SIZE_ARRAY_KEYS = 512;
 

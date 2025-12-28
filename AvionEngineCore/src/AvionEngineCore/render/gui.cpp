@@ -1,7 +1,11 @@
 #include "AvionEngineCore/render/gui.hpp"
+#include "AvionEngineCore/render/object.hpp"
 
 Gui::Gui(GLFWwindow* window): window_(window), io_(ImGui::GetIO()) {}
-
+Gui::~Gui() {
+    CleanUp();
+    std::cout << "Gui is destroyed" << '\n';
+}
 void Gui::Init() {
     IMGUI_CHECKVERSION();
     io_.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -47,3 +51,17 @@ void Gui::WindowAddObject(glm::vec3& position, glm::vec3& size, glm::vec3& color
     state_button = ImGui::Button("Add Object");
     ImGui::End();
 }   
+
+void Gui::WindowListObjects(const std::vector<ObjectId>& objects) const {
+    ImGui::Begin("Objects");
+    ImVec2 listbox_size(200.0f, ImGui::GetTextLineHeightWithSpacing() * objects.size());
+    ImGui::BeginListBox("Objects", listbox_size);
+    for (const auto& object : objects) {
+        std::string num(std::to_string(object.id));
+        std::string str("id");
+        str +=' ' + num;
+        ImGui::Selectable(str.c_str());
+    }
+    ImGui::EndListBox();
+    ImGui::End();
+}

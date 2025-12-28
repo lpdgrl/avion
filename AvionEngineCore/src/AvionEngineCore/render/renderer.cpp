@@ -1,22 +1,26 @@
-#include "AvionEngineCore/render/render.hpp"
+#include "AvionEngineCore/render/renderer.hpp"
+#include "AvionEngineCore/render/window.hpp"
 
-void Render::InitWindow() {
-    glfwInit();
+Renderer::Renderer(Window* window): window_(window) {}
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+Renderer::~Renderer() {
+    delete shader_;
+    delete shader_text_;
+    delete shader_ligth_;
+    delete text_;
+    delete camera_;
+    
+    for (auto& [key, value] : vao_) {
+        glDeleteVertexArrays(1, &value);
+    }
+    for (auto& [key, value] : vbo_) {
+        glDeleteBuffers(1, &value);
+    }
 
-    window_ = CreateWindow(name_window_, scr_width_, scr_height_);
+    std::cout << "Renderer is destroyed" << '\n';
+}
 
-    glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
-    // glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    glEnable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+void Renderer::Init() {
     shader_ = new Shader(PATH_TO_FILE_VERTEX_SHADER, PATH_TO_FILE_FRAGMENT_SHADER);
     shader_text_ = new Shader(PATH_TO_VERTEX_SHADER_TEXT, PATH_TO_FRAGMENT_SHADER_TEXT);
     shader_ligth_ = new Shader(PATH_TO_VERTEX_SHADER_LIGTH, PATH_TO_FRAGMENT_SHADER_LIGTH);
@@ -24,14 +28,12 @@ void Render::InitWindow() {
     text_ = new TextRender(PATH_TO_FONT);
     text_->Initialaztion();
 
+    InitRenderer();
+    InitRendererText();
     InitCamera();
-
-    glfwSetWindowUserPointer(window_, &controller_);
-    glfwSetCursorPosCallback(window_, Controller::MouseCallback);
-    glfwSetCursorPos(window_, scr_width_, scr_height_ / 2);
 }
 
-void Render::InitCamera() {
+void Renderer::InitCamera() {
     glm::vec3 camera_pos    = glm::vec3(0.0f, 0.0f, 10.0f);
     // glm::vec3 camera_front  = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 camera_up     = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -39,20 +41,16 @@ void Render::InitCamera() {
     camera_ = new Camera(camera_pos, camera_up);
 }
 
-void Render::Update() {
+void Renderer::Update() {
     if (cursor_state_) {
-        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window_->GetPointer(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     } else if (!cursor_state_) {
-        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window_->GetPointer(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 }
 
-void Render::ProcessInputs() {
-    controller_.KeyPressed(window_);
-}
-
-void Render::UpdateCoordinatesCamera(GLfloat delta_time) {
-    const auto& state_pressed = controller_.GetPressKeys();
+void Renderer::UpdateCoordinatesCamera(GLfloat delta_time) {
+    const auto& state_pressed = window_->GetPressedKeys();
 
     size_t key_w = GLFW_KEY_W;
     size_t key_s = GLFW_KEY_S;
@@ -74,7 +72,7 @@ void Render::UpdateCoordinatesCamera(GLfloat delta_time) {
     }
 
     if (!cursor_state_) {
-        auto [xoffset, yoffset] = controller_.GetOffset();
+        auto [xoffset, yoffset] = window_->GetOffsetController();
         camera_->ProcessMouseMovement(xoffset, yoffset);
     }
 
@@ -83,7 +81,7 @@ void Render::UpdateCoordinatesCamera(GLfloat delta_time) {
     }    
 }
 
-void Render::InitRender() {
+void Renderer::InitRenderer() {
     /*float vertices_objects[] = {
         // positions         // colors
         1.f,  1.f, 0.0f,  1.0f, 1.0f, 1.0f,  // top right
@@ -279,7 +277,7 @@ void Render::InitRender() {
     // BindVertexArray(0);
 }
 
-void Render::InitRenderText() {
+void Renderer::InitRendererText() {
     GenerateBuffer(1, TypeBuffers::VAO, MapKey::TEXT);
     GenerateBuffer(1, TypeBuffers::VBO, MapKey::TEXT);
 
@@ -295,32 +293,7 @@ void Render::InitRenderText() {
     BindVertexArray(0); 
 }
 
-GLFWwindow* Render::CreateWindow(const char* nw, unsigned int scr_w, unsigned int scr_h) {
-        GLFWwindow* window = glfwCreateWindow(scr_w, scr_h, nw, NULL, NULL);
-        if (window == NULL) {
-            std::cerr << "Failed to create GLFW window" << std::endl;
-            glfwTerminate();
-            // return -1;
-        }
-
-        glfwMakeContextCurrent(window);
-        // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        
-        // glad: load all OpenGL function pointers
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-            std::cerr << "Failed to initialize GLAD" << std::endl;
-        }  
-
-        return window;
-    }
-
-// callback function for resizing window size
-void Render::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void Render::GenerateBuffer(const GLsizei n, TypeBuffers type, MapKey key) {
+void Renderer::GenerateBuffer(const GLsizei n, TypeBuffers type, MapKey key) {
     GLuint b;
     
     switch(type)
@@ -342,28 +315,28 @@ void Render::GenerateBuffer(const GLsizei n, TypeBuffers type, MapKey key) {
     }
 }
 
-void Render::BindVertexArray(GLuint array) {
+void Renderer::BindVertexArray(GLuint array) {
     glBindVertexArray(array);
 }
 
-void Render::BindBuffer(GLenum target, GLuint buffer) {
+void Renderer::BindBuffer(GLenum target, GLuint buffer) {
     glBindBuffer(target, buffer);
 }
 
-void Render::BufferData(GLenum target, GLsizeiptr sizeptr, const void* data, GLenum usage) {
+void Renderer::BufferData(GLenum target, GLsizeiptr sizeptr, const void* data, GLenum usage) {
     glBufferData(target, sizeptr, data, usage);
 }
 
-void Render::SetVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void* offset) {
+void Renderer::SetVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void* offset) {
     glVertexAttribPointer(index, size, type, normalized, stride, (void*)offset);
 }
 
-void Render::EnableVertexAttribArray(GLuint index) {
+void Renderer::EnableVertexAttribArray(GLuint index) {
     glEnableVertexAttribArray(index);
 }
 
-void Render::SetOrthoProjection(float left, float right, float bottom, float top, float zNear, float zFar) {
-    glm::mat4 projectionMatrix = glm::ortho(left, static_cast<float>(scr_width_), bottom, static_cast<float>(scr_height_), zNear, zFar);
+void Renderer::SetOrthoProjection(float left, float right, float bottom, float top, float zNear, float zFar) {
+    glm::mat4 projectionMatrix = glm::ortho(left, static_cast<float>(window_->GetWidth()), bottom, static_cast<float>(window_->GetHeight()), zNear, zFar);
 
     shader_->use();
     shader_->setMat4("projection", projectionMatrix);
@@ -374,7 +347,7 @@ void Render::SetOrthoProjection(float left, float right, float bottom, float top
     BindVertexArray(GetVAO(MapKey::TEXT));
 }
 
-void Render::SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far) {
+void Renderer::SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far) {
     glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), static_cast<float>(width) / static_cast<float>(height), near, far);
 
     shader_->use();
@@ -390,17 +363,17 @@ void Render::SetPerspectiveProjection(float fov, unsigned int width, unsigned in
     BindVertexArray(GetVAO(MapKey::TEXT));
 }
 
-void Render::SetLigth(Shader* shader, glm::vec3& colorLigth, glm::vec3& objectColor) {
+void Renderer::SetLigth(Shader* shader, glm::vec3& colorLigth, glm::vec3& objectColor) {
     shader->use();
     shader->setVec3("objectColor", objectColor);
     shader->setVec3("ligthColor", colorLigth);
 }
 
-void Render::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate) {
+void Renderer::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate) {
     
     shader_->use();
     BindVertexArray(GetVAO(MapKey::OBJECTS));
-    // Переписать в отдельные методы - тогда могу скалировать, вращать, перемещать независимо любой объект
+    // TODO: Переписать в отдельные методы - тогда могу скалировать, вращать, перемещать независимо любой объект
     glm::mat4 model_matrix = glm::mat4(1.f);
 
     // Выполняем трансформации матрицы
@@ -412,10 +385,9 @@ void Render::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate a
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     BindVertexArray(GetVAO(MapKey::OBJECTS));
-    
 }
 
-void Render::Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, AxisRotate axis, 
+void Renderer::Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, AxisRotate axis, 
                     GLfloat rotate, MapKey key) {
     shader->use();
 
@@ -436,10 +408,9 @@ void Render::Draw(Shader* shader, const glm::vec3& position, const glm::vec3& si
     //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     BindVertexArray(0);
-
 }
 
-void Render::DrawText(std::string text, float x, float y, float scale, glm::vec3 color) {
+void Renderer::DrawText(std::string text, float x, float y, float scale, glm::vec3 color) {
     shader_text_->use();
 
     glUniform3f(glGetUniformLocation(shader_text_->ID, "textColor"), color.x, color.y, color.z);
@@ -467,14 +438,14 @@ void Render::DrawText(std::string text, float x, float y, float scale, glm::vec3
             { xpos + w, ypos,       1.0f, 1.0f },
             { xpos + w, ypos + h,   1.0f, 0.0f }           
         };
-        // render glyph texture over quad
+        // Renderer glyph texture over quad
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);
         // update content of VBO memory
         BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::TEXT));
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
 
         BindBuffer(GL_ARRAY_BUFFER, 0);
-        // render quad
+        // Renderer quad
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
         x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
@@ -483,7 +454,7 @@ void Render::DrawText(std::string text, float x, float y, float scale, glm::vec3
     BindVertexArray(GetVAO(MapKey::TEXT));
 }
 
-glm::mat4 Render::RotateMatrix(glm::mat4& model, AxisRotate axis, GLfloat rotate) {
+glm::mat4 Renderer::RotateMatrix(glm::mat4& model, AxisRotate axis, GLfloat rotate) {
     glm::vec3 r_vec;
 
     switch(axis) {
@@ -507,23 +478,23 @@ glm::mat4 Render::RotateMatrix(glm::mat4& model, AxisRotate axis, GLfloat rotate
     return glm::rotate(model, glm::radians(rotate), r_vec);
 }
 
-glm::mat4 Render::TranslateMatrix(glm::mat4& model, const glm::vec2& position) {
+glm::mat4 Renderer::TranslateMatrix(glm::mat4& model, const glm::vec2& position) {
     return glm::translate(model, glm::vec3(position, 0.f));
 }
 
-glm::mat4 Render::TranslateMatrix(glm::mat4& model, const glm::vec3& position) {
+glm::mat4 Renderer::TranslateMatrix(glm::mat4& model, const glm::vec3& position) {
     return glm::translate(model, glm::vec3(position));
 }
 
-glm::mat4 Render::ScaleMatrix(glm::mat4& model, const glm::vec2& size) {
+glm::mat4 Renderer::ScaleMatrix(glm::mat4& model, const glm::vec2& size) {
     return glm::scale(model, glm::vec3(size.x, size.y, 0.f));
 }
 
-glm::mat4 Render::ScaleMatrix(glm::mat4& model, const glm::vec3& size) {
+glm::mat4 Renderer::ScaleMatrix(glm::mat4& model, const glm::vec3& size) {
     return glm::scale(model, glm::vec3(size));
 }
 
-Shader* Render::GetShaderPtr(std::string name) const {
+Shader* Renderer::GetShaderPtr(std::string name) const {
     if (name == "object") {
         return shader_;
     }

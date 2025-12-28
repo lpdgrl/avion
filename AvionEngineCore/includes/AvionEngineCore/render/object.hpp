@@ -43,8 +43,17 @@ public:
     Position GetPosition() const;
     Color GetColor() const;
 
+    void SetPosition(Position posiziton);
+    void SetSize(Size size);
+
 private:
     Size size_;
     Position position_;
     Color color_;
+};
+
+struct ObjectId {
+    ObjectId(int id, Position position, Size size, Color color);
+    int id = 0;
+    Object object;
 };

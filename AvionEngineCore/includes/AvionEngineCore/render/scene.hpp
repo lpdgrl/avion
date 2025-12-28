@@ -4,9 +4,13 @@
 
 #include "object.hpp"
 
+enum class TypeObject {
+    kCube = 0,
+};
+
 class Scene {
 public:
-    using Objects = std::vector<Object>;
+    using Objects = std::vector<ObjectId>;
 
     Scene() = default;
     Scene(size_t number_object);
@@ -17,10 +21,10 @@ public:
     Scene& operator=(const Scene& scene) = delete;
     Scene& operator=(Scene&& scene) = delete;
 
-    ~Scene() = default;
+    ~Scene();
 
     void AddObjectToScene(Position pos, Size sz, Color color);
-    const Objects& GetAllObjects() const;
+    Objects& GetAllObjects() ;
     size_t GetNumberObjects() const;
 
 private:

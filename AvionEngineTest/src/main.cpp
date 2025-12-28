@@ -1,113 +1,14 @@
-#include <cstdlib> 
-#include <array>
+#include "AvionEngineCore/render/window.hpp"
 
-
-#include "AvionEngineCore/render/gui.hpp"
-#include "AvionEngineCore/render/scene.hpp"
-#include "AvionEngineCore/render/render.hpp"
-
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
 const char* name_window = "Test Engine";
 
 int main() {
     std::cout << "Test Engine" << std::endl;
 
-    Render* render = new Render(name_window, SCR_WIDTH, SCR_HEIGHT);
+    Window window(name_window, 800, 600);
 
-    Scene scene(20);
+    window.Init();
+    window.Update();
 
-    render->InitWindow();
-    render->InitRender();
-    render->InitRenderText();
-
-    GLFWwindow* window = render->GetWindow();
-    render->SetPerspectiveProjection(45.f, SCR_WIDTH, SCR_HEIGHT, 0.1f, 50.f);
-    
-    ImGui::CreateContext();
-
-    glm::vec3 sz{1.f, 1.f, 1.f};
-    glm::vec3 clr{0.f, 0.f, 0.f};
-    // scene.AddObjectToScene(glm::vec3(0.0f,  -0.8f,  0.0f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3(2.0f,  5.0f, -15.0f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3(-1.5f, -2.2f, -2.5f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3(-3.8f, -2.0f, -12.3f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3( 2.4f, -0.4f, -3.5f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3(-1.7f,  3.0f, -7.5f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3( 1.3f, -2.0f, -2.5f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3( 1.5f,  2.0f, -2.5f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3( 1.5f,  0.2f, -1.5f), sz, clr);
-    // scene.AddObjectToScene(glm::vec3(-1.3f,  1.0f, -1.5f), sz, clr);
-    
-    glm::vec3 size_other{0.5f, 0.5f, 0.5f};
-    glm::vec3 objectColor{1.0f, 0.5f, 0.31f};
-    glm::vec3 colorLigth{1.0f, 1.0f, 1.0f};
-    glm::vec3 ligth_position{-1.3f,  -0.5f, -1.f};
-    glm::vec3 view_pos{0.f, 0.f, 0.f};
-
-    Shader* shader = render->GetShaderPtr("object");
-    Shader* shader_ligth = render->GetShaderPtr("ligth");
-    
-    GLfloat delta_time = 0.f;
-    GLfloat last_frame = 0.f;
-
-    Gui gui(window);
-    gui.Init();
-
-    glm::vec3 color;
-    glm::vec3 position;
-    glm::vec3 size;
-
-    bool state_button_addobject = false;
-
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-        render->ProcessInputs();
-
-        gui.Frame();
-
-        GLfloat current_frame = glfwGetTime();
-        delta_time = current_frame - last_frame;
-        last_frame = current_frame;
-        
-        render->UpdateCoordinatesCamera(delta_time);
-        render->Update();
-
-        ligth_position.x += sin(glfwGetTime()) * delta_time * 0.5f;
-        ligth_position.y += sin(glfwGetTime()) * delta_time * 0.5f;
-        ligth_position.z += sin(glfwGetTime()) * delta_time * 2.5f;
-
-        glClearColor(0.2f, 0.2f, 0.2f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        gui.WindowAddObject(position, size, color, state_button_addobject);
-        gui.WindowLigthColor(colorLigth);
-
-        std::cout << "Result button: " << state_button_addobject << '\n';
-        
-        if (state_button_addobject) {
-            scene.AddObjectToScene(position, size, color);
-        }
-
-        for (const auto& object : scene.GetAllObjects()) {
-            auto position = object.GetPosition().position;
-            auto size = object.GetSize().size;
-            auto cube_color = object.GetColor().color;
-
-            render->SetLigth(shader, colorLigth, cube_color);
-            shader->setVec3("ligthPos", ligth_position);
-            shader->setVec3("view_pos", view_pos);
-
-            render->Draw(shader, position, size, AxisRotate::AXIS_Y, sin(glfwGetTime()) * 50.f, MapKey::OBJECTS);
-        }
-        
-        shader_ligth->setVec3("ligthColor", colorLigth);
-        render->Draw(shader_ligth, ligth_position, size_other, AxisRotate::AXIS_X, 10.f, MapKey::LIGHT);
-
-        gui.Render();
-
-        glfwSwapBuffers(window);
-    }
-    gui.CleanUp();
     return 0;
 }

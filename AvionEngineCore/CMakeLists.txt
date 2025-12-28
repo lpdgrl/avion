@@ -11,7 +11,7 @@ SET(IMGUI_DIR libs/imgui)
 
 add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/logger/logger.cpp
-    src/AvionEngineCore/render/render.cpp
+    src/AvionEngineCore/render/renderer.cpp
     src/AvionEngineCore/render/text_rendering.cpp
     src/AvionEngineCore/render/shader.cpp
     src/AvionEngineCore/render/camera.cpp

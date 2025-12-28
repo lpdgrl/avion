@@ -5,8 +5,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-// TODO: 
-//      1. private method print errors of compile and link shader's
 
 class Shader 
 {
@@ -16,6 +14,8 @@ class Shader
 
         // constructor reads and builds the shader
         Shader(const char* vertexPath, const char* fragmentPath);
+
+        ~Shader();
         
         // use/activate the shader
         void use();

@@ -53,3 +53,13 @@ std::ostream& operator<<(std::ostream& out, Size size) {
 std::ostream& operator<<(std::ostream& out, Position pos) {
     return out << pos.position.x << ' ' << pos.position.y << ' ' << pos.position.z;
 }
+
+void Object::SetPosition(Position position) {
+    position_ = position;
+}
+
+void Object::SetSize(Size size) {
+    size_ = size;
+}
+
+ObjectId::ObjectId(int id, Position position, Size size, Color color): id(id), object(position, size, color) {}

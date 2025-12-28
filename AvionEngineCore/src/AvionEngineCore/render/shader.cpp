@@ -94,6 +94,10 @@ Shader::Shader (const char* vertexPath, const char* fragmentPath)
     
 }
 
+Shader::~Shader() {
+    std::cout << "Shader is destroyed" << '\n';
+}
+
 void Shader::use() 
 {
     glUseProgram(ID);
