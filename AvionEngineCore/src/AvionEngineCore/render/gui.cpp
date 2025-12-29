@@ -52,12 +52,12 @@ void Gui::WindowAddObject(glm::vec3& position, glm::vec3& size, glm::vec3& color
     ImGui::End();
 }   
 
-void Gui::WindowListObjects(const std::vector<ObjectId>& objects) const {
+void Gui::WindowListObjects(const std::vector<Object>& objects) const {
     ImGui::Begin("Objects");
     ImVec2 listbox_size(200.0f, ImGui::GetTextLineHeightWithSpacing() * objects.size());
     ImGui::BeginListBox("Objects", listbox_size);
     for (const auto& object : objects) {
-        std::string num(std::to_string(object.id));
+        std::string num(std::to_string(object.GetId()));
         std::string str("id");
         str +=' ' + num;
         ImGui::Selectable(str.c_str());

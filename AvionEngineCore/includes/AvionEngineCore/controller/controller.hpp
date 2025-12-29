@@ -38,21 +38,28 @@ public:
     Controller(Controller&&) = delete;
     Controller& operator=(Controller&&) = delete;
 
-    void KeyPressed(GLFWwindow* window);
-
-    const std::array<bool, SIZE_ARRAY_KEYS>& GetPressKeys() const;
+    bool IsDown(int key) const;
+    bool WasPressed(int key) const;
+    bool WasReleased(int key) const;
 
     void OnMouseMove(double xpos, double ypos);
+    void OnKeyPress(int key, int scancode, int action, int mods);
     
     static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     CoordOffset GetOffset();
 
     void SetCoordinate(double xpos_cursor, double ypos_cursor);
 
-    ~Controller() = default;
+    void ClearStateKeys();
+
+    ~Controller();
 private:
-    std::array<bool, SIZE_ARRAY_KEYS> keys_;
+    std::array<bool, SIZE_ARRAY_KEYS> isDown_;
+    std::array<bool, SIZE_ARRAY_KEYS> wasPressed_;
+    std::array<bool, SIZE_ARRAY_KEYS> wasReleased_;
+
     double last_xpos_cursor_ = 0;
     double last_ypos_cursor_ = 0;
     double xoffset_ = 0;

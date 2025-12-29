@@ -1,6 +1,6 @@
 #include "../../../includes/AvionEngineCore/render/object.hpp"
 
-Object::Object(Position position, Size size, Color color): position_(position), size_(size), color_(color) {
+Object::Object(int id, Position position, Size size, Color color): id_(id), position_(position), size_(size), color_(color) {
     std::cout << "Object ctor " << position_ << '\n';
 }
 
@@ -34,16 +34,29 @@ Object::~Object() {
     std::cout << "Object dtor " << position_  <<  '\n';
 }
 
-Position Object::GetPosition() const {
+Position Object::GetPosition() const noexcept {
     return position_;
 }
 
-Size Object::GetSize() const {
+Size Object::GetSize() const noexcept {
     return size_; 
 }
 
-Color Object::GetColor() const {
+Color Object::GetColor() const noexcept {
     return color_;
+}
+
+ObjectParams Object::GetParams() const noexcept {
+    ObjectParams params{
+        .position = position_.position,
+        .size = size_.size,
+        .color = color_.color
+    };
+    return params;
+}
+
+int Object::GetId() const noexcept {
+    return id_;
 }
 
 std::ostream& operator<<(std::ostream& out, Size size) {
@@ -62,4 +75,4 @@ void Object::SetSize(Size size) {
     size_ = size;
 }
 
-ObjectId::ObjectId(int id, Position position, Size size, Color color): id(id), object(position, size, color) {}
+// ObjectId::ObjectId(int id, Position position, Size size, Color color): id(id), object(position, size, color) {}

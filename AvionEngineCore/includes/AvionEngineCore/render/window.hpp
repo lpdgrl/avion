@@ -37,12 +37,14 @@ public:
     // Callbacks OpenGL
     static void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
 
-    GLFWwindow*      GetPointer() const;
-    int              GetWidth() const noexcept;
-    int              GetHeight() const noexcept;
-    GLfloat          GetDeltaTime() const noexcept;
-    PressedKeys      GetPressedKeys() const noexcept;
-    CoordinateOffset GetOffsetController() noexcept;
+    GLFWwindow*      GetPointer()            const;
+    int              GetWidth()              const noexcept;
+    int              GetHeight()             const noexcept;
+    GLfloat          GetDeltaTime()          const noexcept;
+    CoordinateOffset GetOffsetController()   noexcept;
+    bool             WasReleasedKey(int key) const noexcept;
+    bool             WasPressedKey(int key)  const noexcept;
+    bool             IsDown(int key)         const noexcept;
 
 private:
     void CreateWindow();

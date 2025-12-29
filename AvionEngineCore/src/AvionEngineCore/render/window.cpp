@@ -46,6 +46,7 @@ void Window::Init() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glfwSetWindowUserPointer(window_, &controller_);
+    glfwSetKeyCallback(window_, Controller::KeyCallback);
     glfwSetCursorPosCallback(window_, Controller::MouseCallback);
     glfwSetCursorPos(window_, width_window_, height_window_ / 2);
 
@@ -82,6 +83,7 @@ void Window::Render() {
     bool state_button_addobject = false;
 
     while (!glfwWindowShouldClose(window_)) {
+        controller_.ClearStateKeys();
         glfwPollEvents();
         ProcessEvents();
         DeltaTimeUpdate();
@@ -100,14 +102,12 @@ void Window::Render() {
 
         auto& objects = scene_.GetAllObjects();
         if (objects.size() != 0) {
-            auto ps = objects.back().object.GetPosition().position;
-            auto sz = objects.back().object.GetSize().size;
+            auto [ps, sz, _] = objects.back().GetParams();
             gui_->WindowAddObject(ps, sz, color, state_button_addobject);
-            Object& obj = objects[objects.size() - 1].object;
+            Object& obj = objects[objects.size() - 1];
             obj.SetPosition(ps);
             obj.SetSize(sz);
-        }
-        else {
+        } else {
             gui_->WindowAddObject(position, size, color, state_button_addobject);
         }
         
@@ -120,11 +120,9 @@ void Window::Render() {
         gui_->WindowListObjects(scene_.GetAllObjects());
 
         for (const auto& object : scene_.GetAllObjects()) {
-            auto position = object.object.GetPosition().position;
-            auto size = object.object.GetSize().size;
-            auto cube_color = object.object.GetColor().color;
+            auto [position, size, cl] = object.GetParams();
 
-            render_->SetLigth(shader, colorLigth, cube_color);
+            render_->SetLigth(shader, colorLigth, cl);
             shader->setVec3("ligthPos", ligth_position);
             shader->setVec3("view_pos", view_pos);
 
@@ -141,7 +139,7 @@ void Window::Render() {
 }
 
 void Window::ProcessEvents() {
-    controller_.KeyPressed(window_);
+
 }
 
 void Window::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -186,10 +184,18 @@ GLfloat Window::GetDeltaTime() const noexcept {
     return delta_time_;
 }
 
-Window::PressedKeys Window::GetPressedKeys() const noexcept {
-    return controller_.GetPressKeys();
-}
-
 Window::CoordinateOffset Window::GetOffsetController() noexcept {
     return controller_.GetOffset();
+}
+
+bool Window::IsDown(int key) const noexcept {
+    return controller_.IsDown(key);
+}
+
+bool Window::WasPressedKey(int key) const noexcept {
+    return controller_.WasPressed(key);
+}
+
+bool Window::WasReleasedKey(int key) const noexcept {
+    return controller_.WasReleased(key);
 }

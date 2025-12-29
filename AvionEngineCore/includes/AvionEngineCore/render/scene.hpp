@@ -10,7 +10,7 @@ enum class TypeObject {
 
 class Scene {
 public:
-    using Objects = std::vector<ObjectId>;
+    using Objects = std::vector<Object>;
 
     Scene() = default;
     Scene(size_t number_object);

@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 
-struct ObjectId;
+struct Object;
 
 class Gui {
 public:
@@ -29,7 +29,7 @@ public:
 
     void WindowAddObject(glm::vec3& position, glm::vec3& size, glm::vec3& color, bool& state_button) const;
     void WindowLigthColor(glm::vec3& color) const;
-    void WindowListObjects(const std::vector<ObjectId>& objects) const;
+    void WindowListObjects(const std::vector<Object>& objects) const;
 private:
     GLFWwindow* window_ = nullptr;
     ImGuiIO& io_;

@@ -49,25 +49,17 @@ void Renderer::Update() {
     }
 }
 
-void Renderer::UpdateCoordinatesCamera(GLfloat delta_time) {
-    const auto& state_pressed = window_->GetPressedKeys();
-
-    size_t key_w = GLFW_KEY_W;
-    size_t key_s = GLFW_KEY_S;
-    size_t key_a = GLFW_KEY_A;
-    size_t key_d = GLFW_KEY_D;
-    size_t key_h = GLFW_KEY_H;
-    
-    if (state_pressed[key_w]) {
+void Renderer::UpdateCoordinatesCamera(GLfloat delta_time) {    
+    if (window_->IsDown(GLFW_KEY_W)) {
         camera_->ProcessKeyboard(CameraMovement::FORWARD, delta_time);
     }
-    if (state_pressed[key_a]) {
+    if (window_->IsDown(GLFW_KEY_A)) {
         camera_->ProcessKeyboard(CameraMovement::LEFT, delta_time);
     }
-    if (state_pressed[key_d]) {
+    if (window_->IsDown(GLFW_KEY_D)) {
         camera_->ProcessKeyboard(CameraMovement::RIGHT, delta_time);
     }
-    if (state_pressed[key_s]) {
+    if (window_->IsDown(GLFW_KEY_S)) {
         camera_->ProcessKeyboard(CameraMovement::BACKWARD, delta_time);
     }
 
@@ -76,7 +68,7 @@ void Renderer::UpdateCoordinatesCamera(GLfloat delta_time) {
         camera_->ProcessMouseMovement(xoffset, yoffset);
     }
 
-    if (state_pressed[key_h]) {
+    if (window_->WasPressedKey(GLFW_KEY_H)) {
         cursor_state_ = cursor_state_ ? false : true;
     }    
 }

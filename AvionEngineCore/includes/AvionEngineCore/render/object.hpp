@@ -22,6 +22,12 @@ struct Color {
     glm::vec3 color;
 };
 
+struct ObjectParams {
+    glm::vec3 position;
+    glm::vec3 size;
+    glm::vec3 color;
+};
+
 std::ostream& operator<<(std::ostream& out, Size size);
 
 std::ostream& operator<<(std::ostream& out, Position pos);
@@ -29,7 +35,7 @@ std::ostream& operator<<(std::ostream& out, Position pos);
 class Object {
 public:
     Object() = default;
-    Object(Position position, Size size, Color color);
+    Object(int id, Position position, Size size, Color color);
 
     Object(const Object& object);
     Object(Object&& object);
@@ -39,21 +45,25 @@ public:
 
     ~Object();
 
-    Size GetSize() const;
-    Position GetPosition() const;
-    Color GetColor() const;
+    Size GetSize() const noexcept;
+    Position GetPosition() const noexcept;
+    Color GetColor() const noexcept;
+
+    ObjectParams GetParams() const noexcept;
+    int GetId() const noexcept;
 
     void SetPosition(Position posiziton);
     void SetSize(Size size);
 
 private:
+    int id_ = 0;
     Size size_;
     Position position_;
     Color color_;
 };
 
-struct ObjectId {
-    ObjectId(int id, Position position, Size size, Color color);
-    int id = 0;
-    Object object;
-};
+// struct ObjectId {
+//     ObjectId(int id, Position position, Size size, Color color);
+//     int id = 0;
+//     Object object;
+// };
