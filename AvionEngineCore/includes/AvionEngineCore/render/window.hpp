@@ -50,6 +50,7 @@ private:
     void CreateWindow();
     void DeltaTimeUpdate() noexcept;
     void Render();
+    void FramePerSecond() noexcept;
 
 private:
     std::string window_name_;
@@ -60,6 +61,10 @@ private:
     Gui* gui_;
     Renderer* render_;
     GLFWwindow* window_ = nullptr;
+    // TODO: Understand how to works it (calculate delay and fps)
     GLfloat delta_time_ = 0.f;
-    GLfloat last_frame_ = 0.f;
+    GLfloat last_time_ = 0.f;
+    double lt_ = 0;
+    double delay_ = 0;
+    int fps_ = 0;
 };

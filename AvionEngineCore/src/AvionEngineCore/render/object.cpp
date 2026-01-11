@@ -75,4 +75,26 @@ void Object::SetSize(Size size) {
     size_ = size;
 }
 
+void Object::SetColor(Color color) {
+    color_ = color;
+}
+
+void Object::SetParams(Position position, Size size, Color color) {
+    position_ = position;
+    size_ = size;
+    color_ = color;
+}
+
+Position::operator glm::vec3() const {
+    return position;
+}
+
+Size::operator glm::vec3() const {
+    return size;
+}
+
+Color::operator glm::vec3() const {
+    return color;
+}
+
 // ObjectId::ObjectId(int id, Position position, Size size, Color color): id(id), object(position, size, color) {}

@@ -1,19 +1,28 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 
 #include "object.hpp"
 
 enum class TypeObject {
-    kCube = 0,
+    kLight = 2,
+    kCube = 3,
+    kPyramid = 4,
+};
+
+struct SceneObject {
+    SceneObject(TypeObject type, int id, Position position, Size size, Color color);
+    TypeObject type;
+    Object object;
 };
 
 class Scene {
 public:
-    using Objects = std::vector<Object>;
+    using Objects = std::vector<SceneObject>;
 
     Scene() = default;
-    Scene(size_t number_object);
+    explicit Scene(size_t number_object);
 
     Scene(const Scene& scene) = delete;
     Scene(Scene&& scene) = delete;
@@ -23,9 +32,12 @@ public:
 
     ~Scene();
 
-    void AddObjectToScene(Position pos, Size sz, Color color);
-    Objects& GetAllObjects() ;
+    void AddObjectToScene(TypeObject type_object, Position pos, Size sz, Color color);
+    Objects& GetAllObjects();
     size_t GetNumberObjects() const;
+    Object* GetObject(int id);
+    Object* GetObject(TypeObject type);
+    std::string GetTypeObject(int id) const noexcept;
 
 private:
     Objects objects_on_scene_;

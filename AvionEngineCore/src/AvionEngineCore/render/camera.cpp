@@ -56,7 +56,7 @@ void Camera::ProcessKeyboard(CameraMovement direction, float delta_time) {
             camera_position_ += camera_right_ * velocity;
             break;
     }
-    camera_position_.y = 0.0f;
+    // camera_position_.y = 0.0f;
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.

@@ -9,7 +9,13 @@
 #include <iostream>
 #include <vector>
 
-struct Object;
+struct SceneObject;
+enum class TypeObject; 
+
+struct Logs {
+    int fps = 0;
+    double delay = 0;
+};
 
 class Gui {
 public:
@@ -27,9 +33,10 @@ public:
     void Render();
     void CleanUp();
 
-    void WindowAddObject(glm::vec3& position, glm::vec3& size, glm::vec3& color, bool& state_button) const;
-    void WindowLigthColor(glm::vec3& color) const;
-    void WindowListObjects(const std::vector<Object>& objects) const;
+    void WindowAddObject(TypeObject& type, glm::vec3& position, glm::vec3& size, glm::vec3& color, bool& state_button) const;
+    void WindowLigthColor(glm::vec3& position, glm::vec3& color) const;
+    int WindowListObjects(const std::vector<SceneObject>& objects) const;
+    void WindowLogs(Logs logs) const;
 private:
     GLFWwindow* window_ = nullptr;
     ImGuiIO& io_;

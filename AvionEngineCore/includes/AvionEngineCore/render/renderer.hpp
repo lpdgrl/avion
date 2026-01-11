@@ -20,7 +20,9 @@ enum class TypeBuffers {
 enum class MapKey {
     OBJECTS = 0,
     TEXT = 1,
-    LIGHT = 2
+    kLight = 2,
+    kCube = 3,
+    kPyramid = 4
 };
 
 enum class AxisRotate {
@@ -82,6 +84,10 @@ private:
 
     void SetVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void* offset);
     void EnableVertexAttribArray(GLuint index);
+
+    void LoadVerticesCube();
+    void LoadVerticesPyramid();
+    void LoadVerticesSourceLigth();
 
     glm::mat4 RotateMatrix(glm::mat4& model, AxisRotate axis, GLfloat rotate);
     glm::mat4 TranslateMatrix(glm::mat4& model, const glm::vec2& position);

@@ -64,77 +64,86 @@ void Window::Update() {
 }
 
 void Window::Render() {
-    glm::vec3 sz{1.f, 1.f, 1.f};
-    glm::vec3 clr{0.f, 0.f, 0.f};
-    
-    glm::vec3 size_other{0.5f, 0.5f, 0.5f};
-    glm::vec3 objectColor{1.0f, 0.5f, 0.31f};
-    glm::vec3 colorLigth{1.0f, 1.0f, 1.0f};
-    glm::vec3 ligth_position{-1.3f,  -0.5f, -1.f};
-    glm::vec3 view_pos{0.f, 0.f, 0.f};
-
     Shader* shader = render_->GetShaderPtr("object");
     Shader* shader_ligth = render_->GetShaderPtr("ligth");
 
-    glm::vec3 color;
-    glm::vec3 position;
-    glm::vec3 size;
+    glm::vec3 color{1.f, 1.f, 1.f};
+    glm::vec3 position{};
+    glm::vec3 size{1.f, 1.f, 1.f};
 
     bool state_button_addobject = false;
+    float scr_aspect = height_window_ / width_window_;
+    int selected_object_id = 0;
+    TypeObject type_obj = TypeObject::kCube;
+
+    double lt_ = glfwGetTime();
 
     while (!glfwWindowShouldClose(window_)) {
-        controller_.ClearStateKeys();
-        glfwPollEvents();
-        ProcessEvents();
         DeltaTimeUpdate();
-
+        
         gui_->Frame();
+        gui_->WindowLogs({.fps = fps_, .delay = delay_});
         
         render_->UpdateCoordinatesCamera(delta_time_);
         render_->Update();
 
-        ligth_position.x += sin(glfwGetTime()) * delta_time_ * 0.5f;
-        ligth_position.y += sin(glfwGetTime()) * delta_time_ * 0.5f;
-        ligth_position.z += sin(glfwGetTime()) * delta_time_ * 2.5f;
+        shader->setFloat("scr_aspect", scr_aspect);
 
         glClearColor(0.2f, 0.2f, 0.2f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        auto& objects = scene_.GetAllObjects();
-        if (objects.size() != 0) {
-            auto [ps, sz, _] = objects.back().GetParams();
-            gui_->WindowAddObject(ps, sz, color, state_button_addobject);
-            Object& obj = objects[objects.size() - 1];
-            obj.SetPosition(ps);
-            obj.SetSize(sz);
+        selected_object_id = gui_->WindowListObjects(scene_.GetAllObjects());
+
+        size_t objects_size = scene_.GetNumberObjects();
+        if (objects_size != 0 && selected_object_id > 0) {
+            Object* object = scene_.GetObject(selected_object_id);
+            auto [ps, sz, _color] = object->GetParams();
+            gui_->WindowAddObject(type_obj, ps, sz, _color, state_button_addobject);
+            object->SetParams(ps, sz, _color);
         } else {
-            gui_->WindowAddObject(position, size, color, state_button_addobject);
+            gui_->WindowAddObject(type_obj, position, size, color, state_button_addobject);
         }
-        
-        gui_->WindowLigthColor(colorLigth);
         
         if (state_button_addobject) {
-            scene_.AddObjectToScene(position, size, color);
+            scene_.AddObjectToScene(type_obj, position, size, color);
         }
 
-        gui_->WindowListObjects(scene_.GetAllObjects());
+        for (const auto& object_scene : scene_.GetAllObjects()) {
+            auto type = object_scene.type;
+            auto& obj = object_scene.object;
+            auto [pz, sz, cl] = obj.GetParams();
 
-        for (const auto& object : scene_.GetAllObjects()) {
-            auto [position, size, cl] = object.GetParams();
+            if (type == TypeObject::kLight) {
+                shader_ligth->use();
+                shader_ligth->setVec3("ligthColor", cl);
+                render_->Draw(shader_ligth, pz, sz, AxisRotate::NONE, 0.f, MapKey::kLight);
+                continue;
+            }
+            
+            glm::vec3 l_pos;
+            glm::vec3 c_light;
 
-            render_->SetLigth(shader, colorLigth, cl);
-            shader->setVec3("ligthPos", ligth_position);
-            shader->setVec3("view_pos", view_pos);
+            Object* light = scene_.GetObject(TypeObject::kLight);
+            if (light != nullptr) {
+                l_pos = static_cast<glm::vec3>(light->GetPosition());
+                c_light = static_cast<glm::vec3>(light->GetColor());
+            }
 
-            render_->Draw(shader, position, size, AxisRotate::NONE, 0.f, MapKey::OBJECTS);
-        }
+            shader->use();
+            shader->setVec3("objectColor", cl);
+            shader->setVec3("ligthColor", c_light);
+            shader->setVec3("ligthPos", l_pos);
         
-        shader_ligth->setVec3("ligthColor", colorLigth);
-        render_->Draw(shader_ligth, ligth_position, size_other, AxisRotate::AXIS_X, 10.f, MapKey::LIGHT);
+            render_->Draw(shader, pz, sz, AxisRotate::NONE, 0.f, static_cast<MapKey>(type));
+        }
 
         gui_->Render();
 
         glfwSwapBuffers(window_);
+        // TODO: Undestand when call ClearStateKeys and How it works - glfwPollEvents
+        controller_.ClearStateKeys();
+        glfwPollEvents();
+        FramePerSecond();
     }
 }
 
@@ -176,8 +185,8 @@ int Window::GetHeight() const noexcept {
 
 void Window::DeltaTimeUpdate() noexcept {
     GLfloat current_frame = glfwGetTime();
-    delta_time_ = current_frame - last_frame_;
-    last_frame_ = current_frame;
+    delta_time_ = current_frame - last_time_;
+    last_time_ = current_frame;
 }
 
 GLfloat Window::GetDeltaTime() const noexcept {
@@ -198,4 +207,17 @@ bool Window::WasPressedKey(int key) const noexcept {
 
 bool Window::WasReleasedKey(int key) const noexcept {
     return controller_.WasReleased(key);
+}
+
+void Window::FramePerSecond() noexcept {
+    static int n_frames = 0;
+    double current_time = glfwGetTime();
+    n_frames++;
+
+    if (current_time - lt_ >= 1.0) {
+        fps_ = n_frames;
+        delay_ = 1000.0 / static_cast<double>(n_frames);
+        n_frames = 0;    
+        lt_++;
+    }
 }

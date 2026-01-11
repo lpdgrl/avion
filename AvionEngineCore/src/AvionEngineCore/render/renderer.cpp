@@ -13,6 +13,7 @@ Renderer::~Renderer() {
     for (auto& [key, value] : vao_) {
         glDeleteVertexArrays(1, &value);
     }
+
     for (auto& [key, value] : vbo_) {
         glDeleteBuffers(1, &value);
     }
@@ -74,67 +75,14 @@ void Renderer::UpdateCoordinatesCamera(GLfloat delta_time) {
 }
 
 void Renderer::InitRenderer() {
-    /*float vertices_objects[] = {
-        // positions         // colors
-        1.f,  1.f, 0.0f,  1.0f, 1.0f, 1.0f,  // top right
-        1.f,  -1.f, 0.0f,  1.0f, 1.0f, 1.0f,  // bottom right
-        -1.f,  1.f, 0.0f,  .0f, 1.0f, .0f,  // bottom left
-        -1.f, -1.f, 0.0f,  .0f, 1.0f, .0f   // top left 
-    };*/ 
+    LoadVerticesCube();
+    LoadVerticesPyramid();
+    LoadVerticesSourceLigth();
+}
 
-    // float vertices_objects[] = {
-    //     // positions          
-    //      0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   // top right
-    //      0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f, // bottom right
-    //     -0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f, // bottom left
-    //     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f   // top left 
-    // };
-
-    // float vertices_objects[] = {
-    //     -0.5f, -0.5f, -0.5f,
-    //      0.5f, -0.5f, -0.5f,
-    //      0.5f,  0.5f, -0.5f,
-    //      0.5f,  0.5f, -0.5f,
-    //     -0.5f,  0.5f, -0.5f,
-    //     -0.5f, -0.5f, -0.5f,
-
-    //     -0.5f, -0.5f,  0.5f,
-    //      0.5f, -0.5f,  0.5f,
-    //      0.5f,  0.5f,  0.5f,
-    //      0.5f,  0.5f,  0.5f, 
-    //     -0.5f,  0.5f,  0.5f, 
-    //     -0.5f, -0.5f,  0.5f,
-
-    //     -0.5f,  0.5f,  0.5f,
-    //     -0.5f,  0.5f, -0.5f,
-    //     -0.5f, -0.5f, -0.5f,
-    //     -0.5f, -0.5f, -0.5f,
-    //     -0.5f, -0.5f,  0.5f,
-    //     -0.5f,  0.5f,  0.5f,
-
-    //      0.5f,  0.5f,  0.5f,
-    //      0.5f,  0.5f, -0.5f,
-    //      0.5f, -0.5f, -0.5f,
-    //      0.5f, -0.5f, -0.5f,
-    //      0.5f, -0.5f,  0.5f,
-    //      0.5f,  0.5f,  0.5f,
-
-    //     -0.5f, -0.5f, -0.5f,
-    //      0.5f, -0.5f, -0.5f,
-    //      0.5f, -0.5f,  0.5f,
-    //      0.5f, -0.5f,  0.5f,
-    //     -0.5f, -0.5f,  0.5f,
-    //     -0.5f, -0.5f, -0.5f,
-
-    //     -0.5f,  0.5f, -0.5f,
-    //      0.5f,  0.5f, -0.5f, 
-    //      0.5f,  0.5f,  0.5f,
-    //      0.5f,  0.5f,  0.5f, 
-    //     -0.5f,  0.5f,  0.5f,
-    //     -0.5f,  0.5f, -0.5f,
-    // };
-
-    float vertices_objects[] = {
+void Renderer::LoadVerticesCube() {
+     // actual!!
+    float cube[] = {
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
@@ -178,67 +126,14 @@ void Renderer::InitRenderer() {
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
-    // float vertices_objects[] = {
-    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-
-    //     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-
-    //     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-
-    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-
-    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-
-    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f
-    // };
-
-    // float vertices_objects[] = {
-    //     -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,
-    //     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
-    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
-    //    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.f,
-    //    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.f
-    // };
-    
     //Buffers for objects
-    GenerateBuffer(1, TypeBuffers::VAO, MapKey::OBJECTS);
-    GenerateBuffer(1, TypeBuffers::VBO, MapKey::OBJECTS);
+    GenerateBuffer(1, TypeBuffers::VAO, MapKey::kCube);
+    GenerateBuffer(1, TypeBuffers::VBO, MapKey::kCube);
 
-    BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::OBJECTS));
-    BufferData(GL_ARRAY_BUFFER, sizeof(vertices_objects), vertices_objects, GL_STATIC_DRAW);
+    BindVertexArray(GetVAO(MapKey::kCube));
 
-    BindVertexArray(GetVAO(MapKey::OBJECTS));
+    BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::kCube));
+    BufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
     // BindBuffer(GL_ELEMENT_ARRAY_BUFFER, GetEBO(MapKey::OBJECTS));
     // BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_objects), indices_objects, GL_DYNAMIC_DRAW);
@@ -250,23 +145,127 @@ void Renderer::InitRenderer() {
     // Normal attribute
     SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
     EnableVertexAttribArray(1);
+
     BindVertexArray(0);
+    BindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Renderer::LoadVerticesPyramid() {
+     float pyramid[] = {
+        // Base (down)
+        -0.5f, -0.5f, -0.5f,   0.f, -1.f,  0.f,
+        0.5f, -0.5f, -0.5f,   0.f, -1.f,  0.f,
+        0.5f, -0.5f,  0.5f,   0.f, -1.f,  0.f,
+
+        -0.5f, -0.5f, -0.5f,   0.f, -1.f,  0.f,
+        0.5f, -0.5f,  0.5f,   0.f, -1.f,  0.f,
+        -0.5f, -0.5f,  0.5f,   0.f, -1.f,  0.f,
+
+        // Front face (towards -Z)
+        0.0f,  0.5f,  0.0f,   0.0f,  0.7071f, -0.7071f,
+        -0.5f, -0.5f, -0.5f,   0.0f,  0.7071f, -0.7071f,
+        0.5f, -0.5f, -0.5f,   0.0f,  0.7071f, -0.7071f,
+
+        // Right face (towards +X)
+        0.0f,  0.5f,  0.0f,   0.7071f, 0.7071f, 0.0f,
+        0.5f, -0.5f, -0.5f,   0.7071f, 0.7071f, 0.0f,
+        0.5f, -0.5f,  0.5f,   0.7071f, 0.7071f, 0.0f,
+
+        // Back face (towards +Z)
+        0.0f,  0.5f,  0.0f,   0.0f,  0.7071f,  0.7071f,
+        0.5f, -0.5f,  0.5f,   0.0f,  0.7071f,  0.7071f,
+        -0.5f, -0.5f,  0.5f,   0.0f,  0.7071f,  0.7071f,
+
+        // Left face (towards -X)
+        0.0f,  0.5f,  0.0f,  -0.7071f, 0.7071f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  -0.7071f, 0.7071f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  -0.7071f, 0.7071f, 0.0f,
+    };
+
+    //Buffers for objects
+    GenerateBuffer(1, TypeBuffers::VAO, MapKey::kPyramid);
+    GenerateBuffer(1, TypeBuffers::VBO, MapKey::kPyramid);
+
+    BindVertexArray(GetVAO(MapKey::kPyramid));
+
+    BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::kPyramid));
+    BufferData(GL_ARRAY_BUFFER, sizeof(pyramid), pyramid, GL_STATIC_DRAW);
+
+    // BindBuffer(GL_ELEMENT_ARRAY_BUFFER, GetEBO(MapKey::OBJECTS));
+    // BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_objects), indices_objects, GL_DYNAMIC_DRAW);
+
+    // Attribute of position player
+    SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
+    EnableVertexAttribArray(0);
+
+    // Normal attribute
+    SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    EnableVertexAttribArray(1);
+
+    BindVertexArray(0);
+    BindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Renderer::LoadVerticesSourceLigth() {
+     // actual!!
+    float cube[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+    
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+    
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+    };
 
     // Create VAO and set vertex attrib for Ligth
-    GenerateBuffer(1, TypeBuffers::VAO, MapKey::LIGHT);
-    BindVertexArray(GetVAO(MapKey::LIGHT));
+    GenerateBuffer(1, TypeBuffers::VAO, MapKey::kLight);
+    GenerateBuffer(1, TypeBuffers::VBO, MapKey::kLight);
+    
+    BindVertexArray(GetVAO(MapKey::kLight));
 
-    BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::OBJECTS));
+    BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::kLight));
+    BufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
     SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     EnableVertexAttribArray(0);
+
+    BindBuffer(GL_ARRAY_BUFFER, 0);
     BindVertexArray(0);
-
-    // // Attribute of color player
-    // EnableVertexAttribArray(1);
-    // SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    // BindBuffer(GL_ARRAY_BUFFER, 0);
-    // BindVertexArray(0);
 }
 
 void Renderer::InitRendererText() {
@@ -293,17 +292,15 @@ void Renderer::GenerateBuffer(const GLsizei n, TypeBuffers type, MapKey key) {
         case TypeBuffers::VAO: 
             glGenVertexArrays(n, &b);
             vao_.insert(std::make_pair(key, b));
-        break;
-
+            break;
         case TypeBuffers::VBO:
             glGenBuffers(n, &b);
             vbo_.insert(std::make_pair(key, b));
-        break;
-
+            break;
         case TypeBuffers::EBO:
             glGenBuffers(n, &b);
             ebo_.insert(std::make_pair(key, b));
-        break;
+            break;
     }
 }
 
@@ -344,11 +341,11 @@ void Renderer::SetPerspectiveProjection(float fov, unsigned int width, unsigned 
 
     shader_->use();
     shader_->setMat4("projection", projection_matrix);
-    BindVertexArray(GetVAO(MapKey::OBJECTS));
+    BindVertexArray(GetVAO(MapKey::kCube));
 
     shader_ligth_->use();
     shader_ligth_->setMat4("projection", projection_matrix);
-    BindVertexArray(GetVAO(MapKey::OBJECTS));
+    BindVertexArray(GetVAO(MapKey::kLight));
 
     shader_text_->use();
     glUniformMatrix4fv(glGetUniformLocation(shader_text_->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection_matrix));
@@ -395,10 +392,12 @@ void Renderer::Draw(Shader* shader, const glm::vec3& position, const glm::vec3& 
     
     shader->setMat4("model", model_matrix);
     shader->setMat4("view", view_matrix);
-
+    
     BindVertexArray(GetVAO(key));
+    
     //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+
     BindVertexArray(0);
 }
 
