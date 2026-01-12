@@ -80,6 +80,8 @@ void Window::Render() {
 
     while (!glfwWindowShouldClose(window_)) {
         DeltaTimeUpdate();
+
+        std::cout << std::setprecision(3) << "xpos: " << controller_.GetLastXposCursor() << " ypos: " << controller_.GetLastYposCursor() << '\n';
         
         gui_->Frame();
         gui_->WindowLogs({.fps = fps_, .delay = delay_});

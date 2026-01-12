@@ -24,6 +24,11 @@ struct CoordOffset {
     double yoffset = 0;
 };
 
+struct CoordMouse {
+    double xpos = 0;
+    double ypos = 0;
+};
+
 // What is does?
 // Класс контроллер отвечает за обработку ввода (мышь, клавиатура, геймпад)
 class Controller {
@@ -44,11 +49,14 @@ public:
 
     void OnMouseMove(double xpos, double ypos);
     void OnKeyPress(int key, int scancode, int action, int mods);
-    
+
     static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
     static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     CoordOffset GetOffset();
+
+    double GetLastXposCursor() const noexcept;
+    double GetLastYposCursor() const noexcept;
 
     void SetCoordinate(double xpos_cursor, double ypos_cursor);
 

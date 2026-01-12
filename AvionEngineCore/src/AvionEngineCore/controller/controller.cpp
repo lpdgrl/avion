@@ -69,6 +69,14 @@ CoordOffset Controller::GetOffset() {
     return offset;
 }
 
+double Controller::GetLastXposCursor() const noexcept {
+    return last_xpos_cursor_;
+}
+
+double Controller::GetLastYposCursor() const noexcept {
+    return last_ypos_cursor_;
+}
+
 void Controller::SetCoordinate(double xpos_cursor, double ypos_cursor) {
     last_xpos_cursor_ = xpos_cursor;
     last_ypos_cursor_ = ypos_cursor;
