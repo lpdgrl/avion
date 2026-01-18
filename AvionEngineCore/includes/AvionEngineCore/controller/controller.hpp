@@ -5,71 +5,75 @@
 #include <array>
 #include <iostream>
 
-static const unsigned int SIZE_ARRAY_KEYS = 512;
+namespace avion::controller {
 
-enum class KeyPress {
-    kKeyW = 87,
-    kKeyS = 83,
-    kKeyR = 82,
-    kKeyI = 73,
-    kKeyK = 75,
-    kKeyEnter = 257,
-    kKeySpace = 32,
-    kKeyQ = 81,
-    kNone = -1,
-};
+    static const unsigned int SIZE_ARRAY_KEYS = 512;
 
-struct CoordOffset {
-    double xoffset = 0;
-    double yoffset = 0;
-};
+    enum class KeyPress {
+        kKeyW = 87,
+        kKeyS = 83,
+        kKeyR = 82,
+        kKeyI = 73,
+        kKeyK = 75,
+        kKeyEnter = 257,
+        kKeySpace = 32,
+        kKeyQ = 81,
+        kNone = -1,
+    };
 
-struct CoordMouse {
-    double xpos = 0;
-    double ypos = 0;
-};
+    struct CoordOffset {
+        double xoffset = 0;
+        double yoffset = 0;
+    };
 
-// What is does?
-// Класс контроллер отвечает за обработку ввода (мышь, клавиатура, геймпад)
-class Controller {
-public:
-    Controller() = default;
+    struct CoordMouse {
+        double xpos = 0;
+        double ypos = 0;
+    };
 
-    explicit Controller(double xpos_curosr, double ypos_cursor);
+    // What is does?
+    // Класс контроллер отвечает за обработку ввода (мышь, клавиатура, геймпад)
+    class Controller {
+    public:
+        Controller() = default;
 
-    Controller(const Controller&) = delete;
-    Controller& operator=(const Controller&) = delete;
+        explicit Controller(double xpos_curosr, double ypos_cursor);
 
-    Controller(Controller&&) = delete;
-    Controller& operator=(Controller&&) = delete;
+        Controller(const Controller&) = delete;
+        Controller& operator=(const Controller&) = delete;
 
-    bool IsDown(int key) const;
-    bool WasPressed(int key) const;
-    bool WasReleased(int key) const;
+        Controller(Controller&&) = delete;
+        Controller& operator=(Controller&&) = delete;
 
-    void OnMouseMove(double xpos, double ypos);
-    void OnKeyPress(int key, int scancode, int action, int mods);
+        bool IsDown(int key) const;
+        bool WasPressed(int key) const;
+        bool WasReleased(int key) const;
 
-    static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
-    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+        void OnMouseMove(double xpos, double ypos);
+        void OnKeyPress(int key, int scancode, int action, int mods);
 
-    CoordOffset GetOffset();
+        static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+        static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-    double GetLastXposCursor() const noexcept;
-    double GetLastYposCursor() const noexcept;
+        CoordOffset GetOffset();
 
-    void SetCoordinate(double xpos_cursor, double ypos_cursor);
+        double GetLastXposCursor() const noexcept;
+        double GetLastYposCursor() const noexcept;
 
-    void ClearStateKeys();
+        void SetCoordinate(double xpos_cursor, double ypos_cursor);
 
-    ~Controller();
-private:
-    std::array<bool, SIZE_ARRAY_KEYS> isDown_;
-    std::array<bool, SIZE_ARRAY_KEYS> wasPressed_;
-    std::array<bool, SIZE_ARRAY_KEYS> wasReleased_;
+        void ClearStateKeys();
 
-    double last_xpos_cursor_ = 0;
-    double last_ypos_cursor_ = 0;
-    double xoffset_ = 0;
-    double yoffset_ = 0;
-};
+        ~Controller();
+    private:
+        std::array<bool, SIZE_ARRAY_KEYS> isDown_;
+        std::array<bool, SIZE_ARRAY_KEYS> wasPressed_;
+        std::array<bool, SIZE_ARRAY_KEYS> wasReleased_;
+
+        double last_xpos_cursor_ = 0;
+        double last_ypos_cursor_ = 0;
+        double xoffset_ = 0;
+        double yoffset_ = 0;
+    };
+
+} // namespace avion::controller

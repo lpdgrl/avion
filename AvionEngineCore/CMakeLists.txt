@@ -11,14 +11,14 @@ SET(IMGUI_DIR libs/imgui)
 
 add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/logger/logger.cpp
-    src/AvionEngineCore/render/renderer.cpp
-    src/AvionEngineCore/render/text_rendering.cpp
-    src/AvionEngineCore/render/shader.cpp
-    src/AvionEngineCore/render/camera.cpp
-    src/AvionEngineCore/render/scene.cpp
-    src/AvionEngineCore/render/object.cpp
-    src/AvionEngineCore/render/gui.cpp
-    src/AvionEngineCore/render/window.cpp
+    src/AvionEngineCore/renderer/renderer.cpp
+    # src/AvionEngineCore/renderer/text_rendering.cpp
+    src/AvionEngineCore/renderer/shader.cpp
+    src/AvionEngineCore/renderer/camera.cpp
+    src/AvionEngineCore/core/scene.cpp
+    src/AvionEngineCore/core/object.cpp
+    src/AvionEngineCore/gui/widget.cpp
+    src/AvionEngineCore/core/window.cpp
     src/AvionEngineCore/controller/controller.cpp
     src/AvionEngineCore/external/glad.c
     libs/imgui/imgui_demo.cpp
