@@ -48,34 +48,18 @@ namespace avion::core {
         return &it_object->object;
     }
 
-    std::string Scene::GetTypeObject(int id) const noexcept {
-        std::string type_object; 
-        
-        auto it_object = std::find_if(objects_on_scene_.begin(), objects_on_scene_.end(), [&](const SceneObject& obj_scene) {
-            return obj_scene.object.GetId() == id;
-        });
-
-        if (it_object == objects_on_scene_.end()) {
-            type_object = "not found";
-        }
-
-        auto type = it_object->type;
-
+    std::string TypeObjectToString(TypeObject type) {
         switch (type) {
-            case TypeObject::kCube: 
-                type_object = "cube";
-                break;
+            case TypeObject::kCube:
+                return "Cube";
             case TypeObject::kLight:
-                type_object = "light";
-                break;
+                return "Light";
             case TypeObject::kPyramid:
-                type_object = "pyramid";
-                break;
+                return "Pyramid";
         }
-
-        return type_object;
+        return {};
     }
 
-    SceneObject::SceneObject(TypeObject type, int id, Position position, Size size, Color color): type(type), object(id, position, size, color) {}
+    SceneObject::SceneObject(TypeObject type, int id, Position position, Size size, Color color, Color mixing_color): type(type), object(id, position, size, color, mixing_color) {}
 
 } // namespace avion::core

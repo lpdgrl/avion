@@ -17,8 +17,12 @@ namespace avion::core {
 
 namespace avion::gui {
     struct Logs {
-        int fps = 0;
+        int    fps   = 0;
         double delay = 0;
+        double x_px  = 0;
+        double y_px  = 0;
+        double x_ndc = 0;
+        double y_ndc = 0;
     };
 
     class Widget {
@@ -41,6 +45,7 @@ namespace avion::gui {
         void WindowLigthColor(glm::vec3& position, glm::vec3& color) const;
         int WindowListObjects(const std::vector<core::SceneObject>& objects) const;
         void WindowLogs(Logs logs) const;
+        void WidgetShader(float& kAmbient, float& kSpecular, float& kShininess) const;
     private:
         GLFWwindow* window_ = nullptr;
         ImGuiIO& io_;

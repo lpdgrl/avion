@@ -14,10 +14,12 @@ namespace avion::core {
     };
 
     struct SceneObject {
-        SceneObject(TypeObject type, int id, Position position, Size size, Color color);
+        SceneObject(TypeObject type, int id, Position position, Size size, Color color, Color mixing_color = core::kDefMixColor);
         TypeObject type;
         Object object;
     };
+
+    std::string TypeObjectToString(TypeObject type);
 
     class Scene {
     public:
@@ -39,7 +41,6 @@ namespace avion::core {
         size_t GetNumberObjects() const;
         Object* GetObject(int id);
         Object* GetObject(TypeObject type);
-        std::string GetTypeObject(int id) const noexcept;
 
     private:
         Objects objects_on_scene_;

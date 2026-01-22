@@ -6,7 +6,7 @@ namespace avion::gfx {
     Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
             : camera_position_(position)
             , camera_front_(glm::vec3(0.0f, 0.0f, -1.0f))
-            , camera_up_(0)
+            , camera_up_(up)
             , camera_right_(0)
             , camera_world_up_(up)
             , angle_yaw_(yaw)
@@ -106,6 +106,10 @@ namespace avion::gfx {
         // also re-calculate the Right and Up vector
         camera_right_ = glm::normalize(glm::cross(camera_front_, camera_world_up_));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         camera_up_    = glm::normalize(glm::cross(camera_right_, camera_front_));
+    }
+
+    glm::vec3 Camera::GetPosition() const noexcept {
+        return camera_position_;
     }
 
 } // namespace avion::gfx

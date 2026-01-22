@@ -8,6 +8,7 @@
 namespace avion::controller {
 
     static const unsigned int SIZE_ARRAY_KEYS = 512;
+    static const unsigned int SIZE_ARRAY_MOUSE_BUTTON = 8;
 
     enum class KeyPress {
         kKeyW = 87,
@@ -49,10 +50,16 @@ namespace avion::controller {
         bool WasPressed(int key) const;
         bool WasReleased(int key) const;
 
+        bool IsDownMouseButton(int button) const;
+        bool WasPressedMouseButton(int button) const;
+        bool WasReleasedMouseButton(int button) const;
+
         void OnMouseMove(double xpos, double ypos);
         void OnKeyPress(int key, int scancode, int action, int mods);
+        void OnMouseButtonPress(int button, int action, int mods);
 
         static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+        static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
         static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
         CoordOffset GetOffset();
@@ -69,6 +76,10 @@ namespace avion::controller {
         std::array<bool, SIZE_ARRAY_KEYS> isDown_;
         std::array<bool, SIZE_ARRAY_KEYS> wasPressed_;
         std::array<bool, SIZE_ARRAY_KEYS> wasReleased_;
+
+        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> is_MB_button_down_;
+        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> was_MB_button_pressed_;
+        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> was_MB_button_released_;
 
         double last_xpos_cursor_ = 0;
         double last_ypos_cursor_ = 0;

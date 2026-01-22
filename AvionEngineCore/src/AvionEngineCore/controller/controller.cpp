@@ -24,6 +24,27 @@ namespace avion::controller {
         }
     }
 
+    void Controller::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+        Controller* self = static_cast<Controller*>(glfwGetWindowUserPointer(window));
+        if (self) {
+            self->OnMouseButtonPress(button, action, mods);
+        }
+    }
+
+    void Controller::OnMouseButtonPress(int button, int action, int mods) {
+        if (button < 0 || button > GLFW_MOUSE_BUTTON_8) {
+            return;
+        }
+
+        if (action == GLFW_PRESS) {
+            is_MB_button_down_[button] = true;
+            was_MB_button_pressed_[button] = true;
+        } else if (action == GLFW_RELEASE) {
+            is_MB_button_down_[button] = false;
+            was_MB_button_released_[button] = true;
+        }
+    }   
+
     void Controller::OnKeyPress(int key, int scancode, int action, int mods) {
         if (key < 0 || key > GLFW_KEY_LAST) {
             return;
@@ -53,6 +74,9 @@ namespace avion::controller {
     void Controller::ClearStateKeys() {
         std::fill(wasPressed_.begin(), wasPressed_.end(), false);
         std::fill(wasReleased_.begin(), wasReleased_.end(), false);
+
+        std::fill(was_MB_button_pressed_.begin(), was_MB_button_released_.end(), false);
+        std::fill(was_MB_button_released_.begin(), was_MB_button_released_.end(), false);
     }
 
     void Controller::OnMouseMove(double xpos, double ypos) {
@@ -82,6 +106,18 @@ namespace avion::controller {
     void Controller::SetCoordinate(double xpos_cursor, double ypos_cursor) {
         last_xpos_cursor_ = xpos_cursor;
         last_ypos_cursor_ = ypos_cursor;
+    }
+
+    bool Controller::IsDownMouseButton(int button) const {
+        return is_MB_button_down_[button];
+    }
+
+    bool Controller::WasPressedMouseButton(int button) const {
+        return was_MB_button_pressed_[button];
+    }
+
+    bool Controller::WasReleasedMouseButton(int button) const {
+        return was_MB_button_released_[button];
     }
 
 } // namespace avion::controller

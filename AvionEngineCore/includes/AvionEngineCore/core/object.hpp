@@ -5,7 +5,8 @@
 #include "glm/glm.hpp"
 
 namespace avion::core {
-
+    constexpr glm::vec3 kDefMixColor(1.f, 1.f, 1.f);
+    
     struct Size {
         Size() = default;
         Size(glm::vec3 size): size(size) {}
@@ -34,6 +35,7 @@ namespace avion::core {
         glm::vec3 position;
         glm::vec3 size;
         glm::vec3 color;
+        glm::vec3 mixing_color;
     };
 
     std::ostream& operator<<(std::ostream& out, Size size);
@@ -43,7 +45,7 @@ namespace avion::core {
     class Object {
     public:
         Object() = default;
-        Object(int id, Position position, Size size, Color color);
+        Object(int id, Position position, Size size, Color color, Color mixing_color);
 
         Object(const Object& object);
         Object(Object&& object);
@@ -56,13 +58,14 @@ namespace avion::core {
         Size GetSize() const noexcept;
         Position GetPosition() const noexcept;
         Color GetColor() const noexcept;
-
+        Color GetMixingColor() const noexcept; 
         ObjectParams GetParams() const noexcept;
         int GetId() const noexcept;
 
-        void SetPosition(Position position);
-        void SetSize(Size size);
-        void SetColor(Color color);
+        void SetPosition(Position position) noexcept;
+        void SetSize(Size size) noexcept;
+        void SetColor(Color color) noexcept;
+        void SetMixingColor(Color color) noexcept;
         void SetParams(Position position, Size size, Color color);
 
     private:
@@ -70,6 +73,7 @@ namespace avion::core {
         Size size_;
         Position position_;
         Color color_;
+        Color mixing_color_;
     };
 
     // struct ObjectId {

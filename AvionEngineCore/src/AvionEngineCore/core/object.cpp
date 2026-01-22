@@ -2,8 +2,14 @@
 
 namespace avion::core {
 
-    Object::Object(int id, Position position, Size size, Color color): id_(id), position_(position), size_(size), color_(color) {
-        std::cout << "Object ctor " << position_ << '\n';
+    Object::Object(int id, Position position, Size size, Color color, Color mixing_color)
+        : id_(id)
+        , position_(position)
+        , size_(size)
+        , color_(color)
+        , mixing_color_(mixing_color) 
+    {
+            std::cout << "Object ctor " << position_ << '\n';
     }
 
     Object::Object(const Object& object): position_(object.position_), size_(object.size_), color_(object.color_) {
@@ -48,11 +54,16 @@ namespace avion::core {
         return color_;
     }
 
+    Color Object::GetMixingColor() const noexcept {
+        return mixing_color_;
+    }
+
     ObjectParams Object::GetParams() const noexcept {
         ObjectParams params{
             .position = position_.position,
             .size = size_.size,
-            .color = color_.color
+            .color = color_.color,
+            .mixing_color = color_.color
         };
         return params;
     }
@@ -62,23 +73,27 @@ namespace avion::core {
     }
 
     std::ostream& operator<<(std::ostream& out, Size size) {
-        return out << size.size.x << ' ' << size.size.y << ' ' << size.size.z;
+        return out << size.size.x << ' ' << size.size.y << ' ' << size.size.z << '\n';
     }
 
     std::ostream& operator<<(std::ostream& out, Position pos) {
-        return out << pos.position.x << ' ' << pos.position.y << ' ' << pos.position.z;
+        return out << pos.position.x << ' ' << pos.position.y << ' ' << pos.position.z << '\n';
     }
 
-    void Object::SetPosition(Position position) {
+    void Object::SetPosition(Position position) noexcept {
         position_ = position;
     }
 
-    void Object::SetSize(Size size) {
+    void Object::SetSize(Size size) noexcept {
         size_ = size;
     }
 
-    void Object::SetColor(Color color) {
+    void Object::SetColor(Color color) noexcept {
         color_ = color;
+    }
+
+    void Object::SetMixingColor(Color color) noexcept {
+        mixing_color_ = color;
     }
 
     void Object::SetParams(Position position, Size size, Color color) {

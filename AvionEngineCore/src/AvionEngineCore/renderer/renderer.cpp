@@ -334,23 +334,24 @@ namespace avion::gfx {
         BindVertexArray(GetVAO(MapKey::OBJECTS));
 
         shader_text_->use();
-        glUniformMatrix4fv(glGetUniformLocation(shader_text_->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader_text_->GetID(), "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         BindVertexArray(GetVAO(MapKey::TEXT));
     }
 
     void Renderer::SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far) {
-        glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), static_cast<float>(width) / static_cast<float>(height), near, far);
-
+        // We set the projection once?
+        projection_ = glm::perspective(glm::radians(fov), static_cast<float>(width) / static_cast<float>(height), near, far);
+        
         shader_->use();
-        shader_->setMat4("projection", projection_matrix);
+        shader_->setMat4("projection", projection_);
         BindVertexArray(GetVAO(MapKey::kCube));
 
         shader_ligth_->use();
-        shader_ligth_->setMat4("projection", projection_matrix);
+        shader_ligth_->setMat4("projection", projection_);
         BindVertexArray(GetVAO(MapKey::kLight));
 
         shader_text_->use();
-        glUniformMatrix4fv(glGetUniformLocation(shader_text_->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection_matrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader_text_->GetID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection_));
         BindVertexArray(GetVAO(MapKey::TEXT));
     }
 
@@ -380,21 +381,24 @@ namespace avion::gfx {
 
     void Renderer::Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, AxisRotate axis, 
                         GLfloat rotate, MapKey key) {
-        shader->use();
+       
 
         glm::mat4 model_matrix = glm::mat4(1.f);
         model_matrix = TranslateMatrix(model_matrix, position);
         model_matrix = RotateMatrix(model_matrix, axis, rotate);
         model_matrix = ScaleMatrix(model_matrix, size);
 
-        glm::mat4 view_matrix = glm::mat4(1.f);
         // view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
 
+        glm::mat4 view_matrix = glm::mat4(1.f);                  
         view_matrix = camera_->GetViewMatrix();
-        
+        glm::vec3 view_pos = camera_->GetPosition();
+
+        shader->use();
         shader->setMat4("model", model_matrix);
+        shader->setVec3("view_pos", view_pos);
         shader->setMat4("view", view_matrix);
-        
+
         BindVertexArray(GetVAO(key));
         
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -402,6 +406,19 @@ namespace avion::gfx {
 
         BindVertexArray(0);
     }
+
+    glm::vec3 Renderer::PickUpObject(double x_px, double y_px, int width, int height, GLfloat depth) const {
+        glm::vec4 view_port(0, 0, width, height);
+        glm::vec3 win_coord(x_px, height - y_px - 1, depth);
+        auto view = camera_->GetViewMatrix();
+        
+        glm::vec3 obj_coord(glm::unProject(win_coord, view, projection_, view_port));
+
+        std::cout << "Coordinates in object space: " << obj_coord.x << " " << obj_coord.y << " " << obj_coord.z << '\n';
+
+        return obj_coord;
+    }
+
 
     // void Renderer::DrawText(std::string text, float x, float y, float scale, glm::vec3 color) {
     //     shader_text_->use();
@@ -498,5 +515,4 @@ namespace avion::gfx {
         
         return nullptr;
     }
-
 } // namespace avion::gfx

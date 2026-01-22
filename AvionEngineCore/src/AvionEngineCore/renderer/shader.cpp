@@ -126,4 +126,12 @@ namespace avion::gfx {
         glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
     }
 
+    unsigned int Shader::GetID() const noexcept {
+        return ID;
+    }
+
+    unsigned int Shader::GetID() noexcept {
+        return ID;
+    }
+
 } // namespace avion::gfx

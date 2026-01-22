@@ -14,7 +14,7 @@
 
 namespace avion::core {
 
-    static const int kObjectsCreate = 20;
+    static const int kObjectsCreate = 1000;
 
     class Window {
     public:
@@ -58,7 +58,6 @@ namespace avion::core {
         void FramePerSecond() noexcept;
 
     private:
-        
         std::string window_name_;
         int width_window_ = 0;
         int height_window_ = 0;

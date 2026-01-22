@@ -8,11 +8,15 @@ uniform vec3 ligthColor;
 uniform vec3 ligthPos;
 uniform vec3 view_pos;
 
+uniform float kAmbient;
+uniform float kSpecular;
+uniform float kShininess;
+
 out vec4 FragColor;
 
 void main()
 {
-    float specular_strength = 0.5f;
+    float specular_strength = kSpecular;
     vec3 view_dir = normalize(view_pos - FragPos);
 
     vec3 norm = normalize(Normal);
@@ -25,11 +29,11 @@ void main()
     vec3 diffuse = diff * ligthColor;
 
     // Ambient ligth
-    float ambientStrength = 0.1f;
+    float ambientStrength = kAmbient;
     vec3 ambient = ambientStrength * ligthColor;
 
     // Specular ligth
-    float spec = pow(max(dot(view_dir, reflect_dir), 0.0f), 32);
+    float spec = pow(max(dot(view_dir, reflect_dir), 0.0f), kShininess);
     vec3 specular = specular_strength * spec * ligthColor;
 
     vec3 result = (ambient + diffuse + specular) * objectColor;

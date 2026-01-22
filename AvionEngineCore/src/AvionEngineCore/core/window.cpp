@@ -50,6 +50,7 @@ namespace avion::core {
         glfwSetWindowUserPointer(window_, &controller_);
         glfwSetKeyCallback(window_, controller::Controller::KeyCallback);
         glfwSetCursorPosCallback(window_, controller::Controller::MouseCallback);
+        glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
         glfwSetCursorPos(window_, width_window_, height_window_ / 2);
 
         render_->Init();
@@ -73,9 +74,16 @@ namespace avion::core {
         glm::vec3 position{};
         glm::vec3 size{1.f, 1.f, 1.f};
 
-        bool state_button_addobject = false;
         float scr_aspect = height_window_ / width_window_;
+        float kAmbient = 0.1f;
+        float kSpecular = 0.5f;
+        float kShininess = 32.0f;
+
+        bool state_button_addobject = false;
+
         int selected_object_id = 0;
+        bool pickup_obj = false;
+        int id_pickup = 0;
         TypeObject type_obj = TypeObject::kCube;
 
         double lt_ = glfwGetTime();
@@ -83,25 +91,69 @@ namespace avion::core {
         while (!glfwWindowShouldClose(window_)) {
             DeltaTimeUpdate();
 
-            std::cout << std::setprecision(3) << "xpos: " << controller_.GetLastXposCursor() << " ypos: " << controller_.GetLastYposCursor() << '\n';
+            GLfloat color_buffer[3];
+            GLfloat depth;
+
+            double x_px = controller_.GetLastXposCursor();
+            double y_px = controller_.GetLastYposCursor();
+
+            // Why height - y_px - 1?
+            glReadPixels(x_px, height_window_ - y_px - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+            glReadPixels(x_px, height_window_ - y_px - 1, 1, 1, GL_RGB, GL_FLOAT, color_buffer);
+            std::cout << "Clicked on pixel: " << std::setprecision(2) << x_px << " " << y_px << " " << color_buffer[0] << " " << color_buffer[1] << " " << color_buffer[2] << " Depth: " << depth << '\n';
+
+            auto obj_coord_pickup = render_->PickUpObject(x_px, y_px, width_window_, height_window_, depth);
             
+            double x_ndc = 2 * x_px / width_window_ - 1;
+            double y_ndc = 1 - 2 * y_px / height_window_;
+
             widget_->Frame();
-            widget_->WindowLogs({.fps = fps_, .delay = delay_});
-            
+            widget_->WindowLogs({
+                .fps = fps_, 
+                .delay = delay_,
+                .x_px = x_px,
+                .y_px = y_px, 
+                .x_ndc = x_ndc,
+                .y_ndc = y_ndc
+            });
+
+            widget_->WidgetShader(kSpecular, kAmbient, kShininess);
+
             render_->UpdateCoordinatesCamera(delta_time_);
             render_->Update();
 
-            shader->setFloat("scr_aspect", scr_aspect);
-
             glClearColor(0.2f, 0.2f, 0.2f, 1.f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            auto&& objects = scene_.GetAllObjects();
+
+            if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+                auto pickup_it = std::find_if(objects.begin(), objects.end(), [&](core::SceneObject& scene_object) {
+                auto [pz, sz, _, mixing_color] = scene_object.object.GetParams();
+
+                    return pz.x + (sz.x / 2) >= obj_coord_pickup.x 
+                        && pz.x - (sz.x / 2) <= obj_coord_pickup.x 
+                        && depth < 1.0
+                        && pz.y + (sz.y / 2) >= obj_coord_pickup.y
+                        && pz.y - (sz.y / 2) <= obj_coord_pickup.y; 
+                });
+
+                if (auto&& obj = pickup_it->object; pickup_it != objects.end()) {
+                    pickup_it->object.SetMixingColor(glm::vec3(0.96f, 0.25f, 0.94f));
+
+                    id_pickup = scene_.GetNumberObjects() - 1;
+                    pickup_obj = true;
+
+                    std::cout << "Do find pickup!!!" << '\n';
+                } else { std::cout << "Doesn't find pickup!!!" << '\n'; pickup_obj = false;}
+            }
 
             selected_object_id = widget_->WindowListObjects(scene_.GetAllObjects());
 
             size_t objects_size = scene_.GetNumberObjects();
             if (objects_size != 0 && selected_object_id > 0) {
-                Object* object = scene_.GetObject(selected_object_id);
-                auto [ps, sz, _color] = object->GetParams();
+                Object* object = scene_.GetObject(pickup_obj ? id_pickup : selected_object_id);
+                auto [ps, sz, _color, _] = object->GetParams();
                 widget_->WindowAddObject(type_obj, ps, sz, _color, state_button_addobject);
                 object->SetParams(ps, sz, _color);
             } else {
@@ -112,10 +164,10 @@ namespace avion::core {
                 scene_.AddObjectToScene(type_obj, position, size, color);
             }
 
-            for (const auto& object_scene : scene_.GetAllObjects()) {
-                auto type = object_scene.type;
-                auto& obj = object_scene.object;
-                auto [pz, sz, cl] = obj.GetParams();
+            for (const auto& object : objects) {
+                auto type = object.type;
+                auto& self_obj = object.object;
+                auto [pz, sz, cl, _] = self_obj.GetParams();
 
                 if (type == TypeObject::kLight) {
                     shader_ligth->use();
@@ -132,12 +184,17 @@ namespace avion::core {
                     l_pos = static_cast<glm::vec3>(light->GetPosition());
                     c_light = static_cast<glm::vec3>(light->GetColor());
                 }
-
+                
+                glm::vec3 mix_color = cl * self_obj.GetMixingColor().color;
                 shader->use();
-                shader->setVec3("objectColor", cl);
+                shader->setFloat("kAmbient", kAmbient);
+                shader->setFloat("kSpecular", kSpecular);
+                shader->setFloat("kShininess", kShininess);
+                shader->setVec3("objectColor", mix_color);
                 shader->setVec3("ligthColor", c_light);
                 shader->setVec3("ligthPos", l_pos);
-            
+                shader->setFloat("scr_aspect", scr_aspect);
+
                 render_->Draw(shader, pz, sz, gfx::AxisRotate::NONE, 0.f, static_cast<gfx::MapKey>(type));
             }
 
