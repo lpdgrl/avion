@@ -9,6 +9,10 @@ SET(CMAKE_EXE_LINKER_FLAGS "-v")
 
 SET(IMGUI_DIR libs/imgui)
 
+SET(GLFW_DIR libs/glfw)
+
+add_subdirectory(${GLFW_DIR})
+
 add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/logger/logger.cpp
     src/AvionEngineCore/renderer/renderer.cpp
@@ -21,7 +25,6 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/core/window.cpp
     src/AvionEngineCore/controller/controller.cpp
     src/AvionEngineCore/external/glad.c
-    libs/imgui/imgui_demo.cpp
     libs/imgui/imgui_draw.cpp
     libs/imgui/imgui_tables.cpp
     libs/imgui/imgui_widgets.cpp
@@ -40,7 +43,7 @@ target_include_directories(${ENGINE_PROJECT_NAME}
 target_link_libraries(${ENGINE_PROJECT_NAME} 
     PUBLIC
         ${FREETYPE_LIBRARIES}
-        # glfw
+        glfw
 )
 
 

@@ -1,3 +1,7 @@
 [submodule "AvionEngineCore/libs/imgui"]
 	path = AvionEngineCore/libs/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "AvionEngineCore/libs/glfw"]
+	path = AvionEngineCore/libs/glfw
+	url = https://github.com/glfw/glfw.git
+	branch = master
