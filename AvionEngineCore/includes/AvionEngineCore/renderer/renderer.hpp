@@ -1,26 +1,27 @@
 #pragma once
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
 #include <map>
+#include <unordered_map>
+#include <variant>
+#include <type_traits>
 
 #include "shader.hpp"
 // #include "text_rendering.hpp"
 #include "camera.hpp"
 
-namespace avion::core {
-    class Window;
-} // namespace avion::core
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 namespace avion::gfx {
-
-    #define WHITE glm::vec3(1.f, 1.f, 1.f)
-
     enum class TypeBuffers {
         EBO = 0,
         VBO = 1,
         VAO = 2
+    };
+
+    enum class ShaderType {
+        kObjects = 0,
+        kLight = 1,
     };
 
     enum class MapKey {
@@ -38,14 +39,53 @@ namespace avion::gfx {
         AXIS_Z =  2,
     };
 
+    template <typename T>
+    struct ShaderParam {
+        std::string name_param;
+        T value;
+    };
+
+    // struct ShaderContext {
+    //     ShaderContext(ShaderType type);
+    //     const ShaderType type;
+    // };
+
+    struct ShaderLight  {
+        ShaderType type = ShaderType::kLight;
+        ShaderParam<glm::vec3> light_color;
+        ShaderParam<glm::vec3> view_pos; 
+        ShaderParam<glm::mat4> view_matrix;
+        ShaderParam<glm::mat4> model_matrix;
+    };
+
+    struct ShaderObject {
+        ShaderType type = ShaderType::kObjects;
+        ShaderParam<GLfloat> light_ambient;
+        ShaderParam<GLfloat> light_specular;
+        ShaderParam<GLfloat> light_shininess;
+        ShaderParam<GLfloat> screen_aspect;
+        ShaderParam<glm::vec3> object_color;
+        ShaderParam<glm::vec3> light_color;
+        ShaderParam<glm::vec3> light_pos;
+        ShaderParam<glm::vec3> view_pos; 
+        ShaderParam<glm::mat4> view_matrix;
+        ShaderParam<glm::mat4> model_matrix;
+    };
+
+    template <typename T_struct>
+    struct RenderContext {
+        T_struct shader; 
+        glm::vec3 position;
+        glm::vec3 size;
+        AxisRotate axis;
+        GLfloat rotate;
+        MapKey key;
+    };
 
     // Класс Render - занимается отрисовкой сцены, расчетом матриц трансформаций и векторов
     class Renderer {  
-    // Инвариат == ?
     public:
-        Renderer() = delete;
-        
-        explicit Renderer(core::Window* window);
+        Renderer();
 
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
@@ -65,18 +105,23 @@ namespace avion::gfx {
         void InitRendererText();
 
         void Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate);
-        void Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, 
-            AxisRotate axis, GLfloat rotate, MapKey key);
+
+        template <typename T_struct>
+        void Draw(RenderContext<T_struct> render_context);
+        // void Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, 
+        //     AxisRotate axis, GLfloat rotate, MapKey key);
         // void DrawText(std::string text, float x, float y, float scale, glm::vec3 color);
 
         void SetLigth(Shader* shader, glm::vec3& colorLigth, glm::vec3& objectColor);
-        void SetOrthoProjection(float left, float right, float bottom, float top, float zNear, float zFar);
+
+        void SetOrthoProjection(float left, float width, float bottom, float height, float zNear, float zFar);
         void SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far);
 
         Shader* GetShaderPtr(std::string name) const;
 
-        void UpdateCoordinatesCamera(GLfloat delta_time);
-        void Update();
+        void ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept; 
+
+        void ProcessMouseMovement(double xoffset, double yoffset) const noexcept;
         
         glm::vec3 PickUpObject(double x_px, double y_px, int width, int height, GLfloat depth) const;
 
@@ -104,13 +149,15 @@ namespace avion::gfx {
         glm::mat4 ScaleMatrix(glm::mat4& model, const glm::vec2& size);
         glm::mat4 ScaleMatrix(glm::mat4& model, const glm::vec3& size);
 
+        template <typename T_struct>
+        void UseShader(T_struct shader);
+
     private:
         Shader* shader_ = nullptr;
         Shader* shader_text_ = nullptr;
         Shader* shader_ligth_ = nullptr;
         // TextRender* text_ = nullptr;
         Camera* camera_ = nullptr;
-        core::Window* window_ = nullptr;
 
         std::map<MapKey, GLuint> vao_;
         std::map<MapKey, GLuint> vbo_;
@@ -124,7 +171,7 @@ namespace avion::gfx {
 
         // TODO: Хранить путь к шейдерам в классе рендера неправильно!
         const char* PATH_TO_VERTEX_SHADER_TEXT = "./AvionEngineCore/src/AvionEngineCore/shaders/text.vs";
-        const char* PATH_TO_FRAGMENT_SHADER_TEXT = "/home/lpdgrl/Project/code/avion/AvionEngineCore/src/AvionEngineCore/shaders/text.fs";
+        const char* PATH_TO_FRAGMENT_SHADER_TEXT = "./AvionEngineCore/src/AvionEngineCore/shaders/text.fs";
 
         // TODO: Хранить путь к шейдерам в классе рендера неправильно!
         const char* PATH_TO_VERTEX_SHADER_LIGTH = "./AvionEngineCore/src/AvionEngineCore/shaders/ligth_shader.vs";
@@ -135,5 +182,62 @@ namespace avion::gfx {
 
         glm::mat4 projection_;
     };
+
+    template <typename T_struct>
+    void Renderer::Draw(RenderContext<T_struct> render_context) {
+        auto [shader, position, size, axis, rotate, key] = render_context;
+
+        glm::mat4 model_matrix = glm::mat4(1.f);
+        model_matrix = TranslateMatrix(model_matrix, position);
+        model_matrix = RotateMatrix(model_matrix, axis, rotate);
+        model_matrix = ScaleMatrix(model_matrix, size);
+
+        // view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
+
+        glm::mat4 view_matrix = glm::mat4(1.f);                  
+        view_matrix = camera_->GetViewMatrix();
+        glm::vec3 view_pos = camera_->GetPosition();
+
+        shader.view_matrix.value = view_matrix;
+        shader.view_pos.value = view_pos;
+        shader.model_matrix.value = model_matrix;
+        
+        UseShader<T_struct>(shader);
+        // shader->use();
+        // shader->setMat4("model", model_matrix);
+        // shader->setVec3("view_pos", view_pos);
+        // shader->setMat4("view", view_matrix);
+
+        BindVertexArray(GetVAO(key));
+        
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        BindVertexArray(0);
+    }
+    
+    template <typename T_struct>
+    void Renderer::UseShader(T_struct shader) {
+        if constexpr (std::is_same_v<T_struct, ShaderObject>) {
+            shader_->use();
+            shader_->setFloat(shader.light_ambient.name_param.c_str(), shader.light_ambient.value);
+            shader_->setFloat(shader.light_specular.name_param.c_str(), shader.light_specular.value);
+            shader_->setFloat(shader.light_shininess.name_param.c_str(), shader.light_shininess.value);
+            shader_->setFloat(shader.screen_aspect.name_param.c_str(), shader.screen_aspect.value);
+            shader_->setVec3(shader.object_color.name_param.c_str(), shader.object_color.value);
+            shader_->setVec3(shader.light_color.name_param.c_str(), shader.light_color.value);
+            shader_->setVec3(shader.light_pos.name_param.c_str(), shader.light_pos.value);
+            shader_->setMat4(shader.model_matrix.name_param.c_str(), shader.model_matrix.value);
+            shader_->setVec3(shader.view_pos.name_param.c_str(), shader.view_pos.value);
+            shader_->setMat4(shader.view_matrix.name_param.c_str(), shader.view_matrix.value);
+        } else {
+            shader_ligth_->use();
+            shader_ligth_->setVec3(shader.light_color.name_param.c_str(), shader.light_color.value);
+            shader_ligth_->setMat4(shader.model_matrix.name_param.c_str(), shader.model_matrix.value);
+            shader_ligth_->setVec3(shader.view_pos.name_param.c_str(), shader.view_pos.value);
+            shader_ligth_->setMat4(shader.view_matrix.name_param.c_str(), shader.view_matrix.value);
+        }
+
+    }
 
 } // namespace avion::gfx

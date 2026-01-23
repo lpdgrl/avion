@@ -19,7 +19,6 @@ namespace avion::core {
         {}
 
     Window::~Window() {
-        delete render_;
         delete widget_;
         if (window_) {
             glfwDestroyWindow(window_);
@@ -29,8 +28,6 @@ namespace avion::core {
     }
 
     void Window::Init() {
-        render_ = new gfx::Renderer(this);
-
         glfwInit();
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -43,18 +40,14 @@ namespace avion::core {
         // glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        glEnable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
         glfwSetWindowUserPointer(window_, &controller_);
         glfwSetKeyCallback(window_, controller::Controller::KeyCallback);
         glfwSetCursorPosCallback(window_, controller::Controller::MouseCallback);
         glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
         glfwSetCursorPos(window_, width_window_, height_window_ / 2);
 
-        render_->Init();
-        render_->SetPerspectiveProjection(45.f, width_window_, height_window_, 0.1f, 50.f);
+        pipeline_ = new gfx::Pipeline(scene_);
+        pipeline_->Init(width_window_, height_window_);
 
         ImGui::CreateContext();
 
@@ -67,8 +60,8 @@ namespace avion::core {
     }
 
     void Window::Render() {
-        gfx::Shader* shader = render_->GetShaderPtr("object");
-        gfx::Shader* shader_ligth = render_->GetShaderPtr("ligth");
+        // gfx::Shader* shader = render_->GetShaderPtr("object");
+        // gfx::Shader* shader_ligth = render_->GetShaderPtr("ligth");
 
         glm::vec3 color{1.f, 1.f, 1.f};
         glm::vec3 position{};
@@ -90,6 +83,9 @@ namespace avion::core {
 
         while (!glfwWindowShouldClose(window_)) {
             DeltaTimeUpdate();
+            ProcessEvents();
+            glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             GLfloat color_buffer[3];
             GLfloat depth;
@@ -98,11 +94,11 @@ namespace avion::core {
             double y_px = controller_.GetLastYposCursor();
 
             // Why height - y_px - 1?
-            glReadPixels(x_px, height_window_ - y_px - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-            glReadPixels(x_px, height_window_ - y_px - 1, 1, 1, GL_RGB, GL_FLOAT, color_buffer);
-            std::cout << "Clicked on pixel: " << std::setprecision(2) << x_px << " " << y_px << " " << color_buffer[0] << " " << color_buffer[1] << " " << color_buffer[2] << " Depth: " << depth << '\n';
+            // glReadPixels(x_px, height_window_ - y_px - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+            // glReadPixels(x_px, height_window_ - y_px - 1, 1, 1, GL_RGB, GL_FLOAT, color_buffer);
+            // std::cout << "Clicked on pixel: " << std::setprecision(2) << x_px << " " << y_px << " " << color_buffer[0] << " " << color_buffer[1] << " " << color_buffer[2] << " Depth: " << depth << '\n';
 
-            auto obj_coord_pickup = render_->PickUpObject(x_px, y_px, width_window_, height_window_, depth);
+            // auto obj_coord_pickup = render_->PickUpObject(x_px, y_px, width_window_, height_window_, depth);
             
             double x_ndc = 2 * x_px / width_window_ - 1;
             double y_ndc = 1 - 2 * y_px / height_window_;
@@ -119,34 +115,29 @@ namespace avion::core {
 
             widget_->WidgetShader(kSpecular, kAmbient, kShininess);
 
-            render_->UpdateCoordinatesCamera(delta_time_);
-            render_->Update();
-
-            glClearColor(0.2f, 0.2f, 0.2f, 1.f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
             auto&& objects = scene_.GetAllObjects();
 
-            if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-                auto pickup_it = std::find_if(objects.begin(), objects.end(), [&](core::SceneObject& scene_object) {
-                auto [pz, sz, _, mixing_color] = scene_object.object.GetParams();
+            // This code for ObjectPickup
+            // if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+            //     auto pickup_it = std::find_if(objects.begin(), objects.end(), [&](core::SceneObject& scene_object) {
+            //     auto [pz, sz, _, mixing_color] = scene_object.object.GetParams();
 
-                    return pz.x + (sz.x / 2) >= obj_coord_pickup.x 
-                        && pz.x - (sz.x / 2) <= obj_coord_pickup.x 
-                        && depth < 1.0
-                        && pz.y + (sz.y / 2) >= obj_coord_pickup.y
-                        && pz.y - (sz.y / 2) <= obj_coord_pickup.y; 
-                });
+            //         return pz.x + (sz.x / 2) >= obj_coord_pickup.x 
+            //             && pz.x - (sz.x / 2) <= obj_coord_pickup.x 
+            //             && depth < 1.0
+            //             && pz.y + (sz.y / 2) >= obj_coord_pickup.y
+            //             && pz.y - (sz.y / 2) <= obj_coord_pickup.y; 
+            //     });
 
-                if (auto&& obj = pickup_it->object; pickup_it != objects.end()) {
-                    pickup_it->object.SetMixingColor(glm::vec3(0.96f, 0.25f, 0.94f));
+            //     if (auto& obj = pickup_it->object; pickup_it != objects.end()) {
+            //         pickup_it->object.SetMixingColor(glm::vec3(0.96f, 0.25f, 0.94f));
 
-                    id_pickup = scene_.GetNumberObjects() - 1;
-                    pickup_obj = true;
+            //         id_pickup = scene_.GetNumberObjects() - 1;
+            //         pickup_obj = true;
 
-                    std::cout << "Do find pickup!!!" << '\n';
-                } else { std::cout << "Doesn't find pickup!!!" << '\n'; pickup_obj = false;}
-            }
+            //         std::cout << "Do find pickup!!!" << '\n';
+            //     } else { std::cout << "Doesn't find pickup!!!" << '\n'; pickup_obj = false;}
+            // }
 
             selected_object_id = widget_->WindowListObjects(scene_.GetAllObjects());
 
@@ -163,40 +154,15 @@ namespace avion::core {
             if (state_button_addobject) {
                 scene_.AddObjectToScene(type_obj, position, size, color);
             }
+            
 
-            for (const auto& object : objects) {
-                auto type = object.type;
-                auto& self_obj = object.object;
-                auto [pz, sz, cl, _] = self_obj.GetParams();
+            gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
+            shader_object.light_ambient.value = kAmbient;
+            shader_object.light_specular.value = kSpecular;
+            shader_object.light_shininess.value = kShininess;
+            shader_object.screen_aspect.value = scr_aspect;
 
-                if (type == TypeObject::kLight) {
-                    shader_ligth->use();
-                    shader_ligth->setVec3("ligthColor", cl);
-                    render_->Draw(shader_ligth, pz, sz, gfx::AxisRotate::NONE, 0.f, gfx::MapKey::kLight);
-                    continue;
-                }
-                
-                glm::vec3 l_pos;
-                glm::vec3 c_light;
-
-                Object* light = scene_.GetObject(TypeObject::kLight);
-                if (light != nullptr) {
-                    l_pos = static_cast<glm::vec3>(light->GetPosition());
-                    c_light = static_cast<glm::vec3>(light->GetColor());
-                }
-                
-                glm::vec3 mix_color = cl * self_obj.GetMixingColor().color;
-                shader->use();
-                shader->setFloat("kAmbient", kAmbient);
-                shader->setFloat("kSpecular", kSpecular);
-                shader->setFloat("kShininess", kShininess);
-                shader->setVec3("objectColor", mix_color);
-                shader->setVec3("ligthColor", c_light);
-                shader->setVec3("ligthPos", l_pos);
-                shader->setFloat("scr_aspect", scr_aspect);
-
-                render_->Draw(shader, pz, sz, gfx::AxisRotate::NONE, 0.f, static_cast<gfx::MapKey>(type));
-            }
+            pipeline_->TransferDataToFrameBuffer();
 
             widget_->Render();
 
@@ -209,7 +175,36 @@ namespace avion::core {
     }
 
     void Window::ProcessEvents() {
+        if (IsDown(GLFW_KEY_W)) {
+            pipeline_->ChangeCameraPosition(gfx::CameraMovement::FORWARD, delta_time_);
+        }
 
+        if (IsDown(GLFW_KEY_A)) {
+            pipeline_->ChangeCameraPosition(gfx::CameraMovement::LEFT, delta_time_);
+        }
+
+        if (IsDown(GLFW_KEY_D)) {
+            pipeline_->ChangeCameraPosition(gfx::CameraMovement::RIGHT, delta_time_);
+        }
+
+        if (IsDown(GLFW_KEY_S)) {
+            pipeline_->ChangeCameraPosition(gfx::CameraMovement::BACKWARD, delta_time_);
+        }
+
+        if (WasPressedKey(GLFW_KEY_H)) {
+            cursor_state_ = cursor_state_ ? false : true;
+        }    
+
+        if (!cursor_state_) {
+            auto [xoffset, yoffset] = GetOffsetController();
+            pipeline_->ProcessMouseMovement(xoffset, yoffset);
+        }
+
+        if (cursor_state_) {
+            glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        } else if (!cursor_state_) {
+            glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
     }
 
     void Window::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {

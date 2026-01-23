@@ -17,6 +17,7 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/logger/logger.cpp
     src/AvionEngineCore/renderer/renderer.cpp
     # src/AvionEngineCore/renderer/text_rendering.cpp
+    src/AvionEngineCore/renderer/pipeline.cpp
     src/AvionEngineCore/renderer/shader.cpp
     src/AvionEngineCore/renderer/camera.cpp
     src/AvionEngineCore/core/scene.cpp

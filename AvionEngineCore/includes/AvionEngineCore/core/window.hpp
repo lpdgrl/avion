@@ -7,7 +7,7 @@
 #include "glad/glad.h"
 
 #include "../controller/controller.hpp"
-#include "../renderer/renderer.hpp"
+#include "../renderer/pipeline.hpp"
 #include "../gui/widget.hpp"
 
 #include "scene.hpp"
@@ -61,16 +61,22 @@ namespace avion::core {
         std::string window_name_;
         int width_window_ = 0;
         int height_window_ = 0;
+
         controller::Controller controller_;
         Scene scene_;
+
         gui::Widget* widget_;
-        gfx::Renderer* render_;
+        gfx::Pipeline* pipeline_;
         GLFWwindow* window_ = nullptr;
+
         // TODO: Understand how to works it (calculate delay and fps)
         GLfloat delta_time_ = 0.f;
         GLfloat last_time_ = 0.f;
         double lt_ = 0;
         double delay_ = 0;
+
         int fps_ = 0;
+
+        bool cursor_state_ = false;
     };
 } // namespace avion::core

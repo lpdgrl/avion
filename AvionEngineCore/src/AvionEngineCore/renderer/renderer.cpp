@@ -1,15 +1,13 @@
 #include "AvionEngineCore/renderer/renderer.hpp"
-#include "AvionEngineCore/core/window.hpp"
 
 namespace avion::gfx {
 
-    Renderer::Renderer(core::Window* window): window_(window) {}
+    Renderer::Renderer() {}
 
     Renderer::~Renderer() {
         delete shader_;
         delete shader_text_;
         delete shader_ligth_;
-        // delete text_;
         delete camera_;
         
         for (auto& [key, value] : vao_) {
@@ -38,42 +36,9 @@ namespace avion::gfx {
 
     void Renderer::InitCamera() {
         glm::vec3 camera_pos    = glm::vec3(0.0f, 0.0f, 10.0f);
-        // glm::vec3 camera_front  = glm::vec3(0.0f, 0.0f, -1.0f);
         glm::vec3 camera_up     = glm::vec3(0.0f, 1.0f, 0.0f);
 
         camera_ = new Camera(camera_pos, camera_up);
-    }
-
-    void Renderer::Update() {
-        if (cursor_state_) {
-            glfwSetInputMode(window_->GetPointer(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        } else if (!cursor_state_) {
-            glfwSetInputMode(window_->GetPointer(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        }
-    }
-
-    void Renderer::UpdateCoordinatesCamera(GLfloat delta_time) {    
-        if (window_->IsDown(GLFW_KEY_W)) {
-            camera_->ProcessKeyboard(CameraMovement::FORWARD, delta_time);
-        }
-        if (window_->IsDown(GLFW_KEY_A)) {
-            camera_->ProcessKeyboard(CameraMovement::LEFT, delta_time);
-        }
-        if (window_->IsDown(GLFW_KEY_D)) {
-            camera_->ProcessKeyboard(CameraMovement::RIGHT, delta_time);
-        }
-        if (window_->IsDown(GLFW_KEY_S)) {
-            camera_->ProcessKeyboard(CameraMovement::BACKWARD, delta_time);
-        }
-
-        if (!cursor_state_) {
-            auto [xoffset, yoffset] = window_->GetOffsetController();
-            camera_->ProcessMouseMovement(xoffset, yoffset);
-        }
-
-        if (window_->WasPressedKey(GLFW_KEY_H)) {
-            cursor_state_ = cursor_state_ ? false : true;
-        }    
     }
 
     void Renderer::InitRenderer() {
@@ -326,8 +291,8 @@ namespace avion::gfx {
         glEnableVertexAttribArray(index);
     }
 
-    void Renderer::SetOrthoProjection(float left, float right, float bottom, float top, float zNear, float zFar) {
-        glm::mat4 projectionMatrix = glm::ortho(left, static_cast<float>(window_->GetWidth()), bottom, static_cast<float>(window_->GetHeight()), zNear, zFar);
+    void Renderer::SetOrthoProjection(float left, float width, float bottom, float height, float zNear, float zFar) {
+        glm::mat4 projectionMatrix = glm::ortho(left, static_cast<float>(width), bottom, static_cast<float>(height), zNear, zFar);
 
         shader_->use();
         shader_->setMat4("projection", projectionMatrix);
@@ -377,34 +342,6 @@ namespace avion::gfx {
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         BindVertexArray(GetVAO(MapKey::OBJECTS));
-    }
-
-    void Renderer::Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, AxisRotate axis, 
-                        GLfloat rotate, MapKey key) {
-       
-
-        glm::mat4 model_matrix = glm::mat4(1.f);
-        model_matrix = TranslateMatrix(model_matrix, position);
-        model_matrix = RotateMatrix(model_matrix, axis, rotate);
-        model_matrix = ScaleMatrix(model_matrix, size);
-
-        // view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
-
-        glm::mat4 view_matrix = glm::mat4(1.f);                  
-        view_matrix = camera_->GetViewMatrix();
-        glm::vec3 view_pos = camera_->GetPosition();
-
-        shader->use();
-        shader->setMat4("model", model_matrix);
-        shader->setVec3("view_pos", view_pos);
-        shader->setMat4("view", view_matrix);
-
-        BindVertexArray(GetVAO(key));
-        
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        BindVertexArray(0);
     }
 
     glm::vec3 Renderer::PickUpObject(double x_px, double y_px, int width, int height, GLfloat depth) const {
@@ -514,5 +451,13 @@ namespace avion::gfx {
         }
         
         return nullptr;
+    }
+
+    void Renderer::ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept {
+        camera_->ProcessKeyboard(direction, delta_time);
+    }
+
+    void Renderer::ProcessMouseMovement(double xoffset, double yoffset) const noexcept {
+        camera_->ProcessMouseMovement(xoffset, yoffset);
     }
 } // namespace avion::gfx
