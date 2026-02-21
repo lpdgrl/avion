@@ -60,6 +60,9 @@ namespace avion::core {
         return {};
     }
 
-    SceneObject::SceneObject(TypeObject type, int id, Position position, Size size, Color color, Color mixing_color): type(type), object(id, position, size, color, mixing_color) {}
+    SceneObject::SceneObject(TypeObject type, int id, Position position, Size size, Color color, Color mixing_color)
+    : type(type)
+    , object(id, position, size, color, mixing_color) 
+    {}
 
 } // namespace avion::core

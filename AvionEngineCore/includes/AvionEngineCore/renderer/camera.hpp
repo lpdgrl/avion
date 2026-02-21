@@ -18,7 +18,7 @@ namespace avion::gfx {
     // Default camera values
     static const float YAW         = -90.0f;
     static const float PITCH       =  0.0f;
-    static const float SPEED       =  2.5f;
+    static const float SPEED       =  5.5f;
     static const float SENSITIVITY =  0.1f;
     static const float ZOOM        =  45.0f;
 

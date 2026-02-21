@@ -1,35 +1,40 @@
 #pragma once
 
-#include <vector>
+#include <print>
+#include <format>
 #include "../renderer/renderer.hpp"
 
 namespace avion::logger {
+    enum class LogLevel {
+        kInformation = 0,
+        kDebug = 1,
+        kWarning = 2,
+        kError = 3,
+        kCritical = 4,
+    };
 
-class Logger {
+    class Logger {
+        public:
+            Logger() = delete;
 
-    public:
-        Logger(Logger&) = delete;
-
-        void operator=(const Logger&) = delete;
-
-        inline static Logger* GetInstance() { 
-            if (logger_ == nullptr) {
-                logger_ = new Logger();
+            static constexpr void Log(LogLevel level, const std::string& arg) noexcept {
+                switch (level) {
+                    case LogLevel::kInformation:
+                        LogInfo(arg);
+                        break;
+                    case LogLevel::kDebug:
+                        LogDebug(arg);
+                        break;
+                }
             }
 
-            return logger_;
-        }
+            static constexpr void LogInfo(const std::string& arg) noexcept {
+                std::cout << "[info]: " << arg << '\n';
+            }
 
-        static void Log(gfx::Renderer* render, float x, float y, float scale, glm::vec3 color);
-        static void InitLogArray(std::vector<std::string>& vec);
-        static std::vector<std::pair<std::string, std::string>>& GetLogArray();  
-        static void UpdateDataLog(std::vector<std::string>& data_to_log);
-        
-
-    private:
-        Logger() {}
-        inline static Logger* logger_ = nullptr;
-        inline static std::vector<std::pair<std::string, std::string>> log_array_;
-    };
+            static constexpr void LogDebug(const std::string& arg) noexcept {
+                std::cout << "[debug]: " << arg << '\n';
+            }
+        };
 
 } // namespace avion::logger

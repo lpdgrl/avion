@@ -20,6 +20,7 @@ namespace avion::core {
 
     Window::~Window() {
         delete widget_;
+        
         if (window_) {
             glfwDestroyWindow(window_);
             glfwTerminate();
@@ -60,9 +61,6 @@ namespace avion::core {
     }
 
     void Window::Render() {
-        // gfx::Shader* shader = render_->GetShaderPtr("object");
-        // gfx::Shader* shader_ligth = render_->GetShaderPtr("ligth");
-
         glm::vec3 color{1.f, 1.f, 1.f};
         glm::vec3 position{};
         glm::vec3 size{1.f, 1.f, 1.f};
@@ -154,7 +152,6 @@ namespace avion::core {
             if (state_button_addobject) {
                 scene_.AddObjectToScene(type_obj, position, size, color);
             }
-            
 
             gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
             shader_object.light_ambient.value = kAmbient;

@@ -107,7 +107,7 @@ namespace avion::gfx {
         void Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate);
 
         template <typename T_struct>
-        void Draw(RenderContext<T_struct> render_context);
+        void Draw(RenderContext<T_struct>& render_context);
         // void Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, 
         //     AxisRotate axis, GLfloat rotate, MapKey key);
         // void DrawText(std::string text, float x, float y, float scale, glm::vec3 color);
@@ -184,7 +184,7 @@ namespace avion::gfx {
     };
 
     template <typename T_struct>
-    void Renderer::Draw(RenderContext<T_struct> render_context) {
+    void Renderer::Draw(RenderContext<T_struct>& render_context) {
         auto [shader, position, size, axis, rotate, key] = render_context;
 
         glm::mat4 model_matrix = glm::mat4(1.f);

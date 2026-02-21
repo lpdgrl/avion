@@ -62,11 +62,7 @@ namespace avion::core {
         ObjectParams GetParams() const noexcept;
         int GetId() const noexcept;
 
-        void SetPosition(Position position) noexcept;
-        void SetSize(Size size) noexcept;
-        void SetColor(Color color) noexcept;
-        void SetMixingColor(Color color) noexcept;
-        void SetParams(Position position, Size size, Color color);
+        void SetParams(Position position, Size size, Color color) noexcept;
 
     private:
         int id_ = 0;

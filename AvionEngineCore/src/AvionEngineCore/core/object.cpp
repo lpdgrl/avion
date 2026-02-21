@@ -80,23 +80,7 @@ namespace avion::core {
         return out << pos.position.x << ' ' << pos.position.y << ' ' << pos.position.z << '\n';
     }
 
-    void Object::SetPosition(Position position) noexcept {
-        position_ = position;
-    }
-
-    void Object::SetSize(Size size) noexcept {
-        size_ = size;
-    }
-
-    void Object::SetColor(Color color) noexcept {
-        color_ = color;
-    }
-
-    void Object::SetMixingColor(Color color) noexcept {
-        mixing_color_ = color;
-    }
-
-    void Object::SetParams(Position position, Size size, Color color) {
+    void Object::SetParams(Position position, Size size, Color color) noexcept {
         position_ = position;
         size_ = size;
         color_ = color;
