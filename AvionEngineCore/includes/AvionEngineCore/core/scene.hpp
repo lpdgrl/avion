@@ -14,7 +14,7 @@ namespace avion::core {
     };
 
     struct SceneObject {
-        SceneObject(TypeObject type, int id, Position position, Size size, Color color, Color mixing_color = core::kDefMixColor);
+        SceneObject(TypeObject type, int id, ObjectParams params);
         TypeObject type;
         Object object;
     };
@@ -36,7 +36,7 @@ namespace avion::core {
 
         ~Scene();
 
-        void AddObjectToScene(TypeObject type_object, Position pos, Size sz, Color color);
+        void AddObjectToScene(TypeObject type_object, ObjectParams params);
         Objects& GetAllObjects();
         size_t GetNumberObjects() const;
         Object* GetObject(int id);

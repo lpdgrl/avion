@@ -1,8 +1,6 @@
 #pragma once
 
-#include <print>
-#include <format>
-#include "../renderer/renderer.hpp"
+#include <iostream>
 
 namespace avion::logger {
     enum class LogLevel {

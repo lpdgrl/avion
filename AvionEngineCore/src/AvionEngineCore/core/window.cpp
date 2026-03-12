@@ -1,5 +1,6 @@
 #include "AvionEngineCore/core/window.hpp"
 
+
 namespace avion::core {
 
     Window::Window(const std::string& window_name, int width, int height)
@@ -45,7 +46,7 @@ namespace avion::core {
         glfwSetKeyCallback(window_, controller::Controller::KeyCallback);
         glfwSetCursorPosCallback(window_, controller::Controller::MouseCallback);
         glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
-        glfwSetCursorPos(window_, width_window_, height_window_ / 2);
+        glfwSetCursorPos(window_, width_window_, 1.0 * height_window_ / 2.0);
 
         pipeline_ = new gfx::Pipeline(scene_);
         pipeline_->Init(width_window_, height_window_);
@@ -61,28 +62,38 @@ namespace avion::core {
     }
 
     void Window::Render() {
-        glm::vec3 color{1.f, 1.f, 1.f};
-        glm::vec3 position{};
-        glm::vec3 size{1.f, 1.f, 1.f};
-
-        float scr_aspect = height_window_ / width_window_;
+        float scr_aspect = 1.0 * height_window_ / width_window_;
         float kAmbient = 0.1f;
         float kSpecular = 0.5f;
         float kShininess = 32.0f;
 
-        bool state_button_addobject = false;
+        // TODO: This is maybe unncesseary and it maybe use ObjectParams from Ojbect??
+        gui::WidgetObjectParams widget_obj_params{
+            .type_obj               = TypeObject::kCube,
+            .type_mat               = TypeMaterial::kUnknownMat, 
+            .params {
+                .position = glm::vec3{},
+                .size = glm::vec3(1.f, 1.f, 1.f),
+                .color= glm::vec3(1.f, 1.f, 1.f),
+                .mixing_color = core::kDefMixColor, 
+                .material = gfx::material::Material()
+            },
+            .state_button_addobj    = false
+        };
 
         int selected_object_id = 0;
         bool pickup_obj = false;
         int id_pickup = 0;
-        TypeObject type_obj = TypeObject::kCube;
+        //  TypeObject type_obj = TypeObject::kCube;
 
         double lt_ = glfwGetTime();
 
         while (!glfwWindowShouldClose(window_)) {
             DeltaTimeUpdate();
             ProcessEvents();
+
             glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+            
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             GLfloat color_buffer[3];
@@ -113,7 +124,7 @@ namespace avion::core {
 
             widget_->WidgetShader(kSpecular, kAmbient, kShininess);
 
-            auto&& objects = scene_.GetAllObjects();
+            auto& objects = scene_.GetAllObjects();
 
             // This code for ObjectPickup
             // if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -137,20 +148,21 @@ namespace avion::core {
             //     } else { std::cout << "Doesn't find pickup!!!" << '\n'; pickup_obj = false;}
             // }
 
-            selected_object_id = widget_->WindowListObjects(scene_.GetAllObjects());
+            selected_object_id = widget_->WindowListObjects(objects);
 
             size_t objects_size = scene_.GetNumberObjects();
             if (objects_size != 0 && selected_object_id > 0) {
                 Object* object = scene_.GetObject(pickup_obj ? id_pickup : selected_object_id);
-                auto [ps, sz, _color, _] = object->GetParams();
-                widget_->WindowAddObject(type_obj, ps, sz, _color, state_button_addobject);
-                object->SetParams(ps, sz, _color);
+                
+                widget_obj_params.params = object->GetParams();
+                widget_->WindowAddObject(widget_obj_params);
+                object->SetParams(widget_obj_params.params);
             } else {
-                widget_->WindowAddObject(type_obj, position, size, color, state_button_addobject);
+                widget_->WindowAddObject(widget_obj_params);
             }
             
-            if (state_button_addobject) {
-                scene_.AddObjectToScene(type_obj, position, size, color);
+            if (widget_obj_params.state_button_addobj) {
+                scene_.AddObjectToScene(widget_obj_params.type_obj, widget_obj_params.params);
             }
 
             gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();

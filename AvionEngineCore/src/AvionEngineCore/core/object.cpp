@@ -2,14 +2,26 @@
 
 namespace avion::core {
 
-    Object::Object(int id, Position position, Size size, Color color, Color mixing_color)
+    Object::Object(int id, Position position, Size size, Color color, Color mixing_color, gfx::material::Material material)
         : id_(id)
-        , position_(position)
         , size_(size)
+        , position_(position)
         , color_(color)
         , mixing_color_(mixing_color) 
+        , material_(material)
     {
-            std::cout << "Object ctor " << position_ << '\n';
+        AV_LOG_INFO("Object ctor " + std::to_string(position_.position.x) + " " + std::to_string(position_.position.y) + " " + std::to_string(position_.position.z));
+    }
+
+    Object::Object(int id, ObjectParams params) 
+        : id_(id)
+        , size_(params.size)
+        , position_(params.position)
+        , color_(params.color)
+        , mixing_color_(params.mixing_color)
+        , material_(params.material)
+    {
+        AV_LOG_INFO("Object ctor with args ObjectParams");
     }
 
     Object::Object(const Object& object): position_(object.position_), size_(object.size_), color_(object.color_) {
@@ -24,6 +36,8 @@ namespace avion::core {
             position_ = object.position_;
             size_ = object.size_;
             color_ = object.color_;
+            mixing_color_ = object.mixing_color_;
+            material_ = object.material_;
         }
         std::cout << "Object copy assingment " << position_  <<  '\n';    
         return *this; 
@@ -33,6 +47,8 @@ namespace avion::core {
             position_ = object.position_;
             size_ = object.size_;
             color_ = object.color_;
+            mixing_color_ = object.mixing_color_;
+            material_ = object.material_;
         }
         std::cout << "Object move assingment " << position_ << '\n';
         return *this; 
@@ -63,7 +79,8 @@ namespace avion::core {
             .position = position_.position,
             .size = size_.size,
             .color = color_.color,
-            .mixing_color = color_.color
+            .mixing_color = color_.color,
+            .material = material_
         };
         return params;
     }
@@ -80,10 +97,12 @@ namespace avion::core {
         return out << pos.position.x << ' ' << pos.position.y << ' ' << pos.position.z << '\n';
     }
 
-    void Object::SetParams(Position position, Size size, Color color) noexcept {
-        position_ = position;
-        size_ = size;
-        color_ = color;
+    void Object::SetParams(ObjectParams params) noexcept {
+        position_ = params.position;
+        size_ = params.size;
+        color_ = params.color;
+        mixing_color_ = params.mixing_color;
+        material_ = params.material;
     }
 
     Position::operator glm::vec3() const {

@@ -70,7 +70,7 @@ namespace avion::gfx {
         }
 
         for (const auto& [type, object] : objects_scene) {
-            auto [position, size, color, mixing_color] = object.GetParams();
+            auto [position, size, color, mixing_color, material] = object.GetParams();
             shader_object_.object_color.value = mixing_color;
             
             if (type == core::TypeObject::kLight) {

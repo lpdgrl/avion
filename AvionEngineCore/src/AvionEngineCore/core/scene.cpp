@@ -10,9 +10,9 @@ namespace avion::core {
         std::cout << "Scene is destroyed" << '\n';
     }
 
-    void Scene::AddObjectToScene(TypeObject type, Position pos, Size sz, Color color) {
+    void Scene::AddObjectToScene(TypeObject type, ObjectParams params) {
         size_t n = objects_on_scene_.size();
-        objects_on_scene_.emplace_back(type, ++n, pos, sz, color);
+        objects_on_scene_.emplace_back(type, ++n, params);
     }
 
     Scene::Objects& Scene::GetAllObjects() {
@@ -60,9 +60,9 @@ namespace avion::core {
         return {};
     }
 
-    SceneObject::SceneObject(TypeObject type, int id, Position position, Size size, Color color, Color mixing_color)
-    : type(type)
-    , object(id, position, size, color, mixing_color) 
+    SceneObject::SceneObject(TypeObject type, int id, ObjectParams params)
+        : type(type)
+        , object(id, params)
     {}
 
 } // namespace avion::core

@@ -1,8 +1,9 @@
 #include "AvionEngineCore/gui/widget.hpp"
 #include "AvionEngineCore/core/scene.hpp"
+#include "AvionEngineCore/core/object.hpp"
 
 namespace avion::gui {
-
+    
     Widget::Widget(GLFWwindow* window): window_(window), io_(ImGui::GetIO()) {}
     Widget::~Widget() {
         CleanUp();
@@ -48,23 +49,26 @@ namespace avion::gui {
         ImGui::End();
     }
 
-    void Widget::WindowAddObject(core::TypeObject& type, glm::vec3& position, glm::vec3& size, glm::vec3& color, bool& state_button) const {
+    void Widget::WindowAddObject(WidgetObjectParams& obj) const {
         static int item_selected_idx = 0;
+        static int item_selected_idx_mat = 0;
         static std::vector<std::string> types_objects{"cube", "pyramid", "light"};
+        static std::vector<std::string> type_materials{"Emerald", "Gold", "Black plastic"};
 
         ImGui::Begin("Object");
             ImGui::Text("Settings object");
-            ImGui::ColorEdit3("Color", (float*)(&color));
+            ImGui::ColorEdit3("Color", reinterpret_cast<float*>(&obj.params.color));
+
 
             ImGui::Text("Position object:");
-            ImGui::SliderFloat("x-axis", (float*)(&position.x), -20.f, 20.f);
-            ImGui::SliderFloat("y-axis", (float*)(&position.y), -20.f, 20.f);
-            ImGui::SliderFloat("z-axis", (float*)(&position.z), -20.f, 20.f);
+            ImGui::SliderFloat("x-axis", reinterpret_cast<float*>(&obj.params.position.x), -20.f, 20.f);
+            ImGui::SliderFloat("y-axis", reinterpret_cast<float*>(&obj.params.position.y), -20.f, 20.f);
+            ImGui::SliderFloat("z-axis", reinterpret_cast<float*>(&obj.params.position.z), -20.f, 20.f);
 
             ImGui::Text("Size object:");
-            ImGui::SliderFloat("x", (float*)(&size.x), 0.f, 20.f);
-            ImGui::SliderFloat("y", (float*)(&size.y), 0.f, 20.f);
-            ImGui::SliderFloat("z", (float*)(&size.z), 0.f, 20.f);
+            ImGui::SliderFloat("x", reinterpret_cast<float*>(&obj.params.size.x), 0.f, 20.f);
+            ImGui::SliderFloat("y", reinterpret_cast<float*>(&obj.params.size.y), 0.f, 20.f);
+            ImGui::SliderFloat("z", reinterpret_cast<float*>(&obj.params.size.z), 0.f, 20.f);
 
             ImVec2 listbox_size(200.0f, ImGui::GetTextLineHeightWithSpacing() * 4);
             if (ImGui::BeginListBox("Type:", listbox_size)) {
@@ -77,20 +81,44 @@ namespace avion::gui {
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
                         if (item_selected_idx == 0) {
-                            type = core::TypeObject::kCube;
+                            obj.type_obj = core::TypeObject::kCube;
                         }
                         else if (item_selected_idx == 1) {
-                            type = core::TypeObject::kPyramid;
+                            obj.type_obj = core::TypeObject::kPyramid;
                         }
                         else if (item_selected_idx == 2) {
-                            type = core::TypeObject::kLight;
+                            obj.type_obj = core::TypeObject::kLight;
                         }
                     } 
                 }
                 ImGui::EndListBox();
             }
+    
+            // List of materials 
+            ImVec2 listbox_mat_sz(200.f, ImGui::GetTextLineHeightWithSpacing() * 4);
+            if (ImGui::BeginListBox("Material:", listbox_mat_sz)) {
+                for (std::size_t i = 0; i < type_materials.size(); ++i) {
+                    const bool is_selected = (item_selected_idx_mat == i);
 
-            state_button = ImGui::Button("Add Object");
+                    if (ImGui::Selectable(type_materials[i].c_str(), is_selected)) {
+                        item_selected_idx_mat = i;
+                    }
+                    
+                    if (is_selected) {
+                        ImGui::SetItemDefaultFocus();
+                        if (item_selected_idx_mat == 0) {
+                            obj.type_mat = core::TypeMaterial::kEmerald;
+                        } else if (item_selected_idx_mat == 1) {
+                            obj.type_mat = core::TypeMaterial::kGold;
+                        } else if (item_selected_idx_mat == 2) {
+                            obj.type_mat = core::TypeMaterial::kBlackPlastic;
+                        }
+                    }
+                }
+                ImGui::EndListBox();
+            } 
+
+            obj.state_button_addobj = ImGui::Button("Add Object");
         ImGui::End();
     }   
 
@@ -152,5 +180,5 @@ namespace avion::gui {
             ImGui::InputFloat("kShininess", &kShininess);
         ImGui::End();
     }
-
+    
 } // namespace avion::gui
