@@ -2,17 +2,29 @@
 
 namespace avion::core {
 
-    Scene::Scene(size_t number_objects) {
-        objects_on_scene_.reserve(number_objects);
-    }
+   Scene::Scene(size_t number_objects) {
+       objects_on_scene_.reserve(number_objects);
+       source_lights_on_scene_.reserve(number_objects);
+   }
 
-    Scene::~Scene() {
-        std::cout << "Scene is destroyed" << '\n';
-    }
+   Scene::~Scene() {
+       std::cout << "Scene is destroyed" << '\n';
+   }
 
-    void Scene::AddObjectToScene(TypeObject type, ObjectParams params) {
-        size_t n = objects_on_scene_.size();
-        objects_on_scene_.emplace_back(type, ++n, params);
+   void Scene::AddObject(TypeObject type, ObjectParams params) {
+       size_t n = objects_on_scene_.size();
+       objects_on_scene_.emplace_back(type, ++n, params);
+   }
+
+   void Scene::AddSourceLight(LightParams params) 
+   {
+       size_t n = source_lights_on_scene_.size();
+       source_lights_on_scene_.emplace_back(++n, params.light, params.color, params.size);
+   }
+
+    Scene::SourceLight& Scene::GetAllSourceLights() 
+    {
+        return source_lights_on_scene_;
     }
 
     Scene::Objects& Scene::GetAllObjects() {
@@ -21,6 +33,11 @@ namespace avion::core {
 
     size_t Scene::GetNumberObjects() const {
         return objects_on_scene_.size();
+    }
+
+    std::size_t Scene::GetNumberSourceLights() const 
+    {
+        return source_lights_on_scene_.size();
     }
 
     Object* Scene::GetObject(int id) {

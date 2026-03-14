@@ -53,6 +53,7 @@ namespace avion::gfx {
     struct ShaderLight  {
         ShaderType type = ShaderType::kLight;
         ShaderParam<glm::vec3> light_color;
+
         ShaderParam<glm::vec3> view_pos; 
         ShaderParam<glm::mat4> view_matrix;
         ShaderParam<glm::mat4> model_matrix;
@@ -60,13 +61,19 @@ namespace avion::gfx {
 
     struct ShaderObject {
         ShaderType type = ShaderType::kObjects;
-        ShaderParam<GLfloat> light_ambient;
-        ShaderParam<GLfloat> light_specular;
-        ShaderParam<GLfloat> light_shininess;
+        
+        ShaderParam<glm::vec3> mat_light_ambient;
+        ShaderParam<glm::vec3> mat_light_diffuse;
+        ShaderParam<glm::vec3> mat_light_specular;
+        ShaderParam<GLfloat>   mat_light_shininess;
+
+        ShaderParam<glm::vec3> light_ambient;
+        ShaderParam<glm::vec3> light_diffuse;
+        ShaderParam<glm::vec3> light_specular;
+        ShaderParam<glm::vec3> light_position;
+
         ShaderParam<GLfloat> screen_aspect;
-        ShaderParam<glm::vec3> object_color;
-        ShaderParam<glm::vec3> light_color;
-        ShaderParam<glm::vec3> light_pos;
+
         ShaderParam<glm::vec3> view_pos; 
         ShaderParam<glm::mat4> view_matrix;
         ShaderParam<glm::mat4> model_matrix;
@@ -220,13 +227,18 @@ namespace avion::gfx {
     void Renderer::UseShader(T_struct shader) {
         if constexpr (std::is_same_v<T_struct, ShaderObject>) {
             shader_->use();
-            shader_->setFloat(shader.light_ambient.name_param.c_str(), shader.light_ambient.value);
-            shader_->setFloat(shader.light_specular.name_param.c_str(), shader.light_specular.value);
-            shader_->setFloat(shader.light_shininess.name_param.c_str(), shader.light_shininess.value);
+            shader_->setVec3(shader.light_ambient.name_param.c_str(), shader.light_ambient.value);
+            shader_->setVec3(shader.light_diffuse.name_param.c_str(), shader.light_diffuse.value);
+            shader_->setVec3(shader.light_specular.name_param.c_str(), shader.light_specular.value);
+            shader_->setVec3(shader.light_position.name_param.c_str(), shader.light_position.value);
+            
             shader_->setFloat(shader.screen_aspect.name_param.c_str(), shader.screen_aspect.value);
-            shader_->setVec3(shader.object_color.name_param.c_str(), shader.object_color.value);
-            shader_->setVec3(shader.light_color.name_param.c_str(), shader.light_color.value);
-            shader_->setVec3(shader.light_pos.name_param.c_str(), shader.light_pos.value);
+
+            shader_->setVec3(shader.mat_light_ambient.name_param.c_str(), shader.mat_light_ambient.value);
+            shader_->setVec3(shader.mat_light_diffuse.name_param.c_str(), shader.mat_light_diffuse.value);
+            shader_->setVec3(shader.mat_light_specular.name_param.c_str(), shader.mat_light_specular.value);
+            shader_->setFloat(shader.mat_light_shininess.name_param.c_str(), shader.mat_light_shininess.value);
+
             shader_->setMat4(shader.model_matrix.name_param.c_str(), shader.model_matrix.value);
             shader_->setVec3(shader.view_pos.name_param.c_str(), shader.view_pos.value);
             shader_->setMat4(shader.view_matrix.name_param.c_str(), shader.view_matrix.value);

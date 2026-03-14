@@ -2,7 +2,7 @@
 
 namespace avion::core {
 
-    Object::Object(int id, Position position, Size size, Color color, Color mixing_color, gfx::material::Material material)
+    Object::Object(int id, Position position, Size size, Color color, Color mixing_color, Material material)
         : id_(id)
         , size_(size)
         , position_(position)
@@ -24,9 +24,12 @@ namespace avion::core {
         AV_LOG_INFO("Object ctor with args ObjectParams");
     }
 
+    // TODO: Object copy-ctor isn't actually!!
     Object::Object(const Object& object): position_(object.position_), size_(object.size_), color_(object.color_) {
         std::cout << "Object ctor copy " << position_  << '\n';
     }
+    
+    // TODO: Object move-ctor isn't actually!!
     Object::Object(Object&& object): position_(object.position_), size_(object.size_), color_(object.color_) {
         std::cout << "Object ctor move " << position_ <<  '\n';
     }
@@ -42,6 +45,7 @@ namespace avion::core {
         std::cout << "Object copy assingment " << position_  <<  '\n';    
         return *this; 
     }
+
     Object& Object::operator=(Object&& object) {
         if (this != &object) {
             position_ = object.position_;

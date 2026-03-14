@@ -27,17 +27,22 @@ namespace avion::gfx {
             shader_light_.model_matrix.name_param = "model";
             shader_light_.view_pos.name_param = "view_pos";
             shader_light_.view_matrix.name_param = "view";
+            
+            shader_object_.mat_light_ambient.name_param = "material.ambient";
+            shader_object_.mat_light_diffuse.name_param = "material.diffuse";
+            shader_object_.mat_light_specular.name_param = "material.specular";
+            shader_object_.mat_light_shininess.name_param = "material.shininess";
 
-            shader_object_.light_ambient.name_param = "kAmbient";
-            shader_object_.light_specular.name_param = "kSpecular";
-            shader_object_.light_shininess.name_param = "kShininess";
             shader_object_.screen_aspect.name_param = "scr_aspect";
+
             shader_object_.model_matrix.name_param = "model";
             shader_object_.view_matrix.name_param = "view";
             shader_object_.view_pos.name_param = "view_pos";
-            shader_object_.object_color.name_param = "objectColor";
-            shader_object_.light_color.name_param = "ligthColor";
-            shader_object_.light_pos.name_param = "ligthPos";
+            
+            shader_object_.light_ambient.name_param = "light.ambient";
+            shader_object_.light_diffuse.name_param = "light.diffuse";
+            shader_object_.light_specular.name_param = "light.specular";
+            shader_object_.light_position.name_param = "light.position";
     }
 
     gfx::ShaderObject& Pipeline::GetShaderObjectStruct() noexcept {
@@ -59,36 +64,35 @@ namespace avion::gfx {
 
     void Pipeline::TransferDataToFrameBuffer() noexcept {
         const auto& objects_scene = scene_.GetAllObjects();
+        const auto& lights_scene = scene_.GetAllSourceLights();
         
-        core::Object* light = scene_.GetObject(core::TypeObject::kLight);
-        glm::vec3 light_pos;
-        glm::vec3 light_color;
-
-        if (light != nullptr) {
-            light_pos = static_cast<glm::vec3>(light->GetPosition());
-            light_color = static_cast<glm::vec3>(light->GetColor());
-        }
-
         for (const auto& [type, object] : objects_scene) {
             auto [position, size, color, mixing_color, material] = object.GetParams();
-            shader_object_.object_color.value = mixing_color;
             
-            if (type == core::TypeObject::kLight) {
-                shader_light_.light_color.value = color;
+            core::Light light;
+            for (const auto& [_, curr_light, l_color, l_size] : lights_scene) {  
+                shader_light_.light_color.value = l_color.color;
                 RenderContext<ShaderLight> render_context{
                     .shader = shader_light_,
-                    .position = position,
-                    .size = size,
+                    .position = curr_light.position,
+                    .size = l_size.size, 
                     .axis = AxisRotate::NONE,
                     .rotate = 0.f,
                     .key = static_cast<MapKey>(type)
                 };
                 renderer_->Draw<ShaderLight>(render_context);
-                continue;
+                light = curr_light;
             }
-
-            shader_object_.light_pos.value = light_pos;
-            shader_object_.light_color.value = light_color;
+            
+            shader_object_.light_ambient.value = light.ambient;
+            shader_object_.light_diffuse.value = light.diffuse;
+            shader_object_.light_specular.value = light.specular;
+            shader_object_.light_position.value = light.position;
+            
+            shader_object_.mat_light_ambient.value = material.ambient;
+            shader_object_.mat_light_diffuse.value = material.diffuse;
+            shader_object_.mat_light_specular.value = material.specular;
+            shader_object_.mat_light_shininess.value = material.shininess;
 
             RenderContext<ShaderObject> render_context{
                 .shader = shader_object_,
@@ -101,6 +105,7 @@ namespace avion::gfx {
 
             renderer_->Draw<ShaderObject>(render_context);
         }
+
     }
 
 } // namespace avion::gfx

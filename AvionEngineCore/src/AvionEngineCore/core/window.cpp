@@ -63,37 +63,20 @@ namespace avion::core {
 
     void Window::Render() {
         float scr_aspect = 1.0 * height_window_ / width_window_;
-        float kAmbient = 0.1f;
-        float kSpecular = 0.5f;
-        float kShininess = 32.0f;
-
-        // TODO: This is maybe unncesseary and it maybe use ObjectParams from Ojbect??
-        gui::WidgetObjectParams widget_obj_params{
-            .type_obj               = TypeObject::kCube,
-            .type_mat               = TypeMaterial::kUnknownMat, 
-            .params {
-                .position = glm::vec3{},
-                .size = glm::vec3(1.f, 1.f, 1.f),
-                .color= glm::vec3(1.f, 1.f, 1.f),
-                .mixing_color = core::kDefMixColor, 
-                .material = gfx::material::Material()
-            },
-            .state_button_addobj    = false
-        };
 
         int selected_object_id = 0;
+        int selected_slights_id = 0;
+
         bool pickup_obj = false;
         int id_pickup = 0;
-        //  TypeObject type_obj = TypeObject::kCube;
 
-        double lt_ = glfwGetTime();
+        lt_ = glfwGetTime();
 
         while (!glfwWindowShouldClose(window_)) {
             DeltaTimeUpdate();
             ProcessEvents();
 
             glClearColor(0.2f, 0.2f, 0.2f, 1.f);
-            
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             GLfloat color_buffer[3];
@@ -122,10 +105,9 @@ namespace avion::core {
                 .y_ndc = y_ndc
             });
 
-            widget_->WidgetShader(kSpecular, kAmbient, kShininess);
-
             auto& objects = scene_.GetAllObjects();
-
+            auto& lights = scene_.GetAllSourceLights();
+            
             // This code for ObjectPickup
             // if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
             //     auto pickup_it = std::find_if(objects.begin(), objects.end(), [&](core::SceneObject& scene_object) {
@@ -149,33 +131,73 @@ namespace avion::core {
             // }
 
             selected_object_id = widget_->WindowListObjects(objects);
+            selected_slights_id = widget_->w_ListLights(lights);
 
-            size_t objects_size = scene_.GetNumberObjects();
-            if (objects_size != 0 && selected_object_id > 0) {
-                Object* object = scene_.GetObject(pickup_obj ? id_pickup : selected_object_id);
-                
-                widget_obj_params.params = object->GetParams();
-                widget_->WindowAddObject(widget_obj_params);
-                object->SetParams(widget_obj_params.params);
-            } else {
-                widget_->WindowAddObject(widget_obj_params);
-            }
-            
-            if (widget_obj_params.state_button_addobj) {
-                scene_.AddObjectToScene(widget_obj_params.type_obj, widget_obj_params.params);
-            }
+            auto added_opt_obj = widget_->WindowAddObject();
 
             gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
-            shader_object.light_ambient.value = kAmbient;
-            shader_object.light_specular.value = kSpecular;
-            shader_object.light_shininess.value = kShininess;
             shader_object.screen_aspect.value = scr_aspect;
+
+            if (added_opt_obj.has_value()) {
+                auto obj = added_opt_obj.value();
+                
+                switch(obj.type_obj) {
+                    case TypeObject::kCube: 
+                        scene_.AddObjectToScene<ObjectParams>(obj.type_obj, obj.params);
+                        break;
+                    case TypeObject::kPyramid:
+                        scene_.AddObjectToScene<ObjectParams>(obj.type_obj, obj.params);
+                        break;
+                    case TypeObject::kLight:
+                        {
+                            LightParams light{
+                                .light = {
+                                    .position = obj.params.position,
+                                    .ambient{1.f},
+                                    .diffuse{1.f},
+                                    .specular{1.f}
+                                },
+                                .color = glm::vec3(1.f, 1.f, 1.f),
+                                .size  = obj.params.size
+                            };
+                            scene_.AddObjectToScene<LightParams>(obj.type_obj, light);
+                            break;
+                        }
+                }
+            }
+                        
+            if (selected_object_id > 0) {
+                Object* object_ptr = scene_.GetObject(selected_object_id);
+                if (object_ptr) {
+                    auto object_params = object_ptr->GetParams();
+                    bool changed_material = widget_->WindowMaterial(object_params);
+                    if (changed_material) {
+                        object_ptr->SetParams(object_params);
+                    }
+                } 
+            } 
+
+            // TODO: This is bad code. 
+            if (selected_slights_id > 0 && lights.size() > 0) {
+                // TODO: This is bad access to element of light 
+                auto& scene_light = lights[selected_slights_id - 1];
+                LightParams light { .light = scene_light.light, .color = scene_light.color, .size = scene_light.size}; 
+
+                bool changed_light = widget_->w_LightProperties(light);
+                // TODO: THIS IS SHITT!!! Changed to funct  
+                if (changed_light) {
+                    scene_light.light = light.light;
+                    scene_light.size = light.size;
+                    scene_light.color = light.color;
+                }
+            }
 
             pipeline_->TransferDataToFrameBuffer();
 
             widget_->Render();
 
             glfwSwapBuffers(window_);
+            //
             // TODO: Undestand when call ClearStateKeys and How it works - glfwPollEvents
             controller_.ClearStateKeys();
             glfwPollEvents();

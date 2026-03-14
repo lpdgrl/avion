@@ -6,20 +6,19 @@
 
 #include "glm/glm.hpp"
 
-#include "AvionEngineCore/core/object.hpp"
+#include "../core/light.hpp"
 
 #include <vector>
+#include <optional>
+#include <tuple>
 
-// Forward Declaration
+// Forward Declaration from core
 namespace avion::core {
     struct SceneObject;
+    struct SceneLight;
+
     enum class TypeObject; 
 } // namespace avion::core
-
-// Forward Declaration
-namespace avion::gfx::material {
-   struct Material; 
-} // namespace avion::gfx::material
 
 namespace avion::gui {
     struct Logs {
@@ -33,7 +32,7 @@ namespace avion::gui {
 
     struct WidgetObjectParams {
         core::TypeObject type_obj;
-        core::TypeMaterial type_mat;
+        core::PrefabMaterial type_mat;
         core::ObjectParams params;
         bool state_button_addobj;
     };
@@ -54,12 +53,14 @@ namespace avion::gui {
         void Render();
         void CleanUp();
 
-        //void WindowAddObject(core::TypeObject& type, glm::vec3& position, glm::vec3& size, glm::vec3& color, bool& state_button) const;
-        void WindowAddObject(WidgetObjectParams& object_params) const;
-        void WindowLigthColor(glm::vec3& position, glm::vec3& color) const;
+        std::optional<WidgetObjectParams> WindowAddObject() const;
         int WindowListObjects(const std::vector<core::SceneObject>& objects) const;
+        
         void WindowLogs(Logs logs) const;
-        void WidgetShader(float& kAmbient, float& kSpecular, float& kShininess) const;
+        bool WindowMaterial(core::ObjectParams&) const;
+        
+        bool w_LightProperties(core::LightParams&) const;
+        int w_ListLights(const std::vector<core::SceneLight>& lights) const;
     private:
         GLFWwindow* window_ = nullptr;
         ImGuiIO& io_;

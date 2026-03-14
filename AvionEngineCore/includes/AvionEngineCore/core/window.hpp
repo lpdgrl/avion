@@ -1,8 +1,6 @@
 #pragma once
 
 #include <string>
-#include <iostream>
-#include <iomanip>
 
 #include "glad/glad.h"
 
@@ -14,7 +12,7 @@
 
 namespace avion::core {
 
-    static const int kObjectsCreate = 1000;
+    static constexpr int kObjectsCreate = 1000;
 
     class Window {
     public:
@@ -65,8 +63,8 @@ namespace avion::core {
         controller::Controller controller_;
         Scene scene_;
 
-        gui::Widget* widget_;
-        gfx::Pipeline* pipeline_;
+        gui::Widget* widget_ = nullptr;
+        gfx::Pipeline* pipeline_ = nullptr;
         GLFWwindow* window_ = nullptr;
 
         // TODO: Understand how to works it (calculate delay and fps)
