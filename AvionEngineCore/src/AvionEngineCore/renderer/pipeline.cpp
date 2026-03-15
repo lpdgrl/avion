@@ -20,6 +20,50 @@ namespace avion::gfx {
 
         renderer_->Init();
         renderer_->SetPerspectiveProjection(45.f, width, height, 0.1f, 50.f);
+       
+        // TODO: Need implementation resource manager!! 
+        queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container2.png");
+        auto& tex_1 = queue_textures_.back();
+
+        if (tex_1.LoadTexture()) {
+            std::string success;
+            success += "Success loaded texture ";
+            success += tex_1.GetPath();
+            AV_LOG_DEBUG(success);
+
+            res_.emplace("container2.png", &tex_1);
+        } else {
+            queue_textures_.pop_back();
+        }
+
+        // TODO: Need implementation resource manager!!
+        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container.jpg");
+        // auto& tex_2 = queue_textures_.back(); 
+
+        // if (tex_2.LoadTexture()) {
+            // std::string success;
+            // success += "Success loaded texture ";
+            // success += tex_2.GetPath();
+            // AV_LOG_DEBUG(success);
+
+            // res_.emplace("container.jpg", &tex_2);
+        // } else {
+            // queue_textures_.pop_back();
+        // }
+    
+        queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container2_specular.png");
+        auto& tex_3 = queue_textures_.back(); 
+
+        if (tex_3.LoadTexture()) {
+            std::string success;
+            success += "Success loaded texture ";
+            success += tex_3.GetPath();
+            AV_LOG_DEBUG(success);
+
+            res_.emplace("container2_specular.png", &tex_);
+        } else {
+            queue_textures_.pop_back();
+        }
     }
 
     void Pipeline::InitShadersStructs() noexcept {
@@ -93,6 +137,10 @@ namespace avion::gfx {
             shader_object_.mat_light_diffuse.value = material.diffuse;
             shader_object_.mat_light_specular.value = material.specular;
             shader_object_.mat_light_shininess.value = material.shininess;
+            
+            bool is_texture = ((material.texture != nullptr) ? true : false);
+            int idx_texture = ((material.texture != nullptr) ? material.texture->GetId(): -1); 
+            int idx_texture_specular = ((material.texture != nullptr) ? material.texture_specular->GetId() : -1);
 
             RenderContext<ShaderObject> render_context{
                 .shader = shader_object_,
@@ -100,12 +148,19 @@ namespace avion::gfx {
                 .size = size,
                 .axis = AxisRotate::NONE,
                 .rotate = 0.f,
-                .key = static_cast<MapKey>(type)
+                .key = static_cast<MapKey>(type),
+                .is_texture = is_texture,
+                .idx_texture = idx_texture, 
+                .idx_texture_specular = idx_texture_specular
             };
 
             renderer_->Draw<ShaderObject>(render_context);
         }
 
+    }
+
+    Pipeline::ResTextures& Pipeline::GetLoadedResource() noexcept {
+        return res_;
     }
 
 } // namespace avion::gfx

@@ -87,6 +87,9 @@ namespace avion::gfx {
         AxisRotate axis;
         GLfloat rotate;
         MapKey key;
+        bool is_texture;
+        int idx_texture;
+        int idx_texture_specular;
     };
 
     // Класс Render - занимается отрисовкой сцены, расчетом матриц трансформаций и векторов
@@ -131,6 +134,9 @@ namespace avion::gfx {
         void ProcessMouseMovement(double xoffset, double yoffset) const noexcept;
         
         glm::vec3 PickUpObject(double x_px, double y_px, int width, int height, GLfloat depth) const;
+        
+        void InsertIdTextureBuffer(std::uint32_t) noexcept;
+        std::uint32_t GetIdTextureBuffer(std::uint32_t) noexcept;
 
     private:
         void InitCamera();
@@ -155,7 +161,7 @@ namespace avion::gfx {
         
         glm::mat4 ScaleMatrix(glm::mat4& model, const glm::vec2& size);
         glm::mat4 ScaleMatrix(glm::mat4& model, const glm::vec3& size);
-
+        
         template <typename T_struct>
         void UseShader(T_struct shader);
 
@@ -169,6 +175,8 @@ namespace avion::gfx {
         std::map<MapKey, GLuint> vao_;
         std::map<MapKey, GLuint> vbo_;
         std::map<MapKey, GLuint> ebo_;
+        
+        std::unordered_map<std::uint32_t, std::uint32_t> idx_textures_;
 
         bool cursor_state_ = false;
 
@@ -192,7 +200,7 @@ namespace avion::gfx {
 
     template <typename T_struct>
     void Renderer::Draw(RenderContext<T_struct>& render_context) {
-        auto [shader, position, size, axis, rotate, key] = render_context;
+        auto [shader, position, size, axis, rotate, key, is_texture, idx_texture, idx_texture_specular ] = render_context;
 
         glm::mat4 model_matrix = glm::mat4(1.f);
         model_matrix = TranslateMatrix(model_matrix, position);
@@ -208,16 +216,18 @@ namespace avion::gfx {
         shader.view_matrix.value = view_matrix;
         shader.view_pos.value = view_pos;
         shader.model_matrix.value = model_matrix;
-        
-        UseShader<T_struct>(shader);
-        // shader->use();
-        // shader->setMat4("model", model_matrix);
-        // shader->setVec3("view_pos", view_pos);
-        // shader->setMat4("view", view_matrix);
 
-        BindVertexArray(GetVAO(key));
+        UseShader<T_struct>(shader);
         
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        if (is_texture) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, idx_texture);
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, idx_texture_specular);
+        }
+
+        BindVertexArray(GetVAO(key)); 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         BindVertexArray(0);

@@ -89,7 +89,6 @@ namespace avion::gfx {
         }
         
         // delete the shaders as they're linked into our now and no longer necessary
-        std::cout << "Size of vertex shader: " << sizeof(vertex) << std::endl << "Size of fragment shader: " << sizeof(fragment) << std::endl;
         glDeleteShader(vertex);
         glDeleteShader(fragment);
         

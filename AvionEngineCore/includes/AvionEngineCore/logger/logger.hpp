@@ -23,6 +23,9 @@ namespace avion::logger {
                     case LogLevel::kDebug:
                         LogDebug(arg);
                         break;
+                    case LogLevel::kError:
+                        LogError(arg);
+                        break;
                 }
             }
 
@@ -32,6 +35,10 @@ namespace avion::logger {
 
             static constexpr void LogDebug(const std::string& arg) noexcept {
                 std::cout << "[debug]: " << arg << '\n';
+            }
+
+            static constexpr void LogError(const std::string& arg) noexcept {
+                std::cerr << "[error]: " << arg << '\n';
             }
         };
 

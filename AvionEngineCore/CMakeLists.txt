@@ -22,16 +22,19 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/renderer/camera.cpp
     src/AvionEngineCore/core/scene.cpp
     src/AvionEngineCore/core/object.cpp
-    src/AvionEngineCore/gui/widget.cpp
+    src/AvionEngineCore/core/texture.cpp
     src/AvionEngineCore/core/window.cpp
+    src/AvionEngineCore/gui/widget.cpp
     src/AvionEngineCore/controller/controller.cpp
     src/AvionEngineCore/external/glad.c
+    src/AvionEngineCore/external/stb.c
     libs/imgui/imgui_draw.cpp
     libs/imgui/imgui_tables.cpp
     libs/imgui/imgui_widgets.cpp
     libs/imgui/imgui.cpp
     libs/imgui/backends/imgui_impl_glfw.cpp
     libs/imgui/backends/imgui_impl_opengl3.cpp
+    
 )
 
 target_include_directories(${ENGINE_PROJECT_NAME} 
@@ -46,7 +49,6 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
         ${FREETYPE_LIBRARIES}
         glfw
 )
-
 
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_23)
 

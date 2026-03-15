@@ -51,9 +51,8 @@ namespace avion::core {
         pipeline_ = new gfx::Pipeline(scene_);
         pipeline_->Init(width_window_, height_window_);
 
-        ImGui::CreateContext();
-
-        widget_ = new gui::Widget(window_);
+        ImGui::CreateContext();   
+        widget_ = new gui::Widget(window_, pipeline_->GetLoadedResource());
         widget_->Init();
     }
 
@@ -71,6 +70,8 @@ namespace avion::core {
         int id_pickup = 0;
 
         lt_ = glfwGetTime();
+        
+        auto& resources = pipeline_->GetLoadedResource();
 
         while (!glfwWindowShouldClose(window_)) {
             DeltaTimeUpdate();

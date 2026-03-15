@@ -3,8 +3,15 @@
 #define AVION_CORE_MATERIAL_H
 
     #include "glm/glm.hpp"
+    #include "texture.hpp"
 
     namespace avion::core {
+
+        enum class TypeMaterial {
+            kPrefabMaterial = 1,
+            kTexture        = 2,
+        };
+
         enum class PrefabMaterial {
             kUnknownMat     = 0,
             kEmerald        = 1,
@@ -13,6 +20,16 @@
         };
 
         struct Material {
+            Texture* texture = nullptr;
+            Texture* texture_specular = nullptr;
+            glm::vec3 ambient;
+            glm::vec3 diffuse;
+            glm::vec3 specular;
+            float shininess;
+        };
+
+        struct MatWthTex {
+            Texture texture;
             glm::vec3 ambient;
             glm::vec3 diffuse;
             glm::vec3 specular;

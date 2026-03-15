@@ -1,12 +1,19 @@
 ## DevLog
 
+**2026-03-15**
+- Added prefab of materials (metals, plastic, rubber) [Taken here](http://devernay.free.fr/cours/opengl/materials.html)
+- Added basic subsystem Texture 
+
+**2026-03-14**
+- Added Material/Light subsystems 
+
 **2026-03-12**
-- Add devlog to git.
+- Added devlog to git.
 - Gui func which added new object to scene is refactoring. Switch only variable parameters to struct 
 parameters.
 
 **2026-02-21**
-- Add macros of logging. Logger is refactoring. Logger has become simple and static class.
+- Added macros of logging. Logger is refactoring. Logger has become simple and static class.
 
 **2026-01-22**
 - Added class pipeline for data is filling to framebuffers (using struct RenderContext)

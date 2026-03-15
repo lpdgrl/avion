@@ -4,11 +4,20 @@
 
 namespace avion::gui {
     
-    Widget::Widget(GLFWwindow* window): window_(window), io_(ImGui::GetIO()) {}
-    Widget::~Widget() {
+    Widget::Widget(GLFWwindow* window, gfx::ResTextures& res)
+        : window_(window)
+        , io_(ImGui::GetIO()) 
+        , res_(res)
+    {
+
+    }
+
+    Widget::~Widget() 
+    {
         CleanUp();
         std::cout << "Widget is destroyed" << '\n';
     }
+    
     void Widget::Init() {
         IMGUI_CHECKVERSION();
         io_.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -41,10 +50,14 @@ namespace avion::gui {
     std::optional<WidgetObjectParams> Widget::WindowAddObject() const {
         static int item_selected_idx = 0;
         static int item_selected_idx_mat = 0;
+        static int item_selected_idx_tex = 0;
+
         static bool changed_size = false;
+
         static std::vector<std::string> types_objects{"cube", "pyramid", "light"};
         static std::vector<std::string> type_materials{"Emerald", "Gold", "Black plastic"};
-        
+        static std::vector<std::string> textures{"container2.png"};
+
         static WidgetObjectParams obj;
         ImGui::Begin("Object");
             ImGui::Text("Settings object");
@@ -120,13 +133,36 @@ namespace avion::gui {
                 }
                 ImGui::EndListBox();
             } 
-
-        if(ImGui::Button("Add Object")) {
-            ImGui::End();
-            return obj;
-        }
             
+            // List of textures 
+            ImVec2 listbox_tex_sz(200.f, ImGui::GetTextLineHeightWithSpacing() * 4);
+            if (ImGui::BeginListBox("Textures:", listbox_tex_sz)) {
+                for (std::size_t i = 0; i < textures.size(); ++i) {
+                    const bool is_selected = (item_selected_idx_tex == i);
+
+                    if (ImGui::Selectable(textures[i].c_str(), is_selected)) {
+                        item_selected_idx_tex = i;
+                    }
+                    
+                    if (is_selected) {
+                        ImGui::SetItemDefaultFocus();
+                        if (obj.type_obj == core::TypeObject::kCube) {
+                            if (item_selected_idx_tex == 0) {
+                                obj.params.material.texture = res_.at(textures[item_selected_idx_tex]);
+                                obj.params.material.texture_specular = res_.at("container2_specular.png");
+                            }
+                        }
+                    }
+                }
+                ImGui::EndListBox();
+            } 
+
+            if(ImGui::Button("Add Object")) {
+                ImGui::End();
+                return obj;
+            }
         ImGui::End();
+
         return std::nullopt; 
     }   
 

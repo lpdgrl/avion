@@ -10,15 +10,20 @@
 
 #include <vector>
 #include <optional>
-#include <tuple>
+#include <unordered_map>
 
 // Forward Declaration from core
 namespace avion::core {
     struct SceneObject;
     struct SceneLight;
-
+    
     enum class TypeObject; 
 } // namespace avion::core
+
+namespace avion::gfx {
+    using TexturePtr = core::Texture*;
+    using ResTextures = std::unordered_map<std::string, TexturePtr>; 
+};
 
 namespace avion::gui {
     struct Logs {
@@ -41,7 +46,7 @@ namespace avion::gui {
     public:
         
         Widget() = delete;
-        Widget(GLFWwindow* window);
+        Widget(GLFWwindow* window, gfx::ResTextures& res);
 
         Widget(const Widget& other) = delete;
         Widget(Widget&& other) = delete;
@@ -64,6 +69,7 @@ namespace avion::gui {
     private:
         GLFWwindow* window_ = nullptr;
         ImGuiIO& io_;
+        gfx::ResTextures& res_;
 };
 
 } // namespace avion::widget

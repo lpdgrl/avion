@@ -3,10 +3,16 @@
 #include "renderer.hpp"
 #include "../core/scene.hpp"
 
+#include <deque>
+
 namespace avion::gfx {
 
     class Pipeline {
     public:
+        using Textures    = std::deque<core::Texture>; 
+        using TexturePtr  = core::Texture*;
+        using ResTextures = std::unordered_map<std::string,TexturePtr>;
+
         Pipeline() = delete;
         Pipeline(core::Scene& scene);
 
@@ -16,6 +22,7 @@ namespace avion::gfx {
         Pipeline& operator=(const Pipeline& other) = delete;
         Pipeline& operator=(Pipeline&& other) = delete;
 
+        
         ~Pipeline();
 
         void Init(int width, int height);
@@ -26,6 +33,7 @@ namespace avion::gfx {
 
         gfx::ShaderObject& GetShaderObjectStruct() noexcept;
         gfx::ShaderLight& GetShaderLigthStruct() noexcept;
+        ResTextures& GetLoadedResource() noexcept;
 
         void TransferDataToFrameBuffer() noexcept;
 
@@ -34,6 +42,9 @@ namespace avion::gfx {
         gfx::Renderer* renderer_;
         gfx::ShaderObject shader_object_;
         gfx::ShaderLight shader_light_;
+
+        Textures queue_textures_; 
+        ResTextures res_; 
     };
     
 } // namespace avion::gfx
