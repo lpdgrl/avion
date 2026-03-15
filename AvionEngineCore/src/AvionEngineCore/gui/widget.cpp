@@ -41,6 +41,7 @@ namespace avion::gui {
     std::optional<WidgetObjectParams> Widget::WindowAddObject() const {
         static int item_selected_idx = 0;
         static int item_selected_idx_mat = 0;
+        static bool changed_size = false;
         static std::vector<std::string> types_objects{"cube", "pyramid", "light"};
         static std::vector<std::string> type_materials{"Emerald", "Gold", "Black plastic"};
         
@@ -60,7 +61,7 @@ namespace avion::gui {
             // ImGui::SliderFloat("y", reinterpret_cast<float*>(&obj.params.size.y), 0.f, 20.f);
             // ImGui::SliderFloat("z", reinterpret_cast<float*>(&obj.params.size.z), 0.f, 20.f);
             
-            ImGui::InputFloat3("Size", reinterpret_cast<float*>(&obj.params.size));
+            changed_size = ImGui::InputFloat3("Size", reinterpret_cast<float*>(&obj.params.size));
 
             ImVec2 listbox_size(200.0f, ImGui::GetTextLineHeightWithSpacing() * 4);
             if (ImGui::BeginListBox("Type:", listbox_size)) {
@@ -73,6 +74,9 @@ namespace avion::gui {
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
                         if (item_selected_idx == 0) {
+                            if (!changed_size) {
+                                obj.params.size = glm::vec3(1.f, 1.f, 1.f);
+                            } 
                             obj.type_obj = core::TypeObject::kCube;
                         }
                         else if (item_selected_idx == 1) {
