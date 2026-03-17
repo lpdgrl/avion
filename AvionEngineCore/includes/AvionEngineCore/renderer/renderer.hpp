@@ -73,6 +73,7 @@ namespace avion::gfx {
         ShaderParam<glm::vec3> light_position;
 
         ShaderParam<GLfloat> screen_aspect;
+        ShaderParam<GLfloat> delta;
 
         ShaderParam<glm::vec3> view_pos; 
         ShaderParam<glm::mat4> view_matrix;
@@ -90,6 +91,7 @@ namespace avion::gfx {
         bool is_texture;
         int idx_texture;
         int idx_texture_specular;
+        int idx_texture_emission;
     };
 
     // Класс Render - занимается отрисовкой сцены, расчетом матриц трансформаций и векторов
@@ -113,6 +115,7 @@ namespace avion::gfx {
         void Init();
         void InitRenderer();
         void InitRendererText();
+        void InitTexture();
 
         void Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate);
 
@@ -200,7 +203,8 @@ namespace avion::gfx {
 
     template <typename T_struct>
     void Renderer::Draw(RenderContext<T_struct>& render_context) {
-        auto [shader, position, size, axis, rotate, key, is_texture, idx_texture, idx_texture_specular ] = render_context;
+        auto [shader, position, size, axis, rotate, key, 
+             is_texture, idx_texture, idx_texture_specular, idx_texture_emission] = render_context;
 
         glm::mat4 model_matrix = glm::mat4(1.f);
         model_matrix = TranslateMatrix(model_matrix, position);
@@ -225,6 +229,9 @@ namespace avion::gfx {
 
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, idx_texture_specular);
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, idx_texture_emission);
         }
 
         BindVertexArray(GetVAO(key)); 
@@ -243,10 +250,11 @@ namespace avion::gfx {
             shader_->setVec3(shader.light_position.name_param.c_str(), shader.light_position.value);
             
             shader_->setFloat(shader.screen_aspect.name_param.c_str(), shader.screen_aspect.value);
+            shader_->setFloat(shader.delta.name_param.c_str(), shader.delta.value);
 
-            shader_->setVec3(shader.mat_light_ambient.name_param.c_str(), shader.mat_light_ambient.value);
-            shader_->setVec3(shader.mat_light_diffuse.name_param.c_str(), shader.mat_light_diffuse.value);
-            shader_->setVec3(shader.mat_light_specular.name_param.c_str(), shader.mat_light_specular.value);
+            // shader_->setVec3(shader.mat_light_ambient.name_param.c_str(), shader.mat_light_ambient.value);
+            // shader_->setVec3(shader.mat_light_diffuse.name_param.c_str(), shader.mat_light_diffuse.value);
+            // shader_->setVec3(shader.mat_light_specular.name_param.c_str(), shader.mat_light_specular.value);
             shader_->setFloat(shader.mat_light_shininess.name_param.c_str(), shader.mat_light_shininess.value);
 
             shader_->setMat4(shader.model_matrix.name_param.c_str(), shader.model_matrix.value);

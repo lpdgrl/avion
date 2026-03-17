@@ -51,7 +51,8 @@ namespace avion::core {
         int num_color_channels = 0;
 
         buffer_ = stbi_load(path_to_tex_.c_str(), &width, &height, &num_color_channels, 0);
-        if (stbi_failure_reason()) {
+          //if (stbi_failure_reason()) {
+        if (!buffer_) {
             AV_LOG_ERROR("Texture failed to load at path: " + path_to_tex_);
 
             auto er_stbi = stbi_failure_reason();
@@ -75,8 +76,6 @@ namespace avion::core {
             format = GL_RGB;
         } else if (num_color_channels == 4) {
             format = GL_RGBA;
-        } else {
-            format = GL_RED;
         }
 
         glGenTextures(1, &id_tex_);
@@ -95,7 +94,7 @@ namespace avion::core {
 
         is_loaded_ = true; 
 
-        return true;
+        return is_loaded_;
     }
     
     // That's too promising a name

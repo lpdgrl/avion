@@ -22,6 +22,7 @@
         struct Material {
             Texture* texture = nullptr;
             Texture* texture_specular = nullptr;
+            Texture* texture_emission = nullptr;
             glm::vec3 ambient;
             glm::vec3 diffuse;
             glm::vec3 specular;

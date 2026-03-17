@@ -36,20 +36,20 @@ namespace avion::gfx {
             queue_textures_.pop_back();
         }
 
-        // TODO: Need implementation resource manager!!
-        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container.jpg");
-        // auto& tex_2 = queue_textures_.back(); 
+         // TODO: Need implementation resource manager!!
+         queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container.jpg");
+         auto& tex_2 = queue_textures_.back(); 
 
-        // if (tex_2.LoadTexture()) {
-            // std::string success;
-            // success += "Success loaded texture ";
-            // success += tex_2.GetPath();
-            // AV_LOG_DEBUG(success);
+         if (tex_2.LoadTexture()) {
+             std::string success;
+             success += "Success loaded texture ";
+             success += tex_2.GetPath();
+             AV_LOG_DEBUG(success);
 
-            // res_.emplace("container.jpg", &tex_2);
-        // } else {
-            // queue_textures_.pop_back();
-        // }
+             res_.emplace("container.jpg", &tex_2);
+         } else {
+             queue_textures_.pop_back();
+         }
     
         queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container2_specular.png");
         auto& tex_3 = queue_textures_.back(); 
@@ -60,10 +60,68 @@ namespace avion::gfx {
             success += tex_3.GetPath();
             AV_LOG_DEBUG(success);
 
-            res_.emplace("container2_specular.png", &tex_);
+            res_.emplace("container2_specular.png", &tex_3);
         } else {
             queue_textures_.pop_back();
         }
+
+        queue_textures_.emplace_back("./AvionEngineCore/resources/textures/matrix.jpg");
+        auto& tex_4 = queue_textures_.back();
+
+        if (tex_4.LoadTexture()) {
+            std::string success;
+            success += "Success loaded texture ";
+            success += tex_4.GetPath();
+            AV_LOG_DEBUG(success);
+
+            res_.emplace("matrix.jpg", &tex_4);
+        } else {
+            queue_textures_.pop_back();
+        }
+
+        queue_textures_.emplace_back("./AvionEngineCore/resources/textures/test1_glossymap.jpg");
+        auto& tex_5 = queue_textures_.back();
+
+        if (tex_5.LoadTexture()) {
+            std::string success;
+            success += "Success loaded texture ";
+            success += tex_5.GetPath();
+            AV_LOG_DEBUG(success);
+
+            res_.emplace("test1_glossymap.jpg", &tex_5);
+        } else {
+            queue_textures_.pop_back();
+        }
+        
+        queue_textures_.emplace_back("./AvionEngineCore/resources/textures/RubicDiffuse.jpg");
+        auto& tex_6 = queue_textures_.back();
+
+        if (tex_6.LoadTexture()) {
+            std::string success;
+            success += "Success loaded texture ";
+            success += tex_6.GetPath();
+            AV_LOG_DEBUG(success);
+
+            res_.emplace("RubicDiffuse.jpg", &tex_6);   
+        } else {
+            queue_textures_.pop_back();
+        }
+
+        queue_textures_.emplace_back("./AvionEngineCore/resources/textures/RubicEmissive.jpg");
+        auto& tex_7 = queue_textures_.back();
+        
+        if (tex_7.LoadTexture()) {
+            std::string success;
+            success += "Success loaded texture ";
+            success += tex_7.GetPath();
+            AV_LOG_DEBUG(success);
+
+            res_.emplace("RubicEmissive.jpg", &tex_7);
+        } else {
+            queue_textures_.pop_back();
+        }
+
+        renderer_->InitTexture();
     }
 
     void Pipeline::InitShadersStructs() noexcept {
@@ -140,7 +198,8 @@ namespace avion::gfx {
             
             bool is_texture = ((material.texture != nullptr) ? true : false);
             int idx_texture = ((material.texture != nullptr) ? material.texture->GetId(): -1); 
-            int idx_texture_specular = ((material.texture != nullptr) ? material.texture_specular->GetId() : -1);
+            int idx_texture_specular = ((material.texture_specular != nullptr) ? material.texture_specular->GetId() : -1);
+            int idx_texture_emission = ((material.texture_emission != nullptr) ? material.texture_emission->GetId() : -1);
 
             RenderContext<ShaderObject> render_context{
                 .shader = shader_object_,
@@ -151,7 +210,8 @@ namespace avion::gfx {
                 .key = static_cast<MapKey>(type),
                 .is_texture = is_texture,
                 .idx_texture = idx_texture, 
-                .idx_texture_specular = idx_texture_specular
+                .idx_texture_specular = idx_texture_specular,
+                .idx_texture_emission = idx_texture_emission
             };
 
             renderer_->Draw<ShaderObject>(render_context);

@@ -148,8 +148,11 @@ namespace avion::gui {
                         ImGui::SetItemDefaultFocus();
                         if (obj.type_obj == core::TypeObject::kCube) {
                             if (item_selected_idx_tex == 0) {
-                                obj.params.material.texture = res_.at(textures[item_selected_idx_tex]);
-                                obj.params.material.texture_specular = res_.at("container2_specular.png");
+                                // obj.params.material.texture = res_.at(textures[item_selected_idx_tex]);
+                                obj.params.material.texture = res_.at("RubicDiffuse.jpg");
+                                // obj.params.material.texture_specular = res_.at("container2_specular.png");
+                                // obj.params.material.texture_emission = res_.at("matrix.jpg");
+                                obj.params.material.texture_emission = res_.at("RubicEmissive.jpg");
                             }
                         }
                     }
@@ -235,7 +238,7 @@ namespace avion::gui {
             arr_changed_material[6] = ImGui::ColorEdit3("mat diffuse component", reinterpret_cast<float*>(&material.diffuse));
             arr_changed_material[7] = ImGui::ColorEdit3("mat specular component", reinterpret_cast<float*>(&material.specular));
             arr_changed_material[8] = ImGui::InputFloat("mat shininess component", &material.shininess, 1.0f);
-            arr_changed_material[9] = ImGui::SliderFloat("mat shininess component slider", &material.shininess, 0.f, 100.f);
+            arr_changed_material[9] = ImGui::SliderFloat("mat shininess component slider", &material.shininess, 0.f, 1000.f);
 
         ImGui::End();
 

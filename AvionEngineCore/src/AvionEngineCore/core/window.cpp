@@ -71,9 +71,7 @@ namespace avion::core {
 
         lt_ = glfwGetTime();
         
-        auto& resources = pipeline_->GetLoadedResource();
-
-        while (!glfwWindowShouldClose(window_)) {
+    while (!glfwWindowShouldClose(window_)) {
             DeltaTimeUpdate();
             ProcessEvents();
 
@@ -138,6 +136,7 @@ namespace avion::core {
 
             gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
             shader_object.screen_aspect.value = scr_aspect;
+            shader_object.delta.value = std::sin(GetDeltaTime());
 
             if (added_opt_obj.has_value()) {
                 auto obj = added_opt_obj.value();

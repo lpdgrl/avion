@@ -46,9 +46,13 @@ namespace avion::gfx {
         LoadVerticesPyramid();
         LoadVerticesSourceLigth();
         
+    }
+
+    void Renderer::InitTexture() {
         shader_->use();
         shader_->setInt("material.diffuse", 0);
         shader_->setInt("material.specular", 1);
+        shader_->setInt("material.emission", 2);
     }
 
     void Renderer::LoadVerticesCube() {
