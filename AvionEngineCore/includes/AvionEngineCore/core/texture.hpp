@@ -10,12 +10,13 @@
 
     #include <string>
     #include <cstdint>  
+    #include <utility>
 
     namespace avion::core {
 
         class Texture {
         public:
-            Texture() = delete;
+            Texture() = default;
             
             Texture(const Texture& other) = delete;
             Texture& operator=(const Texture& other) = delete;
@@ -23,28 +24,34 @@
             Texture(Texture&& other);
             Texture& operator=(Texture&& other);
 
-            explicit Texture(const std::string& path_to_tex);
-            explicit Texture(const char* path_to_tex);
-            
+            explicit Texture(const std::string& path_texture);
+            explicit Texture(const char* path_texture);
+            explicit Texture(std::string_view path_texture);
+
             bool LoadTexture();
-            
-            // TODO: That's too promising a name
             bool FreeTexture();
-             
-            std::uint32_t GetId() const noexcept;
-            const unsigned char* GetBuffer() const noexcept;
+            void SwitchPathToTexture(const std::string& path_texture);
 
-            void SwitchTextureFile(const std::string& path_to_tex);
-            bool IsLoaded() const noexcept;
-            std::string GetPath() const noexcept;
+            std::uint32_t&        GetId()             noexcept;
+            
+            std::uint16_t         GetWidth()          const noexcept;
+            std::uint16_t         GetHeight()         const noexcept;
+            GLenum                GetColorChannels()  const noexcept;
+            const unsigned char*  GetBuffer()         const noexcept;
+            std::string           GetPath()           const noexcept;
 
+            bool IsUploaded() const noexcept;
+            
             ~Texture(); 
 
         private:
-            bool is_loaded_ = false;
-            std::uint32_t id_tex_;
-            std::string path_to_tex_;
-            unsigned char* buffer_ = nullptr;
+            std::string m_path;
+            std::uint32_t m_index{};
+            std::uint32_t m_num_color_channels{};
+            std::uint16_t m_width{};
+            std::uint16_t m_height{};
+            std::uint8_t* m_buffer = nullptr;
+            bool m_is_uploaded = false;
         };
     } // namespace avion:;core
      

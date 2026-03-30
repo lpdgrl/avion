@@ -9,7 +9,7 @@ namespace avion::gui {
         , io_(ImGui::GetIO()) 
         , res_(res)
     {
-
+        core::InitPrefabMaterials();
     }
 
     Widget::~Widget() 
@@ -46,17 +46,45 @@ namespace avion::gui {
         ImGui::DestroyContext();
     }
 
-
     std::optional<WidgetObjectParams> Widget::WindowAddObject() const {
-        static int item_selected_idx = 0;
+        static int item_selected_idx     = 0;
         static int item_selected_idx_mat = 0;
         static int item_selected_idx_tex = 0;
 
+        static bool checked_list_materials = false;
+        static bool checked_list_textures  = false;
         static bool changed_size = false;
 
-        static std::vector<std::string> types_objects{"cube", "pyramid", "light"};
-        static std::vector<std::string> type_materials{"Emerald", "Gold", "Black plastic"};
-        static std::vector<std::string> textures{"container2.png"};
+        static std::vector<std::string> type_materials{
+          "None",
+          "Emerald", 
+          "Gold", 
+          "Jade",
+          "Obsidian",
+          "Pearl",
+          "Ruby",
+          "Turquoise",
+          "Brass",
+          "Bronze",
+          "Chrome",
+          "Copper",
+          "Silver",
+          "Black plastic",
+          "Cyan plastic",
+          "Green plastic",
+          "Red plastic",
+          "White plastic",
+          "Yellow plastic",
+          "Black rubber",
+          "Cyan rubber",
+          "Green rubber",
+          "Red rubber",
+          "White rubber",
+          "Yellow rubber"
+        };
+
+        static std::vector<std::string> types_objects{"cube", "pyramid"}; 
+        static std::vector<std::string> textures{"None", "container2.png"};
 
         static WidgetObjectParams obj;
         ImGui::Begin("Object");
@@ -64,16 +92,9 @@ namespace avion::gui {
             ImGui::ColorEdit3("Color", reinterpret_cast<float*>(&obj.params.color));
 
             ImGui::Text("Position object:");
-            // ImGui::SliderFloat("x-axis", reinterpret_cast<float*>(&obj.params.position.x), -20.f, 20.f);
-            // ImGui::SliderFloat("y-axis", reinterpret_cast<float*>(&obj.params.position.y), -20.f, 20.f);
-            // ImGui::SliderFloat("z-axis", reinterpret_cast<float*>(&obj.params.position.z), -20.f, 20.f);
             ImGui::InputFloat3("Position", reinterpret_cast<float*>(&obj.params.position));
 
             ImGui::Text("Size object:");
-            // ImGui::SliderFloat("x", reinterpret_cast<float*>(&obj.params.size.x), 0.f, 20.f);
-            // ImGui::SliderFloat("y", reinterpret_cast<float*>(&obj.params.size.y), 0.f, 20.f);
-            // ImGui::SliderFloat("z", reinterpret_cast<float*>(&obj.params.size.z), 0.f, 20.f);
-            
             changed_size = ImGui::InputFloat3("Size", reinterpret_cast<float*>(&obj.params.size));
 
             ImVec2 listbox_size(200.0f, ImGui::GetTextLineHeightWithSpacing() * 4);
@@ -90,15 +111,10 @@ namespace avion::gui {
                             if (!changed_size) {
                                 obj.params.size = glm::vec3(1.f, 1.f, 1.f);
                             } 
-                            obj.type_obj = core::TypeObject::kCube;
+                            obj.type_obj = core::ObjectType::kCube;
                         }
                         else if (item_selected_idx == 1) {
-                            obj.type_obj = core::TypeObject::kPyramid;
-                        }
-                        else if (item_selected_idx == 2) {
-                            obj.type_obj = core::TypeObject::kLight;
-                            obj.params.color = glm::vec3(1.f);
-                            obj.params.size = glm::vec3(0.25f, 0.25f, 0.25f);
+                            obj.type_obj = core::ObjectType::kPyramid;
                         }
                     } 
                 }
@@ -106,64 +122,73 @@ namespace avion::gui {
             }
     
             // List of materials 
-            ImVec2 listbox_mat_sz(200.f, ImGui::GetTextLineHeightWithSpacing() * 4);
-            if (ImGui::BeginListBox("Material:", listbox_mat_sz)) {
-                for (std::size_t i = 0; i < type_materials.size(); ++i) {
-                    const bool is_selected = (item_selected_idx_mat == i);
+            bool checked_lm = ImGui::Checkbox("Enable material", &checked_list_materials);
 
-                    if (ImGui::Selectable(type_materials[i].c_str(), is_selected)) {
-                        item_selected_idx_mat = i;
-                    }
-                    
-                    if (is_selected) {
-                        ImGui::SetItemDefaultFocus();
-                        if (obj.type_obj == core::TypeObject::kCube || obj.type_obj == core::TypeObject::kPyramid) {
-                            if (item_selected_idx_mat == 0) {
-                                obj.type_mat = core::PrefabMaterial::kEmerald;
-                                obj.params.material = core::prefab_Emerald;
-                            } else if (item_selected_idx_mat == 1) {
-                                obj.type_mat = core::PrefabMaterial::kGold;
-                                obj.params.material = core::prefab_Gold;
-                            } else if (item_selected_idx_mat == 2) {
-                                obj.type_mat = core::PrefabMaterial::kBlackPlastic;
-                                obj.params.material = core::prefab_BlackPlastic;
-                            }
-                        }
-                    }
-                }
-                ImGui::EndListBox();
-            } 
-            
+            if (checked_list_materials) {
+              ImGui::Text("Prefab materials:");
+              ImVec2 listbox_mat_sz(200.f, ImGui::GetTextLineHeightWithSpacing() * 4);
+              if (ImGui::BeginListBox("##empty", listbox_mat_sz)) {
+                  for (std::size_t i = 0; i < type_materials.size(); ++i) {
+                      const bool is_selected = (item_selected_idx_mat == i);
+
+                      if (ImGui::Selectable(type_materials[i].c_str(), is_selected)) {
+                          item_selected_idx_mat = i;
+                      }
+
+                      if (is_selected) {
+                          ImGui::SetItemDefaultFocus();
+                          if (obj.type_obj == core::ObjectType::kCube || obj.type_obj == core::ObjectType::kPyramid) {
+                              obj.type_mat = core::GetEnumValuePrefabMatByIndex(item_selected_idx_mat);
+                              obj.params.material = core::GetPrefabMaterialByIndex(item_selected_idx_mat);
+                          }
+                      }
+                  }
+                  ImGui::EndListBox();
+              }   
+            }
+
+
             // List of textures 
-            ImVec2 listbox_tex_sz(200.f, ImGui::GetTextLineHeightWithSpacing() * 4);
-            if (ImGui::BeginListBox("Textures:", listbox_tex_sz)) {
-                for (std::size_t i = 0; i < textures.size(); ++i) {
-                    const bool is_selected = (item_selected_idx_tex == i);
+            bool checked_lt = ImGui::Checkbox("Enable textures", &checked_list_textures);
 
-                    if (ImGui::Selectable(textures[i].c_str(), is_selected)) {
-                        item_selected_idx_tex = i;
-                    }
-                    
-                    if (is_selected) {
-                        ImGui::SetItemDefaultFocus();
-                        if (obj.type_obj == core::TypeObject::kCube) {
-                            if (item_selected_idx_tex == 0) {
-                                // obj.params.material.texture = res_.at(textures[item_selected_idx_tex]);
-                                obj.params.material.texture = res_.at("RubicDiffuse.jpg");
-                                // obj.params.material.texture_specular = res_.at("container2_specular.png");
-                                // obj.params.material.texture_emission = res_.at("matrix.jpg");
-                                obj.params.material.texture_emission = res_.at("RubicEmissive.jpg");
-                            }
-                        }
-                    }
-                }
-                ImGui::EndListBox();
-            } 
+            if (checked_list_textures) {
+              ImVec2 listbox_tex_sz(200.f, ImGui::GetTextLineHeightWithSpacing() * 4);
+              if (ImGui::BeginListBox("##empty:", listbox_tex_sz)) {
+                  for (std::size_t i = 0; i < textures.size(); ++i) {
+                      const bool is_selected = (item_selected_idx_tex == i);
+
+                      if (ImGui::Selectable(textures[i].c_str(), is_selected)) {
+                          item_selected_idx_tex = i;
+                      }
+                      
+                      if (is_selected) {
+                          ImGui::SetItemDefaultFocus();
+                          if (obj.type_obj == core::ObjectType::kCube) {
+                              if (item_selected_idx_tex == 0) {
+                                obj.params.material.texture = nullptr;
+                                obj.params.material.texture_specular = nullptr;
+                                obj.params.material.texture_emission = nullptr;
+                              } else if (item_selected_idx_tex == 1) {
+                                  obj.params.material.texture = res_.at(textures[item_selected_idx_tex]);
+                                  // obj.params.material.texture = res_.at("RubicDiffuse.jpg");
+                                  obj.params.material.texture_specular = res_.at("container2_specular.png");
+                                  // obj.params.material.texture_specular = res_.at("lighting_maps_specular_color.png");
+                                  // obj.params.material.texture_emission = res_.at("matrix.jpg");
+                                  // obj.params.material.texture_emission = res_.at("RubicEmissive.jpg");
+                              }
+                          }
+                      }
+                  }
+                  ImGui::EndListBox();
+              } 
+            }
+  
 
             if(ImGui::Button("Add Object")) {
                 ImGui::End();
                 return obj;
             }
+
         ImGui::End();
 
         return std::nullopt; 
@@ -255,10 +280,14 @@ namespace avion::gui {
         static bool changed_properties_light = false;
         static std::array<bool, 10> arr_changed_prop_light; 
 
-        auto& light    = params.light;
-        auto& position = light.position;
+        auto& light = params.light;
+        auto& position = light->GetGeometry();
         auto& size  = params.size;
         auto& color = params.color;
+        
+        auto ambient = light->GetAmbient();
+        auto diffuse = light->GetDiffuse();
+        auto specular = light->GetSpecular();
 
         ImGui::Begin("Light properties");
             arr_changed_prop_light[0] = ImGui::SliderFloat("light pos x", &position.x, -20.f, 20.f);
@@ -270,11 +299,23 @@ namespace avion::gui {
             
             arr_changed_prop_light[5] = ImGui::ColorEdit3("light color", reinterpret_cast<float*>(&color)); 
 
-            arr_changed_prop_light[6] = ImGui::ColorEdit3("light ambient component", reinterpret_cast<float*>(&light.ambient));
-            arr_changed_prop_light[7] = ImGui::ColorEdit3("light diffuse component", reinterpret_cast<float*>(&light.diffuse));
-            arr_changed_prop_light[8] = ImGui::ColorEdit3("light specular component", reinterpret_cast<float*>(&light.specular));
+            arr_changed_prop_light[6] = ImGui::ColorEdit3("light ambient component", reinterpret_cast<float*>(&ambient));
+            arr_changed_prop_light[7] = ImGui::ColorEdit3("light diffuse component", reinterpret_cast<float*>(&diffuse));
+            arr_changed_prop_light[8] = ImGui::ColorEdit3("light specular component", reinterpret_cast<float*>(&specular));
 
         ImGui::End();
+
+        if (arr_changed_prop_light[6]) {
+            light->SetAmbient(ambient);
+        } 
+
+        if (arr_changed_prop_light[7]) {
+            light->SetDiffuse(diffuse);
+        }
+        
+        if (arr_changed_prop_light[8]) {
+            light->SetSpecular(specular);
+        }
 
         changed_properties_light = std::any_of(arr_changed_prop_light.cbegin(), arr_changed_prop_light.cend(), [](bool state_changed_value) {
                  return state_changed_value;}
@@ -288,6 +329,7 @@ namespace avion::gui {
     {
         static int item_selected_idx = 0;
         int selected_item_id = 0;
+        std::string t_light;
 
         if (ImGui::Begin("Source lights")) {
             if (ImGui::BeginListBox("Lights")) {
@@ -305,15 +347,66 @@ namespace avion::gui {
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
                         selected_item_id = lights[i].id; 
+                        auto type_light = lights[i].type_light;
+
+                        if (type_light == core::LightType::kDirLight) {
+                          t_light.append("DirLight");
+                        } else if (type_light == core::LightType::kPointLight) {
+                          t_light.append("PointLight");
+                        } else if (type_light == core::LightType::kSimpleLight) {
+                          t_light.append("SimpleLight");
+                        }
                     }
                 }
                 ImGui::EndListBox(); 
             }
         }
         // TODO: Overhead costs due to convert int to string and to const char
-        std::string str("Selected was source light:\n\tid = " + std::to_string(selected_item_id));
+        std::string str("Selected was source light:\n\tid = " + std::to_string(selected_item_id) + t_light);
+        
         ImGui::Text(str.c_str());
         ImGui::End();
+
         return selected_item_id;
     }
+
+    std::optional<core::LightType> Widget::w_LightAdd() const 
+    {
+        static int item_selected_idx = 0;
+        static std::vector<std::string> type_source_lights{"simple light", "direction light", "point light"}; 
+        core::LightType type;
+        
+        ImGui::Begin("Add source light");
+            ImVec2 listbox_size(200.0f, ImGui::GetTextLineHeightWithSpacing() * 4);
+            if (ImGui::BeginListBox("Type:", listbox_size)) {
+                for (int i = 0; i < type_source_lights.size(); ++i) {
+                    const bool is_selected = (item_selected_idx == i);
+                    
+                    if (ImGui::Selectable(type_source_lights[i].c_str(), is_selected)) {
+                        item_selected_idx = i;
+                    }
+
+                    if (is_selected) {
+                        ImGui::SetItemDefaultFocus();
+                        if (item_selected_idx == 0) {
+                          type = core::LightType::kSimpleLight;     
+                        } else if (item_selected_idx == 1) {
+                          type = core::LightType::kDirLight;     
+                        } else if (item_selected_idx == 2) {
+                          type = core::LightType::kPointLight;
+                        }
+                    }
+                } 
+            }
+            ImGui::EndListBox(); 
+
+            if(ImGui::Button("Add light")) {
+                ImGui::End();
+                return type;
+            }
+
+        ImGui::End();
+        return std::nullopt;
+    }                   
+
 } // namespace avion::gui

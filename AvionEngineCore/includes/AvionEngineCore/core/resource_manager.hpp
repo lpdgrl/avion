@@ -1,0 +1,92 @@
+
+#ifndef AVION_CORE_RESOURCE_MANAGER_H
+#define AVION_CORE_RESOURCE_MANAGER_H
+  
+  #include <filesystem>
+  #include <string_view>
+  #include <string>
+  #include <unordered_map>
+  #include <type_traits>
+
+  #include "../macro.h"
+
+  namespace avion::core::resman 
+  {
+    
+    // class Path {
+    // public:
+    //   Path() = delete;
+
+    //   Path(const char* relative_path);
+    //   Path(const std::string& relative_path);
+    //   Path(std::string_view relative_path);
+      
+    //   std::string GetAbsolutePath() const; 
+
+    //   ~Path() = default;
+    // private:
+    //   std::filesystem::path m_path; 
+    // };
+
+    enum class ResourceType {
+      kUnknown = -1, 
+      kTexture = 1,
+      kShader  = 2,
+    };
+
+    class ResourceManager {
+    public:
+      using FsPath = std::filesystem::path;
+
+      ResourceManager(std::string_view path);
+      ~ResourceManager() = default;
+
+      bool RegisterResource(ResourceType resource, std::string_view path_to_resource); 
+      
+      template <typename T>
+      T* GetResource(std::string_view resource) const
+      {
+        if (resource.empty()) {
+          std::string err(resource);
+          AV_LOG_ERROR("ResourceManager::GetResource: key of resource is empty");
+          return nullptr;
+        }
+
+        auto it_res = m_resources.find(resource.data());
+        if (it_res == m_resources.end()) {
+          std::string err(resource);
+          AV_LOG_ERROR("ResourceManager::GetResource: " + err + "is invalid resource.");
+          return nullptr;
+        }
+
+        ResourceHolder<T>* holder_observer = static_cast<ResourceHolder<T>*>(it_res->second.get());
+        return &holder_observer->data;
+      }
+
+    private:
+      void CreateAndLoadTexture(const std::string& filename, FsPath& path);
+      void LoadShader(const std::string& filename, FsPath& path);
+      std::string NormalizePath(std::string_view path) const; 
+
+    private:
+      struct IResourceHolder {
+        virtual ~IResourceHolder() = default;
+      };
+
+      template <typename T>
+      struct ResourceHolder : IResourceHolder {
+        T data;
+
+        template <typename... Args>
+        ResourceHolder(Args&&... args): data(std::forward<Args>(args)...) {}
+      };
+
+      using ResourceStorage = std::unordered_map<std::string, std::unique_ptr<IResourceHolder>>;
+      ResourceStorage m_resources;
+      FsPath m_path_exe;
+    };
+    
+
+  } // namespace avion::core::resman::fs
+
+#endif

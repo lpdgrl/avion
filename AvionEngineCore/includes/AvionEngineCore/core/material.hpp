@@ -5,18 +5,42 @@
     #include "glm/glm.hpp"
     #include "texture.hpp"
 
-    namespace avion::core {
+    #include <vector>
 
-        enum class TypeMaterial {
+    namespace avion::core {
+        static constexpr std::uint8_t kNumberPrefabMaterials = 25;
+
+        enum class MaterialType {
             kPrefabMaterial = 1,
             kTexture        = 2,
         };
 
-        enum class PrefabMaterial {
-            kUnknownMat     = 0,
+        enum class PrefabMaterial : std::uint8_t {
+            kNone           = 0,
             kEmerald        = 1,
             kGold           = 2,
-            kBlackPlastic   = 3,
+            kJade           = 3,
+            kObsidian       = 4,
+            kPearl          = 5,
+            kRuby           = 6,
+            kTurquoise      = 7,
+            kBrass          = 8,
+            kBronze         = 9,
+            kChrome         = 10,
+            kCopper         = 11,
+            kSilver         = 12,
+            kBlackPlastic   = 13,
+            kCyanPlastic    = 14,
+            kGreenPlastic   = 15,
+            kRedPlastic     = 16,
+            kWhitePlastic   = 17,
+            kYellowPlastic  = 18,
+            kBlackRubber    = 19,
+            kCyanRubber     = 10,
+            kGreenRubber    = 21,
+            kRedRubber      = 22,
+            kWhiteRubber    = 23,
+            kYellowRubber   = 24,
         };
 
         struct Material {
@@ -29,12 +53,11 @@
             float shininess;
         };
 
-        struct MatWthTex {
-            Texture texture;
-            glm::vec3 ambient;
-            glm::vec3 diffuse;
-            glm::vec3 specular;
-            float shininess;
+        static constexpr Material prefab_None {
+          .ambient = glm::vec3(1.f),
+          .diffuse = glm::vec3(1.f),
+          .specular = glm::vec3(1.f),
+          .shininess = 64
         };
         
         static constexpr Material prefab_Emerald {
@@ -42,6 +65,20 @@
             .diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f),
             .specular = glm::vec3(0.633f, 0.727811f, 0.633f),
             .shininess = 128 * 0.6 
+        };
+
+        static constexpr Material prefab_Gold {
+            .ambient = glm::vec3(0.24725f, 0.1995f, 0.0745f),
+            .diffuse = glm::vec3(0.75164f, 0.60648f, 0.22648f),
+            .specular = glm::vec3(0.628281f, 0.555802f, 0.366065f),
+            .shininess = 128 * 0.4
+        };
+
+        static constexpr Material prefab_BlackPlastic {
+            .ambient = glm::vec3(0.0f, 0.0f, 0.0f),
+            .diffuse = glm::vec3(0.01f, 0.01f, 0.01f),
+            .specular = glm::vec3(0.50f, 0.50f, 0.50f),
+            .shininess = 128 * 0.25
         };
 
         static constexpr Material prefab_Jade {
@@ -190,20 +227,16 @@
             .specular = glm::vec3(0.7f, 0.7f, 0.04f),
             .shininess = 128 * 0.078125f 
         };
+        
+        // TODO: THIS IS CRAZY WAY !!!!!!
+        using MaterialPtr = const Material*;
 
-        static constexpr Material prefab_Gold {
-            .ambient = glm::vec3(0.24725f, 0.1995f, 0.0745f),
-            .diffuse = glm::vec3(0.75164f, 0.60648f, 0.22648f),
-            .specular = glm::vec3(0.628281f, 0.555802f, 0.366065f),
-            .shininess = 128 * 0.4
-        };
+        static std::vector<MaterialPtr> materials;
+        
+        void InitPrefabMaterials();
 
-        static constexpr Material prefab_BlackPlastic {
-            .ambient = glm::vec3(0.0f, 0.0f, 0.0f),
-            .diffuse = glm::vec3(0.01f, 0.01f, 0.01f),
-            .specular = glm::vec3(0.50f, 0.50f, 0.50f),
-            .shininess = 128 * 0.25
-        };
+        const Material& GetPrefabMaterialByIndex(int index_prefab_material); 
+        PrefabMaterial GetEnumValuePrefabMatByIndex(int index_prefab_material);
 
     } // namespace avion::core
 

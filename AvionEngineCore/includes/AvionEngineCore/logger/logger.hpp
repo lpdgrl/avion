@@ -9,12 +9,13 @@ namespace avion::logger {
         kWarning = 2,
         kError = 3,
         kCritical = 4,
+        kToDo = 5,
     };
 
     class Logger {
         public:
             Logger() = delete;
-
+            
             static constexpr void Log(LogLevel level, const std::string& arg) noexcept {
                 switch (level) {
                     case LogLevel::kInformation:
@@ -26,19 +27,39 @@ namespace avion::logger {
                     case LogLevel::kError:
                         LogError(arg);
                         break;
+                    case LogLevel::kWarning:
+                        LogWarning(arg);
+                        break;
+                    case LogLevel::kCritical:
+                        LogCritical(arg);
+                        break;
+                    case LogLevel::kToDo:
+                        LogToDo(arg);
                 }
             }
 
             static constexpr void LogInfo(const std::string& arg) noexcept {
-                std::cout << "[info]: " << arg << '\n';
+              std::cout << "[info]: " << arg << '\n';
             }
 
             static constexpr void LogDebug(const std::string& arg) noexcept {
-                std::cout << "[debug]: " << arg << '\n';
+              std::cerr << "[debug]: " << arg << '\n';
             }
 
             static constexpr void LogError(const std::string& arg) noexcept {
-                std::cerr << "[error]: " << arg << '\n';
+              std::cerr << "[error]: " << arg << '\n';
+            }
+
+            static constexpr void LogWarning(const std::string& arg) noexcept {
+              std::cerr << "[warning]: " << arg << '\n';
+            }
+
+            static constexpr void LogCritical(const std::string& arg) noexcept {
+              std::cerr << "[critical]: " << arg << '\n';
+            }
+
+            static constexpr void LogToDo(const std::string& arg) noexcept {
+              std::cout << "[todo]: " << arg << '\n';
             }
         };
 

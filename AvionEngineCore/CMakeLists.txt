@@ -24,6 +24,9 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/core/object.cpp
     src/AvionEngineCore/core/texture.cpp
     src/AvionEngineCore/core/window.cpp
+    src/AvionEngineCore/core/light.cpp
+    src/AvionEngineCore/core/material.cpp
+    src/AvionEngineCore/core/resource_manager.cpp
     src/AvionEngineCore/gui/widget.cpp
     src/AvionEngineCore/controller/controller.cpp
     src/AvionEngineCore/external/glad.c
@@ -51,6 +54,7 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
 )
 
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_23)
+target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 
 message(STATUS "FINAL include dirs:")
 get_target_property(tmp_inc ${ENGINE_PROJECT_NAME} INCLUDE_DIRECTORIES)

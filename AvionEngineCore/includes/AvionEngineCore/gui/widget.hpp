@@ -17,7 +17,8 @@ namespace avion::core {
     struct SceneObject;
     struct SceneLight;
     
-    enum class TypeObject; 
+    enum class ObjectType;
+    enum class LightType;
 } // namespace avion::core
 
 namespace avion::gfx {
@@ -36,7 +37,7 @@ namespace avion::gui {
     };
 
     struct WidgetObjectParams {
-        core::TypeObject type_obj;
+        core::ObjectType type_obj;
         core::PrefabMaterial type_mat;
         core::ObjectParams params;
         bool state_button_addobj;
@@ -63,7 +64,8 @@ namespace avion::gui {
         
         void WindowLogs(Logs logs) const;
         bool WindowMaterial(core::ObjectParams&) const;
-        
+       
+        std::optional<core::LightType> w_LightAdd() const;
         bool w_LightProperties(core::LightParams&) const;
         int w_ListLights(const std::vector<core::SceneLight>& lights) const;
     private:

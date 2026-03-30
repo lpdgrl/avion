@@ -1,5 +1,11 @@
 ## DevLog
 
+**2026-03-29**
+- Added resource manager
+
+**2026-03-17**
+- Added diffuse and specular map to Materias
+
 **2026-03-15**
 - Added prefab of materials (metals, plastic, rubber) [Taken here](http://devernay.free.fr/cours/opengl/materials.html)
 - Added basic subsystem Texture 

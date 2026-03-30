@@ -2,38 +2,42 @@
 
 namespace avion::core {
     
-    Texture::Texture(const std::string& path_to_tex)
-    : id_tex_{}
-    , path_to_tex_(path_to_tex)
+    Texture::Texture(const std::string& path_texture)
+    : m_index{}
+    , m_path(path_texture)
     {
 
     }
 
-    Texture::Texture(const char* path_to_tex)
-    : id_tex_{}
-    , path_to_tex_(path_to_tex)
+    Texture::Texture(const char* path_texture)
+    : m_index{}
+    , m_path(path_texture)
+    {
+
+    }
+
+    Texture::Texture(std::string_view path_texture)
+    : m_index{}
+    , m_path(path_texture)
     {
 
     }
 
     Texture::Texture(Texture&& other)
-    : id_tex_(other.id_tex_)
-    , path_to_tex_(std::move(other.path_to_tex_))
-    , buffer_(other.buffer_)
+    : m_index(std::exchange(other.m_index, 0))
+    , m_path(std::move(other.m_path))
+    , m_buffer(other.m_buffer)
     {
-        other.id_tex_ = 0;
-        other.buffer_ = nullptr;
+        other.m_index = 0;
+        other.m_buffer = nullptr;
     }
 
     Texture& Texture::operator=(Texture&& other)
     {
         if (this != &other) {
-            id_tex_ = other.id_tex_;
-            path_to_tex_ = std::move(other.path_to_tex_);
-            buffer_ = other.buffer_;
-
-            other.id_tex_ = 0;
-            other.buffer_ = nullptr;
+            m_index = std::exchange(other.m_index, 0);
+            m_path = std::move(other.m_path);
+            m_buffer = std::exchange(other.m_buffer, nullptr);
         }
 
         return *this;
@@ -41,8 +45,8 @@ namespace avion::core {
 
     bool Texture::LoadTexture()
     {
-        if (IsLoaded()) {
-            AV_LOG_ERROR("Texture already loaded" + path_to_tex_);
+        if (IsUploaded()) {
+            AV_LOG_ERROR("Texture::LoadTexture: texture is already uploaded" + m_path);
             return false;
         }
 
@@ -50,10 +54,10 @@ namespace avion::core {
         int height = 0;
         int num_color_channels = 0;
 
-        buffer_ = stbi_load(path_to_tex_.c_str(), &width, &height, &num_color_channels, 0);
+        m_buffer = stbi_load(m_path.c_str(), &width, &height, &num_color_channels, 0);
           //if (stbi_failure_reason()) {
-        if (!buffer_) {
-            AV_LOG_ERROR("Texture failed to load at path: " + path_to_tex_);
+        if (!m_buffer) {
+            AV_LOG_ERROR("Texture::LoadTexture: Texture failed to load at path: " + m_path);
 
             auto er_stbi = stbi_failure_reason();
             
@@ -63,73 +67,91 @@ namespace avion::core {
 
             AV_LOG_ERROR(error); 
 
-            stbi_image_free(buffer_);
-            buffer_ = nullptr;
+            stbi_image_free(m_buffer);
+            m_buffer = nullptr;
 
             return false;
         }
-        
-        GLenum format;
-        if (num_color_channels == 1) {
-            format = GL_RED;
-        } else if (num_color_channels == 3) {
-            format = GL_RGB;
-        } else if (num_color_channels == 4) {
-            format = GL_RGBA;
-        }
 
-        glGenTextures(1, &id_tex_);
-        glBindTexture(GL_TEXTURE_2D, id_tex_);
-        
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, buffer_);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        m_width = width;
+        m_height = height;
+        m_num_color_channels = num_color_channels;
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-        stbi_image_free(buffer_);
-        buffer_ = nullptr;
+        m_is_uploaded = true; 
 
-        is_loaded_ = true; 
-
-        return is_loaded_;
+        return m_is_uploaded;
     }
     
     // That's too promising a name
     bool Texture::FreeTexture() {
+        if (m_buffer) 
+        {
+            m_width = 0;
+            m_height = 0;
+            m_num_color_channels = 0;
+            m_path.clear();
+            m_is_uploaded = false;
+            
+            stbi_image_free(m_buffer);
+            return true;
+        }
         return false;
     }
 
-    bool Texture::IsLoaded() const noexcept {
-        return is_loaded_;
+    bool Texture::IsUploaded() const noexcept {
+        return m_is_uploaded;
     }
 
-    std::uint32_t Texture::GetId() const noexcept {
-        return id_tex_;
+    std::uint32_t& Texture::GetId() noexcept {
+        return m_index;
     }
 
     const unsigned char* Texture::GetBuffer() const noexcept {
-        return buffer_; 
+        return m_buffer; 
     }
 
-    void Texture::SwitchTextureFile(const std::string& path_to_tex) {
-        path_to_tex_ = path_to_tex;
+    std::uint16_t Texture::GetWidth() const noexcept
+    {
+      return m_width;
     }
+    
+    std::uint16_t Texture::GetHeight() const noexcept
+    {
+      return m_height;
+    }
+
+    GLenum Texture::GetColorChannels() const noexcept
+    {
+        GLenum format;
+        if (m_num_color_channels == 1) {
+            format = GL_RED;
+        } else if (m_num_color_channels == 3) {
+            format = GL_RGB;
+        } else if (m_num_color_channels == 4) {
+            format = GL_RGBA;
+        }
+
+        return format;
+    }
+
+    void Texture::SwitchPathToTexture(const std::string& path_texture) {
+        AV_LOG_TODO("Texture::SwitchTextureFile: is nothing done");
+    }
+
 
     Texture::~Texture() {
-        if (buffer_) {
-            stbi_image_free(buffer_);
+        if (m_buffer) {
+            stbi_image_free(m_buffer);
+            AV_LOG_INFO("Texture::~Texture: texture's deleted. Index:" + std::to_string(m_index) + " Path: " + m_path);
         }
     }
 
     std::string Texture::GetPath() const noexcept {
-        if (path_to_tex_.empty()) {
-            AV_LOG_ERROR("Path to texture doesn't specified"); 
+        if (m_path.empty()) {
+            AV_LOG_ERROR("Texture::GetPath: path haven't specified to texture"); 
             return {};
         }
-        return path_to_tex_;
+        return m_path;
     }
 
 } // namespace avion::core

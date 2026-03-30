@@ -1,17 +1,23 @@
 #pragma once 
 
 #include "renderer.hpp"
-#include "../core/scene.hpp"
+#include "AvionEngineCore/core/scene.hpp"
+#include "AvionEngineCore/core/resource_manager.hpp"
 
 #include <deque>
 
 namespace avion::gfx {
 
+    struct ShaderType_t {
+      std::string name;
+      ShaderLight type;
+    };
+
     class Pipeline {
     public:
         using Textures    = std::deque<core::Texture>; 
         using TexturePtr  = core::Texture*;
-        using ResTextures = std::unordered_map<std::string,TexturePtr>;
+        using ResTextures = std::unordered_map<std::string, TexturePtr>;
 
         Pipeline() = delete;
         Pipeline(core::Scene& scene);
@@ -31,20 +37,19 @@ namespace avion::gfx {
         void ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept;
         void ProcessMouseMovement(double xoffset, double yoffset) const noexcept;
 
-        gfx::ShaderObject& GetShaderObjectStruct() noexcept;
-        gfx::ShaderLight& GetShaderLigthStruct() noexcept;
         ResTextures& GetLoadedResource() noexcept;
 
         void TransferDataToFrameBuffer() noexcept;
 
     private:
-        core::Scene& scene_;
-        gfx::Renderer* renderer_;
-        gfx::ShaderObject shader_object_;
-        gfx::ShaderLight shader_light_;
+      ShaderType_t GetShaderTypeByLightType(core::LightType) const noexcept;
 
-        Textures queue_textures_; 
-        ResTextures res_; 
+      core::Scene& scene_;
+      core::resman::ResourceManager m_resman;
+      Renderer* renderer_;
+      ShaderStorage m_shaders_storage;
+      Textures queue_textures_; 
+      ResTextures res_; 
     };
     
 } // namespace avion::gfx

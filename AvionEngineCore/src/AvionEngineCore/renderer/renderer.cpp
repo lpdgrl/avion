@@ -1,13 +1,14 @@
 #include "AvionEngineCore/renderer/renderer.hpp"
+#include "AvionEngineCore/core/resource_manager.hpp"
 
 namespace avion::gfx {
 
-    Renderer::Renderer() {}
+    Renderer::Renderer(core::resman::ResourceManager& resman, ShaderStorage& storage)
+    : m_storage_shaders(storage)
+    , m_resman(resman)
+    {}
 
     Renderer::~Renderer() {
-        delete shader_;
-        delete shader_text_;
-        delete shader_ligth_;
         delete camera_;
         
         for (auto& [key, value] : vao_) {
@@ -22,9 +23,7 @@ namespace avion::gfx {
     }
 
     void Renderer::Init() {
-        shader_ = new Shader(PATH_TO_FILE_VERTEX_SHADER, PATH_TO_FILE_FRAGMENT_SHADER);
-        shader_text_ = new Shader(PATH_TO_VERTEX_SHADER_TEXT, PATH_TO_FRAGMENT_SHADER_TEXT);
-        shader_ligth_ = new Shader(PATH_TO_VERTEX_SHADER_LIGTH, PATH_TO_FRAGMENT_SHADER_LIGTH);
+        InitShaders();
 
         // text_ = new TextRender(PATH_TO_FONT);
         // text_->Initialaztion();
@@ -45,15 +44,34 @@ namespace avion::gfx {
         LoadVerticesCube();
         LoadVerticesPyramid();
         LoadVerticesSourceLigth();
-        
     }
 
-    void Renderer::InitTexture() {
-        shader_->use();
-        shader_->setInt("material.diffuse", 0);
-        shader_->setInt("material.specular", 1);
-        shader_->setInt("material.emission", 2);
+    void Renderer::InitShaders() 
+    {
+      std::string simple_cube("lighting");
+      std::string shader_model_light_source("shader_model_light_source");
+    
+      m_storage_shaders.RegisterShader(
+          simple_cube, 
+          m_resman.GetResource<std::filesystem::path>("simple_cube_transform.vert")->c_str(),
+          m_resman.GetResource<std::filesystem::path>("lighting.frag")->c_str());
+
+      m_storage_shaders.RegisterShader(
+          shader_model_light_source,
+          m_resman.GetResource<std::filesystem::path>("simple_light_transform.vert")->c_str(),
+          m_resman.GetResource<std::filesystem::path>("simple_light_color.frag")->c_str());
+
     }
+
+    void Renderer::InitTexture() 
+    {
+      // m_storage_shaders.PutData("simple_cube_SL_prefab_material", "material.diffuse", 0);
+      // m_storage_shaders.PutData("simple_cube_SL_prefab_material", "material.specular", 1);
+      // m_storage_shaders.PutData("simple_cube_SL_prefab_material", "material.emission", 2);
+
+      // m_storage_shaders.UseShader("simple_cube_SL_prefab_material");
+    }
+    
 
     void Renderer::LoadVerticesCube() {
         // actual!!
@@ -103,12 +121,12 @@ namespace avion::gfx {
         };
 
         //Buffers for objects
-        GenerateBuffer(1, TypeBuffers::VAO, MapKey::kCube);
-        GenerateBuffer(1, TypeBuffers::VBO, MapKey::kCube);
+        GenerateBuffer(1, OpenglObjectType::kVAO, VertexObjectType::kCube);
+        GenerateBuffer(1, OpenglObjectType::kVBO, VertexObjectType::kCube);
 
-        BindVertexArray(GetVAO(MapKey::kCube));
+        BindVertexArray(GetVAO(VertexObjectType::kCube));
 
-        BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::kCube));
+        BindBuffer(GL_ARRAY_BUFFER, GetVBO(VertexObjectType::kCube));
         BufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
         // BindBuffer(GL_ELEMENT_ARRAY_BUFFER, GetEBO(MapKey::OBJECTS));
@@ -162,12 +180,12 @@ namespace avion::gfx {
         };
 
         //Buffers for objects
-        GenerateBuffer(1, TypeBuffers::VAO, MapKey::kPyramid);
-        GenerateBuffer(1, TypeBuffers::VBO, MapKey::kPyramid);
+        GenerateBuffer(1, OpenglObjectType::kVAO, VertexObjectType::kPyramid);
+        GenerateBuffer(1, OpenglObjectType::kVBO, VertexObjectType::kPyramid);
 
-        BindVertexArray(GetVAO(MapKey::kPyramid));
+        BindVertexArray(GetVAO(VertexObjectType::kPyramid));
 
-        BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::kPyramid));
+        BindBuffer(GL_ARRAY_BUFFER, GetVBO(VertexObjectType::kPyramid));
         BufferData(GL_ARRAY_BUFFER, sizeof(pyramid), pyramid, GL_STATIC_DRAW);
 
         // BindBuffer(GL_ELEMENT_ARRAY_BUFFER, GetEBO(MapKey::OBJECTS));
@@ -232,12 +250,12 @@ namespace avion::gfx {
         };
 
         // Create VAO and set vertex attrib for Ligth
-        GenerateBuffer(1, TypeBuffers::VAO, MapKey::kLight);
-        GenerateBuffer(1, TypeBuffers::VBO, MapKey::kLight);
+        GenerateBuffer(1, OpenglObjectType::kVAO, VertexObjectType::kLight);
+        GenerateBuffer(1, OpenglObjectType::kVBO, VertexObjectType::kLight);
         
-        BindVertexArray(GetVAO(MapKey::kLight));
+        BindVertexArray(GetVAO(VertexObjectType::kLight));
 
-        BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::kLight));
+        BindBuffer(GL_ARRAY_BUFFER, GetVBO(VertexObjectType::kLight));
         BufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
         SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
@@ -248,11 +266,11 @@ namespace avion::gfx {
     }
 
     void Renderer::InitRendererText() {
-        GenerateBuffer(1, TypeBuffers::VAO, MapKey::TEXT);
-        GenerateBuffer(1, TypeBuffers::VBO, MapKey::TEXT);
+        GenerateBuffer(1, OpenglObjectType::kVAO, VertexObjectType::kText);
+        GenerateBuffer(1, OpenglObjectType::kVBO, VertexObjectType::kText);
 
-        BindVertexArray(GetVAO(MapKey::TEXT));
-        BindBuffer(GL_ARRAY_BUFFER, GetVBO(MapKey::TEXT));
+        BindVertexArray(GetVAO(VertexObjectType::kText));
+        BindBuffer(GL_ARRAY_BUFFER, GetVBO(VertexObjectType::kText));
         
         BufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
 
@@ -263,20 +281,20 @@ namespace avion::gfx {
         BindVertexArray(0); 
     }
 
-    void Renderer::GenerateBuffer(const GLsizei n, TypeBuffers type, MapKey key) {
+    void Renderer::GenerateBuffer(const GLsizei n, OpenglObjectType type, VertexObjectType key) {
         GLuint b;
         
         switch(type)
         {
-            case TypeBuffers::VAO: 
+            case OpenglObjectType::kVAO: 
                 glGenVertexArrays(n, &b);
                 vao_.insert(std::make_pair(key, b));
                 break;
-            case TypeBuffers::VBO:
+            case OpenglObjectType::kVBO:
                 glGenBuffers(n, &b);
                 vbo_.insert(std::make_pair(key, b));
                 break;
-            case TypeBuffers::EBO:
+            case OpenglObjectType::kEBO:
                 glGenBuffers(n, &b);
                 ebo_.insert(std::make_pair(key, b));
                 break;
@@ -296,64 +314,107 @@ namespace avion::gfx {
     }
 
     void Renderer::SetVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void* offset) {
-        glVertexAttribPointer(index, size, type, normalized, stride, (void*)offset);
+        glVertexAttribPointer(index, size, type, normalized, stride, offset);
     }
 
     void Renderer::EnableVertexAttribArray(GLuint index) {
         glEnableVertexAttribArray(index);
     }
 
+    void Renderer::Draw(RenderContext& render_context) {
+        auto [type_shader, name_shader, transform, mat_tex, key] = render_context;
+
+        glm::mat4 model_matrix = glm::mat4(1.f);
+        model_matrix = TranslateMatrix(model_matrix, transform.position);
+        model_matrix = RotateMatrix(model_matrix, transform.axis, transform.rotate);
+        model_matrix = ScaleMatrix(model_matrix, transform.size);
+
+        // view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
+
+        glm::mat4 view_matrix = glm::mat4(1.f);                  
+        view_matrix = camera_->GetViewMatrix();
+        glm::vec3 view_pos = camera_->GetPosition();
+
+        m_storage_shaders.PutData(name_shader, "view", view_matrix);
+        m_storage_shaders.PutData(name_shader, "view_pos", view_pos);
+        m_storage_shaders.PutData(name_shader, "model", model_matrix);
+
+        m_storage_shaders.UseShader(name_shader);
+        
+        if (mat_tex.is_texture) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture);
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_specular);
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_emission);
+        }
+
+        BindVertexArray(GetVAO(key)); 
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        BindVertexArray(0);
+    }
+
     void Renderer::SetOrthoProjection(float left, float width, float bottom, float height, float zNear, float zFar) {
         glm::mat4 projectionMatrix = glm::ortho(left, static_cast<float>(width), bottom, static_cast<float>(height), zNear, zFar);
 
-        shader_->use();
-        shader_->setMat4("projection", projectionMatrix);
-        BindVertexArray(GetVAO(MapKey::OBJECTS));
+        // shader_->use();
+        // shader_->setMat4("projection", projectionMatrix);
+        // BindVertexArray(GetVAO(MapKey::OBJECTS));
 
-        shader_text_->use();
-        glUniformMatrix4fv(glGetUniformLocation(shader_text_->GetID(), "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-        BindVertexArray(GetVAO(MapKey::TEXT));
+        // shader_text_->use();
+        // glUniformMatrix4fv(glGetUniformLocation(shader_text_->GetID(), "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        // BindVertexArray(GetVAO(MapKey::TEXT));
     }
 
     void Renderer::SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far) {
         // We set the projection once?
         projection_ = glm::perspective(glm::radians(fov), static_cast<float>(width) / static_cast<float>(height), near, far);
-        
-        shader_->use();
-        shader_->setMat4("projection", projection_);
-        BindVertexArray(GetVAO(MapKey::kCube));
 
-        shader_ligth_->use();
-        shader_ligth_->setMat4("projection", projection_);
-        BindVertexArray(GetVAO(MapKey::kLight));
 
-        shader_text_->use();
-        glUniformMatrix4fv(glGetUniformLocation(shader_text_->GetID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection_));
-        BindVertexArray(GetVAO(MapKey::TEXT));
-    }
+        for (const auto& [_, shader] : m_storage_shaders.GetStorage()) {
+          shader->PutData("projection", projection_);
+          shader->Execute();
+          BindVertexArray(GetVAO(VertexObjectType::kCube));
+        }
 
-    void Renderer::SetLigth(Shader* shader, glm::vec3& colorLigth, glm::vec3& objectColor) {
-        shader->use();
-        shader->setVec3("objectColor", objectColor);
-        shader->setVec3("ligthColor", colorLigth);
+        // shader_text_->use();
+        // glUniformMatrix4fv(glGetUniformLocation(shader_text_->GetID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection_));
+        // BindVertexArray(GetVAO(MapKey::TEXT));
     }
 
     void Renderer::Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate) {
+        // shader_->use();
+        // BindVertexArray(GetVAO(MapKey::OBJECTS));
+        // // TODO: Переписать в отдельные методы - тогда могу скалировать, вращать, перемещать независимо любой объект
+        // glm::mat4 model_matrix = glm::mat4(1.f);
+
+        // // Выполняем трансформации матрицы
+        // model_matrix = TranslateMatrix(model_matrix, position);
+        // model_matrix = RotateMatrix(model_matrix, axis, rotate);
+        // model_matrix = ScaleMatrix(model_matrix, size);
+
+        // shader_->setMat4("model", model_matrix);
+
+        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // BindVertexArray(GetVAO(MapKey::OBJECTS));
+    }
+
+    void Renderer::LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const 
+    {
+        glGenTextures(1, &index_texture);
+        glBindTexture(GL_TEXTURE_2D, index_texture);
         
-        shader_->use();
-        BindVertexArray(GetVAO(MapKey::OBJECTS));
-        // TODO: Переписать в отдельные методы - тогда могу скалировать, вращать, перемещать независимо любой объект
-        glm::mat4 model_matrix = glm::mat4(1.f);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, buffer);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
-        // Выполняем трансформации матрицы
-        model_matrix = TranslateMatrix(model_matrix, position);
-        model_matrix = RotateMatrix(model_matrix, axis, rotate);
-        model_matrix = ScaleMatrix(model_matrix, size);
-
-        shader_->setMat4("model", model_matrix);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        BindVertexArray(GetVAO(MapKey::OBJECTS));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     glm::vec3 Renderer::PickUpObject(double x_px, double y_px, int width, int height, GLfloat depth) const {
@@ -453,18 +514,6 @@ namespace avion::gfx {
         return glm::scale(model, glm::vec3(size));
     }
 
-    Shader* Renderer::GetShaderPtr(std::string name) const {
-        if (name == "object") {
-            return shader_;
-        }
-
-        else if (name == "ligth") {
-            return shader_ligth_;
-        }
-        
-        return nullptr;
-    }
-
     void Renderer::ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept {
         camera_->ProcessKeyboard(direction, delta_time);
     }
@@ -485,4 +534,6 @@ namespace avion::gfx {
         }
         return 0;
     }
+
+  
 } // namespace avion::gfx

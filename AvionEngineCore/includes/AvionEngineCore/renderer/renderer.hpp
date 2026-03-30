@@ -1,9 +1,9 @@
-#pragma once
+#pragma once 
 
 #include <map>
 #include <unordered_map>
-#include <variant>
 #include <type_traits>
+#include <memory>
 
 #include "shader.hpp"
 // #include "text_rendering.hpp"
@@ -12,21 +12,30 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+namespace avion::core::resman 
+{
+  class ResourceManager;
+}
+
 namespace avion::gfx {
-    enum class TypeBuffers {
-        EBO = 0,
-        VBO = 1,
-        VAO = 2
+    enum class OpenglObjectType {
+        kUnknown = -1,
+        kEBO     = 1,
+        kVBO     = 2,
+        kVAO     = 3,
     };
 
-    enum class ShaderType {
-        kObjects = 0,
-        kLight = 1,
+    enum class ShaderLight {
+        kShUnknown         = -1,
+        kShSimpleLight     =  0,
+        kShPrefabMaterial  =  1,
+        kShDirLight        =  2,
+        kShPointLight      =  3,
     };
 
-    enum class MapKey {
-        OBJECTS = 0,
-        TEXT = 1,
+    enum class VertexObjectType {
+        kUnknown = -1,
+        kText = 1,
         kLight = 2,
         kCube = 3,
         kPyramid = 4
@@ -38,66 +47,32 @@ namespace avion::gfx {
         AXIS_Y =  1,
         AXIS_Z =  2,
     };
-
-    template <typename T>
-    struct ShaderParam {
-        std::string name_param;
-        T value;
+    
+    struct Transform {
+      glm::vec3 position; 
+      glm::vec3 size;
+      AxisRotate axis = AxisRotate::NONE;
+      GLfloat rotate = 0.f;
     };
 
-    // struct ShaderContext {
-    //     ShaderContext(ShaderType type);
-    //     const ShaderType type;
-    // };
-
-    struct ShaderLight  {
-        ShaderType type = ShaderType::kLight;
-        ShaderParam<glm::vec3> light_color;
-
-        ShaderParam<glm::vec3> view_pos; 
-        ShaderParam<glm::mat4> view_matrix;
-        ShaderParam<glm::mat4> model_matrix;
+    struct TransferMaterial {
+      bool is_texture = false;
+      int idx_texture = 0;
+      int idx_texture_specular = 0;
+      int idx_texture_emission = 0;
     };
 
-    struct ShaderObject {
-        ShaderType type = ShaderType::kObjects;
-        
-        ShaderParam<glm::vec3> mat_light_ambient;
-        ShaderParam<glm::vec3> mat_light_diffuse;
-        ShaderParam<glm::vec3> mat_light_specular;
-        ShaderParam<GLfloat>   mat_light_shininess;
-
-        ShaderParam<glm::vec3> light_ambient;
-        ShaderParam<glm::vec3> light_diffuse;
-        ShaderParam<glm::vec3> light_specular;
-        ShaderParam<glm::vec3> light_position;
-
-        ShaderParam<GLfloat> screen_aspect;
-        ShaderParam<GLfloat> delta;
-
-        ShaderParam<glm::vec3> view_pos; 
-        ShaderParam<glm::mat4> view_matrix;
-        ShaderParam<glm::mat4> model_matrix;
-    };
-
-    template <typename T_struct>
     struct RenderContext {
-        T_struct shader; 
-        glm::vec3 position;
-        glm::vec3 size;
-        AxisRotate axis;
-        GLfloat rotate;
-        MapKey key;
-        bool is_texture;
-        int idx_texture;
-        int idx_texture_specular;
-        int idx_texture_emission;
+      ShaderLight type_shader;
+      std::string name_shader;
+      Transform transform;
+      TransferMaterial mat_tex;
+      VertexObjectType key;
     };
 
-    // Класс Render - занимается отрисовкой сцены, расчетом матриц трансформаций и векторов
     class Renderer {  
     public:
-        Renderer();
+        Renderer(core::resman::ResourceManager& resman, ShaderStorage& storage);
 
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
@@ -107,44 +82,42 @@ namespace avion::gfx {
 
         ~Renderer();
 
-        inline GLuint GetVBO(MapKey key) const { return vbo_.at(key); }
-        inline GLuint GetVAO(MapKey key) const { return vao_.at(key); }
-        inline GLuint GetEBO(MapKey key) const { return ebo_.at(key); }
+        inline GLuint GetVBO(VertexObjectType key) const { return vbo_.at(key); }
+        inline GLuint GetVAO(VertexObjectType key) const { return vao_.at(key); }
+        inline GLuint GetEBO(VertexObjectType key) const { return ebo_.at(key); }
 
     public:
         void Init();
-        void InitRenderer();
-        void InitRendererText();
         void InitTexture();
 
         void Draw(const glm::vec2& position, const glm::vec2& size, AxisRotate axis, GLfloat rotate);
-
-        template <typename T_struct>
-        void Draw(RenderContext<T_struct>& render_context);
-        // void Draw(Shader* shader, const glm::vec3& position, const glm::vec3& size, 
-        //     AxisRotate axis, GLfloat rotate, MapKey key);
-        // void DrawText(std::string text, float x, float y, float scale, glm::vec3 color);
-
-        void SetLigth(Shader* shader, glm::vec3& colorLigth, glm::vec3& objectColor);
+        void Draw(RenderContext& render_context);
 
         void SetOrthoProjection(float left, float width, float bottom, float height, float zNear, float zFar);
         void SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far);
-
-        Shader* GetShaderPtr(std::string name) const;
 
         void ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept; 
 
         void ProcessMouseMovement(double xoffset, double yoffset) const noexcept;
         
         glm::vec3 PickUpObject(double x_px, double y_px, int width, int height, GLfloat depth) const;
+
+        // TODO: For future implementation
+        // void LoadTexture(TypeTexture) const;
         
+        void LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const;
+
+        // TODO: It's delete in the future
         void InsertIdTextureBuffer(std::uint32_t) noexcept;
         std::uint32_t GetIdTextureBuffer(std::uint32_t) noexcept;
 
     private:
+        void InitShaders();
         void InitCamera();
+        void InitRenderer();
+        void InitRendererText();
 
-        void GenerateBuffer(const GLsizei n, TypeBuffers type, MapKey key);
+        void GenerateBuffer(const GLsizei n, OpenglObjectType type, VertexObjectType key);
         void BufferData(GLenum target, GLsizeiptr sizeptr, const void* data, GLenum usage);
 
         void BindVertexArray(GLuint array);
@@ -164,110 +137,25 @@ namespace avion::gfx {
         
         glm::mat4 ScaleMatrix(glm::mat4& model, const glm::vec2& size);
         glm::mat4 ScaleMatrix(glm::mat4& model, const glm::vec3& size);
-        
-        template <typename T_struct>
-        void UseShader(T_struct shader);
 
     private:
-        Shader* shader_ = nullptr;
-        Shader* shader_text_ = nullptr;
-        Shader* shader_ligth_ = nullptr;
-        // TextRender* text_ = nullptr;
         Camera* camera_ = nullptr;
 
-        std::map<MapKey, GLuint> vao_;
-        std::map<MapKey, GLuint> vbo_;
-        std::map<MapKey, GLuint> ebo_;
+        std::map<VertexObjectType, GLuint> vao_;
+        std::map<VertexObjectType, GLuint> vbo_;
+        std::map<VertexObjectType, GLuint> ebo_;
         
         std::unordered_map<std::uint32_t, std::uint32_t> idx_textures_;
+        
+        ShaderStorage& m_storage_shaders;
+        core::resman::ResourceManager& m_resman; 
 
         bool cursor_state_ = false;
-
-        // TODO: Хранить путь к шейдерам в классе рендера неправильно!
-        const char* PATH_TO_FILE_VERTEX_SHADER = "./AvionEngineCore/src/AvionEngineCore/shaders/shader.vs";
-        const char* PATH_TO_FILE_FRAGMENT_SHADER = "./AvionEngineCore/src/AvionEngineCore/shaders/shader.fs";
-
-        // TODO: Хранить путь к шейдерам в классе рендера неправильно!
-        const char* PATH_TO_VERTEX_SHADER_TEXT = "./AvionEngineCore/src/AvionEngineCore/shaders/text.vs";
-        const char* PATH_TO_FRAGMENT_SHADER_TEXT = "./AvionEngineCore/src/AvionEngineCore/shaders/text.fs";
-
-        // TODO: Хранить путь к шейдерам в классе рендера неправильно!
-        const char* PATH_TO_VERTEX_SHADER_LIGTH = "./AvionEngineCore/src/AvionEngineCore/shaders/ligth_shader.vs";
-        const char* PATH_TO_FRAGMENT_SHADER_LIGTH = "./AvionEngineCore/src/AvionEngineCore/shaders/ligth_shader.fs";
-
+        //
         // TODO: Хранение пути в внутри классе рендера неправильно!
         const char* PATH_TO_FONT = "./AvionEngineCore/data/fonts/dejavusans.ttf";
 
         glm::mat4 projection_;
     };
-
-    template <typename T_struct>
-    void Renderer::Draw(RenderContext<T_struct>& render_context) {
-        auto [shader, position, size, axis, rotate, key, 
-             is_texture, idx_texture, idx_texture_specular, idx_texture_emission] = render_context;
-
-        glm::mat4 model_matrix = glm::mat4(1.f);
-        model_matrix = TranslateMatrix(model_matrix, position);
-        model_matrix = RotateMatrix(model_matrix, axis, rotate);
-        model_matrix = ScaleMatrix(model_matrix, size);
-
-        // view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
-
-        glm::mat4 view_matrix = glm::mat4(1.f);                  
-        view_matrix = camera_->GetViewMatrix();
-        glm::vec3 view_pos = camera_->GetPosition();
-
-        shader.view_matrix.value = view_matrix;
-        shader.view_pos.value = view_pos;
-        shader.model_matrix.value = model_matrix;
-
-        UseShader<T_struct>(shader);
-        
-        if (is_texture) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, idx_texture);
-
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, idx_texture_specular);
-
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, idx_texture_emission);
-        }
-
-        BindVertexArray(GetVAO(key)); 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        BindVertexArray(0);
-    }
-    
-    template <typename T_struct>
-    void Renderer::UseShader(T_struct shader) {
-        if constexpr (std::is_same_v<T_struct, ShaderObject>) {
-            shader_->use();
-            shader_->setVec3(shader.light_ambient.name_param.c_str(), shader.light_ambient.value);
-            shader_->setVec3(shader.light_diffuse.name_param.c_str(), shader.light_diffuse.value);
-            shader_->setVec3(shader.light_specular.name_param.c_str(), shader.light_specular.value);
-            shader_->setVec3(shader.light_position.name_param.c_str(), shader.light_position.value);
-            
-            shader_->setFloat(shader.screen_aspect.name_param.c_str(), shader.screen_aspect.value);
-            shader_->setFloat(shader.delta.name_param.c_str(), shader.delta.value);
-
-            // shader_->setVec3(shader.mat_light_ambient.name_param.c_str(), shader.mat_light_ambient.value);
-            // shader_->setVec3(shader.mat_light_diffuse.name_param.c_str(), shader.mat_light_diffuse.value);
-            // shader_->setVec3(shader.mat_light_specular.name_param.c_str(), shader.mat_light_specular.value);
-            shader_->setFloat(shader.mat_light_shininess.name_param.c_str(), shader.mat_light_shininess.value);
-
-            shader_->setMat4(shader.model_matrix.name_param.c_str(), shader.model_matrix.value);
-            shader_->setVec3(shader.view_pos.name_param.c_str(), shader.view_pos.value);
-            shader_->setMat4(shader.view_matrix.name_param.c_str(), shader.view_matrix.value);
-        } else {
-            shader_ligth_->use();
-            shader_ligth_->setVec3(shader.light_color.name_param.c_str(), shader.light_color.value);
-            shader_ligth_->setMat4(shader.model_matrix.name_param.c_str(), shader.model_matrix.value);
-            shader_ligth_->setVec3(shader.view_pos.name_param.c_str(), shader.view_pos.value);
-            shader_ligth_->setMat4(shader.view_matrix.name_param.c_str(), shader.view_matrix.value);
-        }
-
-    }
 
 } // namespace avion::gfx

@@ -12,9 +12,11 @@
 #define AV_LOG_LEVEL_ERROR      AV_LOG_LEVEL::kError
 #define AV_LOG_LEVEL_DEBUG      AV_LOG_LEVEL::kDebug
 #define AV_LOG_LEVEL_CRITICAL   AV_LOG_LEVEL::kCritical
+#define AV_LOG_LEVEL_TODO       AV_LOG_LEVEL::kToDo
 
 #define AV_LOG_INFO(msg)        do { AV_LOG(AV_LOG_LEVEL_INFO, msg); }      while(0);
 #define AV_LOG_WARNING(msg)     do { AV_LOG(AV_LOG_LEVEL_DEBUG, msg); }     while(0);
 #define AV_LOG_ERROR(msg)       do { AV_LOG(AV_LOG_LEVEL_ERROR, msg); }     while(0);
 #define AV_LOG_DEBUG(msg)       do { AV_LOG(AV_LOG_LEVEL_DEBUG, msg); }     while(0);
 #define AV_LOG_CRITICAL(msg)    do { AV_LOG(AV_LOG_LEVEL_CRITICAL, msg); }  while(0);
+#define AV_LOG_TODO(msg)        do { AV_LOG(AV_LOG_LEVEL_TODO, msg); }      while(0);

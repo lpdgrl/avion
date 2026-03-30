@@ -1,6 +1,5 @@
 #include "AvionEngineCore/core/window.hpp"
 
-
 namespace avion::core {
 
     Window::Window(const std::string& window_name, int width, int height)
@@ -21,6 +20,7 @@ namespace avion::core {
 
     Window::~Window() {
         delete widget_;
+        delete pipeline_;
         
         if (window_) {
             glfwDestroyWindow(window_);
@@ -64,7 +64,7 @@ namespace avion::core {
         float scr_aspect = 1.0 * height_window_ / width_window_;
 
         int selected_object_id = 0;
-        int selected_slights_id = 0;
+        int selected_lights_id = 0;
 
         bool pickup_obj = false;
         int id_pickup = 0;
@@ -104,8 +104,8 @@ namespace avion::core {
                 .y_ndc = y_ndc
             });
 
-            auto& objects = scene_.GetAllObjects();
-            auto& lights = scene_.GetAllSourceLights();
+            const auto& objects = scene_.GetAllObjects();
+            const auto& lights = scene_.GetAllSourceLights();
             
             // This code for ObjectPickup
             // if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -130,42 +130,25 @@ namespace avion::core {
             // }
 
             selected_object_id = widget_->WindowListObjects(objects);
-            selected_slights_id = widget_->w_ListLights(lights);
+            selected_lights_id = widget_->w_ListLights(lights);
+
+            // gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
+            
+            // shader_object.screen_aspect.value = scr_aspect;
+            // shader_object.delta.value = std::sin(GetDeltaTime());
 
             auto added_opt_obj = widget_->WindowAddObject();
-
-            gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
-            shader_object.screen_aspect.value = scr_aspect;
-            shader_object.delta.value = std::sin(GetDeltaTime());
-
             if (added_opt_obj.has_value()) {
                 auto obj = added_opt_obj.value();
-                
-                switch(obj.type_obj) {
-                    case TypeObject::kCube: 
-                        scene_.AddObjectToScene<ObjectParams>(obj.type_obj, obj.params);
-                        break;
-                    case TypeObject::kPyramid:
-                        scene_.AddObjectToScene<ObjectParams>(obj.type_obj, obj.params);
-                        break;
-                    case TypeObject::kLight:
-                        {
-                            LightParams light{
-                                .light = {
-                                    .position = obj.params.position,
-                                    .ambient{1.f},
-                                    .diffuse{1.f},
-                                    .specular{1.f}
-                                },
-                                .color = glm::vec3(1.f, 1.f, 1.f),
-                                .size  = obj.params.size
-                            };
-                            scene_.AddObjectToScene<LightParams>(obj.type_obj, light);
-                            break;
-                        }
-                }
+                scene_.AddObjectToScene(obj.type_obj, obj.params); 
             }
-                        
+            
+            auto added_opt_light = widget_->w_LightAdd(); 
+            if (added_opt_light.has_value()) {
+               auto type_light = added_opt_light.value();
+               scene_.AddSourceLight(type_light);
+            }
+
             if (selected_object_id > 0) {
                 Object* object_ptr = scene_.GetObject(selected_object_id);
                 if (object_ptr) {
@@ -178,18 +161,24 @@ namespace avion::core {
             } 
 
             // TODO: This is bad code. 
-            if (selected_slights_id > 0 && lights.size() > 0) {
+            if (selected_lights_id > 0 && lights.size() > 0) {
                 // TODO: This is bad access to element of light 
-                auto& scene_light = lights[selected_slights_id - 1];
-                LightParams light { .light = scene_light.light, .color = scene_light.color, .size = scene_light.size}; 
+                auto* scene_light = scene_.GetLight(selected_lights_id);
 
-                bool changed_light = widget_->w_LightProperties(light);
+                // TODO: This bad practice transfer raw pointer from unique_ptr. Maybe observer??
+                LightParams params{
+                  .light = scene_light->light.get(),
+                  .color = scene_light->color,
+                  .size = scene_light->size
+                };
+
+
+                bool changed_light = widget_->w_LightProperties(params);
                 // TODO: THIS IS SHITT!!! Changed to funct  
-                if (changed_light) {
-                    scene_light.light = light.light;
-                    scene_light.size = light.size;
-                    scene_light.color = light.color;
-                }
+               /* if (changed_light) {
+                    scene_light.size = light-;
+                    scene_light.color = light->color;
+                }*/
             }
 
             pipeline_->TransferDataToFrameBuffer();

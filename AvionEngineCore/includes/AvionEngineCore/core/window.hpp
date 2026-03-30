@@ -66,7 +66,7 @@ namespace avion::core {
         gui::Widget* widget_ = nullptr;
         gfx::Pipeline* pipeline_ = nullptr;
         GLFWwindow* window_ = nullptr;
-
+        
         // TODO: Understand how to works it (calculate delay and fps)
         GLfloat delta_time_ = 0.f;
         GLfloat last_time_ = 0.f;

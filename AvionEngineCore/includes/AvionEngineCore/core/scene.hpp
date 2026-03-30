@@ -7,27 +7,34 @@
 #include "light.hpp"
 
 namespace avion::core {
+    
+    enum class LightType {
+        kUnknownLight = -1,
+        kSimpleLight = 0,
+        kDirLight = 1,
+        kPointLight = 2,
+    };
 
-    enum class TypeObject {
-        kLight = 2,
+    enum class ObjectType {
         kCube = 3,
         kPyramid = 4,
     };
     
     struct SceneObject {
-        SceneObject(TypeObject type, int id, ObjectParams params);
-        TypeObject type;
+        SceneObject(ObjectType type, int id, ObjectParams params);
+        ObjectType type;
         Object object;
     };
     
     struct SceneLight {
+        std::unique_ptr<ILight> light;
         std::size_t id = 0;
-        Light light;
+        LightType type_light;
         Color color;
         Size size;
     };
 
-    std::string TypeObjectToString(TypeObject type);
+    std::string TypeObjectToString(ObjectType type);
 
     class Scene {
     public:
@@ -46,8 +53,9 @@ namespace avion::core {
         ~Scene();
         
         template <typename Params> 
-        void AddObjectToScene(TypeObject type, Params params);
-        
+        void AddObjectToScene(ObjectType type, Params params);
+        void AddSourceLight(LightType type);
+
         SourceLight& GetAllSourceLights();
         Objects& GetAllObjects();
         
@@ -55,11 +63,11 @@ namespace avion::core {
         size_t GetNumberSourceLights() const;
 
         Object* GetObject(int id);
-        Object* GetObject(TypeObject type);
-    
+        Object* GetObject(ObjectType type);
+        SceneLight* GetLight(int id);
+
     private:
-        void AddObject(TypeObject type, ObjectParams params);
-        void AddSourceLight(LightParams params);
+        void AddObject(ObjectType type, ObjectParams params);
 
     private:
         Objects objects_on_scene_;
@@ -67,13 +75,11 @@ namespace avion::core {
     };
 
     template <typename Params>
-    void Scene::AddObjectToScene(TypeObject type, Params params)
+    void Scene::AddObjectToScene(ObjectType type, Params params)
     {
         // TODO: Or defining which call done by type of params by template magic (is_same)?? 
         if constexpr (std::is_same_v<Params, ObjectParams>) {
             AddObject(type, params);
-        }  else if constexpr (std::is_same_v<Params, LightParams>) {
-            AddSourceLight(params);
         } 
     }
 } // namespace avion::core
