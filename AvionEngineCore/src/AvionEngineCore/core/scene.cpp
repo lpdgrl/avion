@@ -21,7 +21,6 @@ namespace avion::core {
     switch(type)
     {
       case LightType::kDirLight:
-      case LightType::kSimpleLight:
       {
         // TODO: Put it in a separate method MakeDirLight
         source_lights_on_scene_.emplace_back( 
@@ -53,6 +52,29 @@ namespace avion::core {
           type,
           glm::vec3(1.f),
           glm::vec3(0.25));
+        break;
+      }
+
+      case LightType::kSpotLight:
+      {
+        
+        source_lights_on_scene_.emplace_back(
+            std::make_unique<SpotLight>(
+                glm::vec3(0.f),
+                glm::vec3(0.f),
+                glm::vec3(1.f),
+                glm::vec3(1.f),
+                glm::vec3(1.f),
+                1.f,
+                0.09f,
+                0.032,
+                0.f,
+                0.f
+              ),
+            n,
+            type,
+            glm::vec3(1.f),
+            glm::vec3(0.25));
         break;
       }
     }

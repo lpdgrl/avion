@@ -63,10 +63,14 @@ namespace avion::core {
         controller::Controller controller_;
         Scene scene_;
 
+        
+
         gui::Widget* widget_ = nullptr;
         gfx::Pipeline* pipeline_ = nullptr;
         GLFWwindow* window_ = nullptr;
-        
+
+        std::unique_ptr<resman::ResourceManager> m_resman;
+
         // TODO: Understand how to works it (calculate delay and fps)
         GLfloat delta_time_ = 0.f;
         GLfloat last_time_ = 0.f;

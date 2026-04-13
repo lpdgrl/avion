@@ -11,6 +11,7 @@
 #include <vector>
 #include <optional>
 #include <unordered_map>
+#include <ranges>
 
 // Forward Declaration from core
 namespace avion::core {
@@ -21,10 +22,10 @@ namespace avion::core {
     enum class LightType;
 } // namespace avion::core
 
-namespace avion::gfx {
-    using TexturePtr = core::Texture*;
-    using ResTextures = std::unordered_map<std::string, TexturePtr>; 
-};
+namespace avion::core::resman
+{
+  class ResourceManager;
+}
 
 namespace avion::gui {
     struct Logs {
@@ -37,17 +38,16 @@ namespace avion::gui {
     };
 
     struct WidgetObjectParams {
-        core::ObjectType type_obj;
-        core::PrefabMaterial type_mat;
-        core::ObjectParams params;
-        bool state_button_addobj;
+      core::ObjectType type_obj;
+      core::PrefabMaterial type_mat;
+      core::ObjectParams params;
     };
 
     class Widget {
     public:
         
         Widget() = delete;
-        Widget(GLFWwindow* window, gfx::ResTextures& res);
+        Widget(GLFWwindow* window, core::resman::ResourceManager& m_resman);
 
         Widget(const Widget& other) = delete;
         Widget(Widget&& other) = delete;
@@ -69,9 +69,13 @@ namespace avion::gui {
         bool w_LightProperties(core::LightParams&) const;
         int w_ListLights(const std::vector<core::SceneLight>& lights) const;
     private:
+        void TextureComboList(int& texture_id, std::string_view caption, const std::vector<std::string>& list_textures, int& item_selected) const;
+
         GLFWwindow* window_ = nullptr;
         ImGuiIO& io_;
-        gfx::ResTextures& res_;
+        core::resman::ResourceManager& m_resman;
 };
+
+  
 
 } // namespace avion::widget

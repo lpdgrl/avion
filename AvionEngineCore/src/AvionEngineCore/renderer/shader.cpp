@@ -210,7 +210,6 @@ namespace avion::gfx {
     }
     
     auto& executor = it_sh->second;
-    
     executor->Execute();
   }
 

@@ -3,9 +3,9 @@
 
 namespace avion::gfx {
 
-    Pipeline::Pipeline(core::Scene& scene)
+    Pipeline::Pipeline(core::Scene& scene, core::resman::ResourceManager& resman)
     : scene_(scene)
-    , m_resman(std::filesystem::canonical("/proc/self/exe").c_str()) 
+    , m_resman(resman) 
     {}
 
     Pipeline::~Pipeline() {
@@ -14,159 +14,49 @@ namespace avion::gfx {
     }
 
     void Pipeline::Init(int width, int height) {
-        m_resman.RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
-        m_resman.RegisterResource(core::resman::ResourceType::kShader, "assets/shaders");
-        
-        InitShadersStructs();
+      m_resman.RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
+      m_resman.RegisterResource(core::resman::ResourceType::kShader, "assets/shaders");
 
-        renderer_ = new Renderer(m_resman, m_shaders_storage);
 
-        glEnable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      // TODO: Initialization shaders and register them
+      std::string simple_cube("lighting");
+      std::string shader_model_light_source("shader_model_light_source");
+  
+      m_shaders_storage.RegisterShader(
+          simple_cube, 
+          m_resman.GetResource<std::filesystem::path>("simple_cube_transform.vert")->c_str(),
+          m_resman.GetResource<std::filesystem::path>("lighting.frag")->c_str());
 
-        renderer_->Init();
-        renderer_->SetPerspectiveProjection(45.f, width, height, 0.1f, 50.f);
+       m_shaders_storage.RegisterShader(
+          shader_model_light_source,
+          m_resman.GetResource<std::filesystem::path>("simple_light_transform.vert")->c_str(),
+          m_resman.GetResource<std::filesystem::path>("simple_light_color.frag")->c_str());
 
-        // // TODO: Need implementation resource manager!! 
-        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container2.png");
-        // auto& tex_1 = queue_textures_.back();
+      renderer_ = new Renderer(m_shaders_storage);
 
-        // if (tex_1.LoadTexture()) {
-        //     std::string success;
-        //     success += "Success loaded texture ";
-        //     success += tex_1.GetPath();
-        //     AV_LOG_DEBUG(success);
+      glEnable(GL_BLEND);
+      glEnable(GL_DEPTH_TEST);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        //     res_.emplace("container2.png", &tex_1);
-        // } else {
-        //     queue_textures_.pop_back();
-        // }
+      renderer_->Init();
+      renderer_->SetPerspectiveProjection(45.f, width, height, 0.1f, 50.f);
 
-        //  // TODO: Need implementation resource manager!!
-        //  queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container.jpg");
-        //  auto& tex_2 = queue_textures_.back(); 
+      // TODO: Initialization texture and get id for them
+      auto& list_textures = m_resman.GetListTexture();
+      for (const auto& name_texture : list_textures)
+      {
+        if (auto* p_res = m_resman.GetResource<core::Texture>(name_texture); p_res != nullptr)
+        {
+          renderer_->LoadTexture2D(p_res->GetId(), p_res->GetWidth(), p_res->GetHeight(), p_res->GetBuffer(), p_res->GetColorChannels());
+        }
+      }
+      
+      m_shaders_storage.PutData(simple_cube, "material.s2d_diffuse", 0);
+      m_shaders_storage.PutData(simple_cube, "material.s2d_specular", 1);
+      m_shaders_storage.PutData(simple_cube, "material.s2d_emission", 2);
+      m_shaders_storage.UseShader(simple_cube);
 
-        //  if (tex_2.LoadTexture()) {
-        //      std::string success;
-        //      success += "Success loaded texture ";
-        //      success += tex_2.GetPath();
-        //      AV_LOG_DEBUG(success);
-
-        //      res_.emplace("container.jpg", &tex_2);
-        //  } else {
-        //      queue_textures_.pop_back();
-        //  }
-    
-        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/container2_specular.png");
-        // auto& tex_3 = queue_textures_.back(); 
-
-        // if (tex_3.LoadTexture()) {
-        //     std::string success;
-        //     success += "Success loaded texture ";
-        //     success += tex_3.GetPath();
-        //     AV_LOG_DEBUG(success);
-
-        //     res_.emplace("container2_specular.png", &tex_3);
-        // } else {
-        //     queue_textures_.pop_back();
-        // }
-
-        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/matrix.jpg");
-        // auto& tex_4 = queue_textures_.back();
-
-        // if (tex_4.LoadTexture()) {
-        //     std::string success;
-        //     success += "Success loaded texture ";
-        //     success += tex_4.GetPath();
-        //     AV_LOG_DEBUG(success);
-
-        //     res_.emplace("matrix.jpg", &tex_4);
-        // } else {
-        //     queue_textures_.pop_back();
-        // }
-
-        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/test1_glossymap.jpg");
-        // auto& tex_5 = queue_textures_.back();
-
-        // if (tex_5.LoadTexture()) {
-        //     std::string success;
-        //     success += "Success loaded texture ";
-        //     success += tex_5.GetPath();
-        //     AV_LOG_DEBUG(success);
-
-        //     res_.emplace("test1_glossymap.jpg", &tex_5);
-        // } else {
-        //     queue_textures_.pop_back();
-        // }
-        
-        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/RubicDiffuse.jpg");
-        // auto& tex_6 = queue_textures_.back();
-
-        // if (tex_6.LoadTexture()) {
-        //     std::string success;
-        //     success += "Success loaded texture ";
-        //     success += tex_6.GetPath();
-        //     AV_LOG_DEBUG(success);
-
-        //     res_.emplace("RubicDiffuse.jpg", &tex_6);   
-        // } else {
-        //     queue_textures_.pop_back();
-        // }
-
-        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/RubicEmissive.jpg");
-        // auto& tex_7 = queue_textures_.back();
-        
-        // if (tex_7.LoadTexture()) {
-        //     std::string success;
-        //     success += "Success loaded texture ";
-        //     success += tex_7.GetPath();
-        //     AV_LOG_DEBUG(success);
-
-        //     res_.emplace("RubicEmissive.jpg", &tex_7);
-        // } else {
-        //     queue_textures_.pop_back();
-        // }
-
-        // queue_textures_.emplace_back("./AvionEngineCore/resources/textures/lighting_maps_specular_color.png");
-        // auto& tex_8 = queue_textures_.back();
-
-        // if (tex_8.LoadTexture()) {
-        //     std::string success;
-        //     success += "Success loaded texture ";
-        //     success += tex_8.GetPath();
-        //     AV_LOG_DEBUG(success);
-
-        //     res_.emplace("lighting_maps_specular_color.png", &tex_8);
-        // } else {
-        //     queue_textures_.pop_back();
-        // }
-
-        renderer_->InitTexture();
-    }
-
-    void Pipeline::InitShadersStructs() noexcept 
-    {
-    //         shader_light_.light_color.name_param = "ligthColor";
-    //         shader_light_.model_matrix.name_param = "model";
-    //         shader_light_.view_pos.name_param = "view_pos";
-    //         shader_light_.view_matrix.name_param = "view";
-            
-    //         shader_object_.mat_light_ambient.name_param = "material.ambient";
-    //         shader_object_.mat_light_diffuse.name_param = "material.diffuse";
-    //         shader_object_.mat_light_specular.name_param = "material.specular";
-    //         shader_object_.mat_light_shininess.name_param = "material.shininess";
-
-    //         shader_object_.screen_aspect.name_param = "scr_aspect";
-
-    //         shader_object_.model_matrix.name_param = "model";
-    //         shader_object_.view_matrix.name_param = "view";
-    //         shader_object_.view_pos.name_param = "view_pos";
-            
-    //         shader_object_.light_ambient.name_param = "light.ambient";
-    //         shader_object_.light_diffuse.name_param = "light.diffuse";
-    //         shader_object_.light_specular.name_param = "light.specular";
-    //         shader_object_.light_position.name_param = "light.position";
+      // renderer_->InitTexture();
     }
 
     void Pipeline::ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept {
@@ -182,9 +72,7 @@ namespace avion::gfx {
       const auto& objects_scene = scene_.GetAllObjects();
       const auto& lights_scene = scene_.GetAllSourceLights();
       
-      core::ILight* light = nullptr;
       ShaderType_t type_shader_t;
-      core::LightType tp_light = core::LightType::kUnknownLight;
 
       // TODO: It is strange deal
       for (const auto& [curr_light, id, type_light,  light_color, light_size] : lights_scene) {  
@@ -209,46 +97,39 @@ namespace avion::gfx {
         };
 
         renderer_->Draw(render_context);
-        
-        light = curr_light.get();
-        tp_light = type_light;
       } 
-
+      
       for (const auto& [type, object] : objects_scene) {
         auto [position, size, color, mixing_color, material] = object.GetParams();
 
         type_shader_t.name = "lighting";
 
-        AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader of object" + type_shader_t.name);
+        AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader: " + type_shader_t.name);
         
-        if (light) {
-          m_shaders_storage.PutData(type_shader_t.name, "light.ambient", light->GetAmbient());
-          m_shaders_storage.PutData(type_shader_t.name, "light.diffuse", light->GetDiffuse());
-          m_shaders_storage.PutData(type_shader_t.name, "light.specular", light->GetSpecular());
-          m_shaders_storage.PutData(type_shader_t.name, "light.position", light->GetGeometry());
-          
-          if (tp_light == core::LightType::kSimpleLight) 
-          {
-            glm::vec3 position = light->GetGeometry();
-            glm::vec4 pos_dir(position.x, position.y, position.z, 1.f);
-            m_shaders_storage.PutData(type_shader_t.name, "light.pos_dir", pos_dir);      
-          } else if (tp_light == core::LightType::kDirLight) 
-          {
-            glm::vec3 direction = light->GetGeometry();
-            glm::vec4 pos_dir(direction.x, direction.y, direction.z, 0.f);
-            m_shaders_storage.PutData(type_shader_t.name, "light.pos_dir", pos_dir);
-          }
-        }
-        
-        m_shaders_storage.PutData(type_shader_t.name, "material.ambient", material.ambient);
-        m_shaders_storage.PutData(type_shader_t.name, "material.diffuse", material.diffuse);
-        m_shaders_storage.PutData(type_shader_t.name, "material.specular",  material.specular);
-        m_shaders_storage.PutData(type_shader_t.name, "material.shininess", material.shininess);
+        AV_LOG_DEBUG(std::to_string(material.is_texture));
+        bool is_texture = material.is_texture; 
 
-        bool is_texture = ((material.texture != nullptr) ? true : false);
-        int idx_texture = ((material.texture != nullptr) ? material.texture->GetId(): -1); 
-        int idx_texture_specular = ((material.texture_specular != nullptr) ? material.texture_specular->GetId() : -1);
-        int idx_texture_emission = ((material.texture_emission != nullptr) ? material.texture_emission->GetId() : -1);
+        ProcessLight(is_texture);
+       
+        int idx_texture          = material.texture_diffuse;
+        int idx_texture_specular = material.texture_specular;
+        int idx_texture_emission = material.texture_emission;
+
+        m_shaders_storage.PutData(type_shader_t.name, "material.fl_shininess", material.shininess);
+
+        if (material.is_texture) 
+        {
+          m_shaders_storage.PutData(type_shader_t.name, "material_type.is_texture", true);
+        }
+        else 
+        {
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_ambient", material.ambient);
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_diffuse", material.diffuse);
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_specular",  material.specular);
+
+          m_shaders_storage.PutData(type_shader_t.name, "material_type.is_texture", false);
+          m_shaders_storage.PutData(type_shader_t.name, "material_type.is_prefab_material", true);
+        }
 
         Transform transform {
             .position = position,
@@ -268,42 +149,94 @@ namespace avion::gfx {
               .type_shader = type_shader_t.type,
               .name_shader = type_shader_t.name,
               .transform   = transform,
+              .mat_tex     = mat_tex,
               .key = static_cast<VertexObjectType>(type)
         };
 
         renderer_->Draw(render_context);
+      }
     }
 
-    }
-
-    Pipeline::ResTextures& Pipeline::GetLoadedResource() noexcept {
-        return res_;
-    }
-
-    ShaderType_t Pipeline::GetShaderTypeByLightType(core::LightType type_light) const noexcept 
+    void Pipeline::ProcessLight(bool is_texture) noexcept
     {
-      ShaderType_t type_shader;
-      switch(type_light) {
-        case core::LightType::kSimpleLight:
+      ShaderType_t type_shader_t;
+      type_shader_t.name = "lighting";
+
+      std::size_t count_point_light = 0;
+      std::size_t count_spot_light  = 0;
+
+      AV_LOG_DEBUG("Pipeline::ProcessLight: type shader of object" + type_shader_t.name);
+
+      for (const auto& light_obj : scene_.GetAllSourceLights())
+      {
+        core::ILight* ptr_light  = light_obj.light.get();
+        core::LightType tp_light = light_obj.type_light;
+
+        if (ptr_light) {
+        switch (tp_light)
         {
-          type_shader.type = ShaderLight::kShSimpleLight;
-          type_shader.name = "simple_cube_SL_prefab_material";
-          break;
-        }
-        case core::LightType::kDirLight:
-        {
-          type_shader.type = ShaderLight::kShDirLight;
-          type_shader.name = "shader_cube_DL_prefab_material";
-          break;
-        }
-        case core::LightType::kPointLight:
-        {
-          type_shader.type = ShaderLight::kShPointLight;
-          type_shader.name = "shader_obj_light";
-          break;
+          case core::LightType::kSimpleLight:
+          case core::LightType::kUnknownLight:
+            break;
+
+          case core::LightType::kDirLight:
+          {
+            m_shaders_storage.PutData(type_shader_t.name, "dir_light.ambient", ptr_light->GetAmbient());
+            m_shaders_storage.PutData(type_shader_t.name, "dir_light.diffuse", ptr_light->GetDiffuse());
+            m_shaders_storage.PutData(type_shader_t.name, "dir_light.specular", ptr_light->GetSpecular());
+            m_shaders_storage.PutData(type_shader_t.name, "light_type.is_dir_light", true);
+            m_shaders_storage.PutData(type_shader_t.name, "dir_light.direction", ptr_light->GetGeometry());
+            break;
+          }
+          case core::LightType::kPointLight:
+          {
+            m_shaders_storage.PutData(type_shader_t.name, "point_light[" + std::to_string(count_point_light) + "].ambient", ptr_light->GetAmbient());
+            m_shaders_storage.PutData(type_shader_t.name, "point_light[" + std::to_string(count_point_light) + "].diffuse", ptr_light->GetDiffuse());
+            m_shaders_storage.PutData(type_shader_t.name, "point_light[" + std::to_string(count_point_light) + "].specular", ptr_light->GetSpecular());
+            m_shaders_storage.PutData(type_shader_t.name, "point_light[" + std::to_string(count_point_light) + "].position", ptr_light->GetGeometry());
+
+            if (auto* dc_ptr_light = dynamic_cast<core::PointLight*>(ptr_light)) 
+            {
+              m_shaders_storage.PutData(type_shader_t.name, "point_light[" + std::to_string(count_point_light) + "].constant", dc_ptr_light->GetConstant());
+              m_shaders_storage.PutData(type_shader_t.name, "point_light[" + std::to_string(count_point_light) + "].linear", dc_ptr_light->GetLinear());
+              m_shaders_storage.PutData(type_shader_t.name, "point_light[" + std::to_string(count_point_light) + "].quadratic", dc_ptr_light->GetQuadratic());
+            }
+            m_shaders_storage.PutData(type_shader_t.name, "light_type.is_point_light", true);
+            ++count_point_light;
+            break;
+          }
+          case core::LightType::kSpotLight:
+          {
+            if (auto* spot_light_ptr = dynamic_cast<core::SpotLight*>(ptr_light))
+            {
+              glm::vec3 position = spot_light_ptr->GetPosition(); 
+              glm::vec3 direction = spot_light_ptr->GetDirection();
+              
+              float cutoff = glm::cos(glm::radians(spot_light_ptr->GetCutOff()));
+              float outer_cut_off = glm::cos(glm::radians(spot_light_ptr->GetOuterCutOff()));
+
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].direction", direction);
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].cut_off", cutoff);
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].position", position);
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].outer_cut_off", outer_cut_off);
+              
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].ambient", spot_light_ptr->GetAmbient());
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].diffuse", spot_light_ptr->GetDiffuse());
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].specular", spot_light_ptr->GetSpecular());
+
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].constant", spot_light_ptr->GetConstant());
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].linear", spot_light_ptr->GetLinear());
+              m_shaders_storage.PutData(type_shader_t.name, "spot_light[" + std::to_string(count_spot_light) + "].quadratic", spot_light_ptr->GetQuadratic());
+             }
+
+            m_shaders_storage.PutData(type_shader_t.name, "light_type.is_spot_light", true);
+            ++count_spot_light;
+            break;
+          }
         }
       }
-      return type_shader;
     }
-
+    m_shaders_storage.PutData(type_shader_t.name, "number_point_lights", static_cast<int>(count_point_light));
+    m_shaders_storage.PutData(type_shader_t.name, "number_spot_lights", static_cast<int>(count_spot_light)); 
+  }
 } // namespace avion::gfx

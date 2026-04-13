@@ -55,6 +55,8 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
 
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_23)
 target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -O3)
+# target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -fconcepts-diagnostics-depth=4)
 
 message(STATUS "FINAL include dirs:")
 get_target_property(tmp_inc ${ENGINE_PROJECT_NAME} INCLUDE_DIRECTORIES)

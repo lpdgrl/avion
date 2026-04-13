@@ -106,7 +106,7 @@ namespace avion::core {
         return m_index;
     }
 
-    const unsigned char* Texture::GetBuffer() const noexcept {
+    unsigned char* Texture::GetBuffer() noexcept {
         return m_buffer; 
     }
 

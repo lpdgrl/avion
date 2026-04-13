@@ -33,11 +33,17 @@ namespace avion::core::resman
     
   }
 
+  const ResourceManager::ListTexture& ResourceManager::GetListTexture() const noexcept
+  {
+    return m_list_texture_loaded;
+  }
+
   void ResourceManager::CreateAndLoadTexture(const std::string& filename, FsPath& path)
   {
     std::string path_str(path.c_str());
     
     auto it = m_resources.emplace(filename, std::make_unique<ResourceHolder<Texture>>(path_str)).first;
+    m_list_texture_loaded.push_back(filename);
 
     ResourceHolder<Texture>* holder_observer = static_cast<ResourceHolder<Texture>*>(it->second.get());
     bool result = holder_observer->data.LoadTexture();

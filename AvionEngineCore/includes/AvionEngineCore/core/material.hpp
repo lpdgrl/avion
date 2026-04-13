@@ -44,14 +44,15 @@
         };
 
         struct Material {
-            Texture* texture = nullptr;
-            Texture* texture_specular = nullptr;
-            Texture* texture_emission = nullptr;
-            glm::vec3 ambient;
-            glm::vec3 diffuse;
-            glm::vec3 specular;
-            float shininess;
-        };
+          bool is_texture = false;
+          int texture_diffuse{};
+          int texture_specular{};
+          int texture_emission{};
+          glm::vec3 ambient;
+          glm::vec3 diffuse;
+          glm::vec3 specular;
+          float shininess;
+      };
 
         static constexpr Material prefab_None {
           .ambient = glm::vec3(1.f),

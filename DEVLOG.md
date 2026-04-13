@@ -1,5 +1,11 @@
 ## DevLog
 
+**2026-04-10**
+- Added combine calculations ligths (direction light, point light, spot light)
+
+**2026-04-05**
+- Select is added (texture or prefam material)
+
 **2026-03-29**
 - Added resource manager
 

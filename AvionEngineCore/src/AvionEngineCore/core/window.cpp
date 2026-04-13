@@ -8,6 +8,7 @@ namespace avion::core {
         , height_window_(height)
         , controller_(controller::Controller((1.0 * width / 2), (1.0 * height / 2))) 
         , scene_(Scene(kObjectsCreate))
+        , m_resman(std::make_unique<resman::ResourceManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
         {}
 
     Window::Window(const char* window_name, int width, int height)
@@ -16,6 +17,7 @@ namespace avion::core {
         , height_window_(height)
         , controller_(controller::Controller((1.0 * width / 2), (1.0 * height / 2)))
         , scene_(Scene(kObjectsCreate))
+        , m_resman(std::make_unique<resman::ResourceManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
         {}
 
     Window::~Window() {
@@ -25,7 +27,7 @@ namespace avion::core {
         if (window_) {
             glfwDestroyWindow(window_);
             glfwTerminate();
-            std::cout << "Window is destroyed" << '\n';
+            AV_LOG_INFO("Window is destroyed");
         }
     }
 
@@ -47,12 +49,12 @@ namespace avion::core {
         glfwSetCursorPosCallback(window_, controller::Controller::MouseCallback);
         glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
         glfwSetCursorPos(window_, width_window_, 1.0 * height_window_ / 2.0);
-
-        pipeline_ = new gfx::Pipeline(scene_);
+        
+        pipeline_ = new gfx::Pipeline(scene_, *m_resman.get());
         pipeline_->Init(width_window_, height_window_);
 
         ImGui::CreateContext();   
-        widget_ = new gui::Widget(window_, pipeline_->GetLoadedResource());
+        widget_ = new gui::Widget(window_, *m_resman.get());
         widget_->Init();
     }
 
@@ -61,7 +63,7 @@ namespace avion::core {
     }
 
     void Window::Render() {
-        float scr_aspect = 1.0 * height_window_ / width_window_;
+        // float scr_aspect = 1.0 * height_window_ / width_window_;
 
         int selected_object_id = 0;
         int selected_lights_id = 0;
@@ -131,7 +133,7 @@ namespace avion::core {
 
             selected_object_id = widget_->WindowListObjects(objects);
             selected_lights_id = widget_->w_ListLights(lights);
-
+            
             // gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
             
             // shader_object.screen_aspect.value = scr_aspect;
@@ -186,7 +188,7 @@ namespace avion::core {
             widget_->Render();
 
             glfwSwapBuffers(window_);
-            //
+            
             // TODO: Undestand when call ClearStateKeys and How it works - glfwPollEvents
             controller_.ClearStateKeys();
             glfwPollEvents();

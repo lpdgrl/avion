@@ -7,6 +7,7 @@
   #include <string>
   #include <unordered_map>
   #include <type_traits>
+  #include <vector>
 
   #include "../macro.h"
 
@@ -37,31 +38,18 @@
     class ResourceManager {
     public:
       using FsPath = std::filesystem::path;
+      using ListTexture = std::vector<std::string>;
 
+      ResourceManager() = delete;
       ResourceManager(std::string_view path);
       ~ResourceManager() = default;
 
       bool RegisterResource(ResourceType resource, std::string_view path_to_resource); 
       
       template <typename T>
-      T* GetResource(std::string_view resource) const
-      {
-        if (resource.empty()) {
-          std::string err(resource);
-          AV_LOG_ERROR("ResourceManager::GetResource: key of resource is empty");
-          return nullptr;
-        }
+      T* GetResource(std::string_view resource) const;
 
-        auto it_res = m_resources.find(resource.data());
-        if (it_res == m_resources.end()) {
-          std::string err(resource);
-          AV_LOG_ERROR("ResourceManager::GetResource: " + err + "is invalid resource.");
-          return nullptr;
-        }
-
-        ResourceHolder<T>* holder_observer = static_cast<ResourceHolder<T>*>(it_res->second.get());
-        return &holder_observer->data;
-      }
+      const ListTexture& GetListTexture() const noexcept;
 
     private:
       void CreateAndLoadTexture(const std::string& filename, FsPath& path);
@@ -82,9 +70,31 @@
       };
 
       using ResourceStorage = std::unordered_map<std::string, std::unique_ptr<IResourceHolder>>;
+
       ResourceStorage m_resources;
+      ListTexture m_list_texture_loaded;
       FsPath m_path_exe;
     };
+
+    template<typename T>
+    T* ResourceManager::GetResource(std::string_view resource) const 
+    {
+      if (resource.empty()) {
+        std::string err(resource);
+        AV_LOG_ERROR("ResourceManager::GetResource: key of resource is empty");
+        return nullptr;
+      }
+
+      auto it_res = m_resources.find(resource.data());
+      if (it_res == m_resources.end()) {
+        std::string err(resource);
+        AV_LOG_ERROR("ResourceManager::GetResource: " + err + "is invalid resource.");
+        return nullptr;
+      }
+
+      ResourceHolder<T>* holder_observer = static_cast<ResourceHolder<T>*>(it_res->second.get());
+      return &holder_observer->data;
+    }
     
 
   } // namespace avion::core::resman::fs

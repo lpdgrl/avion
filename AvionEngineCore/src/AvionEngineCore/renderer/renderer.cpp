@@ -3,9 +3,8 @@
 
 namespace avion::gfx {
 
-    Renderer::Renderer(core::resman::ResourceManager& resman, ShaderStorage& storage)
+    Renderer::Renderer(ShaderStorage& storage)
     : m_storage_shaders(storage)
-    , m_resman(resman)
     {}
 
     Renderer::~Renderer() {
@@ -23,7 +22,6 @@ namespace avion::gfx {
     }
 
     void Renderer::Init() {
-        InitShaders();
 
         // text_ = new TextRender(PATH_TO_FONT);
         // text_->Initialaztion();
@@ -46,23 +44,6 @@ namespace avion::gfx {
         LoadVerticesSourceLigth();
     }
 
-    void Renderer::InitShaders() 
-    {
-      std::string simple_cube("lighting");
-      std::string shader_model_light_source("shader_model_light_source");
-    
-      m_storage_shaders.RegisterShader(
-          simple_cube, 
-          m_resman.GetResource<std::filesystem::path>("simple_cube_transform.vert")->c_str(),
-          m_resman.GetResource<std::filesystem::path>("lighting.frag")->c_str());
-
-      m_storage_shaders.RegisterShader(
-          shader_model_light_source,
-          m_resman.GetResource<std::filesystem::path>("simple_light_transform.vert")->c_str(),
-          m_resman.GetResource<std::filesystem::path>("simple_light_color.frag")->c_str());
-
-    }
-
     void Renderer::InitTexture() 
     {
       // m_storage_shaders.PutData("simple_cube_SL_prefab_material", "material.diffuse", 0);
@@ -71,7 +52,6 @@ namespace avion::gfx {
 
       // m_storage_shaders.UseShader("simple_cube_SL_prefab_material");
     }
-    
 
     void Renderer::LoadVerticesCube() {
         // actual!!
@@ -342,15 +322,18 @@ namespace avion::gfx {
         m_storage_shaders.UseShader(name_shader);
         
         if (mat_tex.is_texture) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture);
-
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_specular);
-
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_emission);
-        }
+          // Diffuse texture 
+          glActiveTexture(GL_TEXTURE0);
+          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture);
+          
+          // Specular texture
+          glActiveTexture(GL_TEXTURE1);
+          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_specular);
+          
+          // Emission texture
+          glActiveTexture(GL_TEXTURE2);
+          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_emission);
+      }
 
         BindVertexArray(GetVAO(key)); 
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -406,6 +389,7 @@ namespace avion::gfx {
     void Renderer::LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const 
     {
         glGenTextures(1, &index_texture);
+        AV_LOG_DEBUG("Renderer::LoadTexture2D: id texture is assign " + std::to_string(index_texture));
         glBindTexture(GL_TEXTURE_2D, index_texture);
         
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, buffer);
@@ -522,18 +506,4 @@ namespace avion::gfx {
         camera_->ProcessMouseMovement(xoffset, yoffset);
     }
     
-    void Renderer::InsertIdTextureBuffer(std::uint32_t idx) noexcept
-    {
-        idx_textures_.emplace(idx, idx);
-    }
-
-    std::uint32_t Renderer::GetIdTextureBuffer(std::uint32_t idx) noexcept 
-    {
-        if (auto it = idx_textures_.find(idx); it != idx_textures_.end()) {
-            return it->second;
-        }
-        return 0;
-    }
-
-  
 } // namespace avion::gfx

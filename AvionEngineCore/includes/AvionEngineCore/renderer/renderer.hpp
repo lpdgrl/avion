@@ -72,7 +72,7 @@ namespace avion::gfx {
 
     class Renderer {  
     public:
-        Renderer(core::resman::ResourceManager& resman, ShaderStorage& storage);
+        Renderer(ShaderStorage& storage);
 
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
@@ -107,12 +107,7 @@ namespace avion::gfx {
         
         void LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const;
 
-        // TODO: It's delete in the future
-        void InsertIdTextureBuffer(std::uint32_t) noexcept;
-        std::uint32_t GetIdTextureBuffer(std::uint32_t) noexcept;
-
     private:
-        void InitShaders();
         void InitCamera();
         void InitRenderer();
         void InitRendererText();
@@ -145,10 +140,7 @@ namespace avion::gfx {
         std::map<VertexObjectType, GLuint> vbo_;
         std::map<VertexObjectType, GLuint> ebo_;
         
-        std::unordered_map<std::uint32_t, std::uint32_t> idx_textures_;
-        
         ShaderStorage& m_storage_shaders;
-        core::resman::ResourceManager& m_resman; 
 
         bool cursor_state_ = false;
         //

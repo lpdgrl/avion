@@ -12,6 +12,7 @@ uniform float scr_aspect;
 out vec3 FragPos;
 out vec3 Normal;
 out vec2 TexCoords;
+out vec3 Position;
 
 void main()
 {

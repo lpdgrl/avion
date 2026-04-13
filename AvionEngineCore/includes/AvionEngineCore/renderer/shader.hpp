@@ -65,7 +65,7 @@ namespace avion::gfx {
     void Execute();
     
     template <typename T>
-    void PutData(const std::string name_param, T data);
+    void PutData(const std::string& name_param, T data);
 
     ~ShaderExecutor() = default; 
   private:
@@ -75,7 +75,7 @@ namespace avion::gfx {
   };
 
   template <typename T>
-  void ShaderExecutor::PutData(const std::string name_param, T data) 
+  void ShaderExecutor::PutData(const std::string& name_param, T data) 
   {
     m_data.emplace_back(std::move(name_param), data); 
   }
@@ -92,7 +92,7 @@ namespace avion::gfx {
     void UseShader(const std::string& key);
     
     template <typename  T>
-    void PutData(const std::string name_sahder, const std::string& name_param, T data);
+    void PutData(const std::string& name_sahder, const std::string& name_param, T data);
 
     const Storage& GetStorage() const noexcept;
 
@@ -102,7 +102,7 @@ namespace avion::gfx {
   };
 
   template <typename T>
-  void ShaderStorage::PutData(const std::string name_shader, const std::string& name_param, T data)
+  void ShaderStorage::PutData(const std::string& name_shader, const std::string& name_param, T data)
   {
     if (name_shader.empty()) {
       AV_LOG_ERROR("ShaderStorage::PutData name_shader is empty.");

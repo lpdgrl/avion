@@ -13,6 +13,7 @@ namespace avion::core {
         kSimpleLight = 0,
         kDirLight = 1,
         kPointLight = 2,
+        kSpotLight = 3,
     };
 
     enum class ObjectType {

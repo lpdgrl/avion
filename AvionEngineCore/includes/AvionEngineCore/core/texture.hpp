@@ -37,7 +37,7 @@
             std::uint16_t         GetWidth()          const noexcept;
             std::uint16_t         GetHeight()         const noexcept;
             GLenum                GetColorChannels()  const noexcept;
-            const unsigned char*  GetBuffer()         const noexcept;
+            unsigned char*        GetBuffer()         noexcept;
             std::string           GetPath()           const noexcept;
 
             bool IsUploaded() const noexcept;
