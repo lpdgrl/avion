@@ -68,7 +68,10 @@ namespace avion::gui {
         std::optional<core::LightType> w_LightAdd() const;
         bool w_LightProperties(core::LightParams&) const;
         int w_ListLights(const std::vector<core::SceneLight>& lights) const;
+
     private:
+        ImGuiWindowFlags BaseWindowFlags() const noexcept;
+        bool Begin(const char *name) const;
         void TextureComboList(int& texture_id, std::string_view caption, const std::vector<std::string>& list_textures, int& item_selected) const;
 
         GLFWwindow* window_ = nullptr;

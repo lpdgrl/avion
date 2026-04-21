@@ -63,8 +63,6 @@ namespace avion::core {
         controller::Controller controller_;
         Scene scene_;
 
-        
-
         gui::Widget* widget_ = nullptr;
         gfx::Pipeline* pipeline_ = nullptr;
         GLFWwindow* window_ = nullptr;

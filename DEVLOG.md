@@ -1,5 +1,8 @@
 ## DevLog
 
+**2026-04-20**
+- Added loading presets from ini file (ImGui)
+
 **2026-04-10**
 - Added combine calculations ligths (direction light, point light, spot light)
 
@@ -12,7 +15,7 @@
 **2026-03-17**
 - Added diffuse and specular map to Materias
 
-**2026-03-15**
+**2026-03-15**  wa
 - Added prefab of materials (metals, plastic, rubber) [Taken here](http://devernay.free.fr/cours/opengl/materials.html)
 - Added basic subsystem Texture 
 

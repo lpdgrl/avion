@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 
     AV_LOG_INFO("Avion Engine v. 0.0.1")
     
-    avion::core::Window window(name_window, 1280, 1024); 
+    avion::core::Window window(name_window, 1920, 1080); 
 
     window.Init();
     window.Update();

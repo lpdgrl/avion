@@ -23,6 +23,7 @@ namespace avion::gui {
         IMGUI_CHECKVERSION();
         io_.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io_.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        io_.IniFilename = "assets/config/imgui.ini"; 
 
         ImGui::StyleColorsDark();
 
@@ -125,7 +126,7 @@ namespace avion::gui {
       static std::vector<std::string> textures = m_resman.GetListTexture();
 
       static WidgetObjectParams obj;
-      ImGui::Begin("Object");
+      Begin("Object");
           ImGui::Text("Settings object");
           ImGui::ColorEdit3("Color", reinterpret_cast<float*>(&obj.params.color));
 
@@ -220,7 +221,7 @@ namespace avion::gui {
         int selected_item_id = 0;
         std::string type_object("None");
 
-        if (ImGui::Begin("Objects")) {
+        if (Begin("Objects")) {
             // ImVec2 listbox_size(200.0f, ImGui::GetTextLineHeightWithSpacing() * objects.size());
             if (ImGui::BeginListBox("Objects")) {
                 for (int i = 0; i < objects.size(); ++i) {
@@ -253,7 +254,7 @@ namespace avion::gui {
     }
 
     void Widget::WindowLogs(Logs logs) const {
-        ImGui::Begin("Debug");
+        Begin("DebugInfo");
             ImGui::Text("Perfomance:");
             ImGui::Text("\tfps: %i", logs.fps);
             ImGui::Text("\tdelay: %.2f ms", logs.delay);
@@ -273,7 +274,7 @@ namespace avion::gui {
         auto& position = object_params.position;
         auto& material = object_params.material;
 
-        ImGui::Begin("Material properties");
+        Begin("Material properties");
             arr_changed_material[0] = ImGui::SliderFloat("obj pos x", &position.x, -20.f, 20.f);
             arr_changed_material[1] = ImGui::SliderFloat("obj pos y", &position.y, -20.f, 20.f);
             arr_changed_material[2] = ImGui::SliderFloat("obj pos z", &position.z, -20.f, 20.f);
@@ -324,7 +325,7 @@ namespace avion::gui {
         outer_cut_off = p_spotlight->GetOuterCutOff();
       }
 
-      ImGui::Begin("Light properties");
+      Begin("Light properties");
           arr_changed_prop_light[0] = ImGui::SliderFloat("light pos x", &position.x, -20.f, 20.f);
           arr_changed_prop_light[1] = ImGui::SliderFloat("light pos y", &position.y, -20.f, 20.f);
           arr_changed_prop_light[2] = ImGui::SliderFloat("light pos z", &position.z, -20.f, 20.f);
@@ -396,7 +397,7 @@ namespace avion::gui {
         int selected_item_id = 0;
         std::string t_light;
 
-        if (ImGui::Begin("Source lights")) {
+        if (Begin("Source lights")) {
             if (ImGui::BeginListBox("Lights")) {
                 for (int i = 0; i < lights.size(); ++i) {
                     std::string id(
@@ -444,9 +445,9 @@ namespace avion::gui {
         static std::vector<std::string> type_source_lights{ "direction light", "point light", "spotlight"}; 
         core::LightType type;
         
-        ImGui::Begin("Add source light");
+        Begin("Add source light");
             ImVec2 listbox_size(200.0f, ImGui::GetTextLineHeightWithSpacing() * 4);
-            if (ImGui::BeginListBox("Type:", listbox_size)) {
+            if (ImGui::BeginListBox("##empty", listbox_size)) {
                 for (int i = 0; i < type_source_lights.size(); ++i) {
                     const bool is_selected = (item_selected_idx == i);
                     
@@ -475,5 +476,18 @@ namespace avion::gui {
 
         ImGui::End();
         return std::nullopt;
-    }                   
+    }  
+
+    ImGuiWindowFlags Widget::BaseWindowFlags() const noexcept
+    {
+      return ImGuiWindowFlags_NoMove   |
+             ImGuiWindowFlags_NoResize |
+             ImGuiWindowFlags_NoCollapse;
+
+    }            
+
+    bool Widget::Begin(const char *name) const
+    {
+      return ImGui::Begin(name, nullptr, BaseWindowFlags());
+    }      
 } // namespace avion::gui
