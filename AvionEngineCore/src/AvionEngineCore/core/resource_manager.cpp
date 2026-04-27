@@ -35,15 +35,20 @@ namespace avion::core::resman
 
   const ResourceManager::ListTexture& ResourceManager::GetListTexture() const noexcept
   {
-    return m_list_texture_loaded;
+    return m_texture_loaded_list;
   }
 
-  void ResourceManager::CreateAndLoadTexture(const std::string& filename, FsPath& path)
+  const ResourceManager::ModelList& ResourceManager::GetModelLoadedList() const noexcept
+  {
+    return m_model_loaded_list;
+  }
+
+  std::optional<Texture*> ResourceManager::CreateAndLoadTexture(const std::string& filename, FsPath& path)
   {
     std::string path_str(path.c_str());
     
     auto it = m_resources.emplace(filename, std::make_unique<ResourceHolder<Texture>>(path_str)).first;
-    m_list_texture_loaded.push_back(filename);
+    m_texture_loaded_list.push_back(filename);
 
     ResourceHolder<Texture>* holder_observer = static_cast<ResourceHolder<Texture>*>(it->second.get());
     bool result = holder_observer->data.LoadTexture();
@@ -51,17 +56,61 @@ namespace avion::core::resman
     std::string msg; 
     msg = (result) ? ("Texture is loading success " + path_str) : "Texture isn't loading success";
     AV_LOG_INFO("ResourceManager: " + msg);
+
+    return &holder_observer->data;
   }
 
-  void ResourceManager::LoadShader(const std::string& filename, FsPath& path) 
+  void ResourceManager::LoadShader(const std::string& path, bool result) 
+  { 
+    std::string msg;
+    msg = (result) ? ("Shader is finding  " + path) : "Shader isn't finding success";
+    AV_LOG_INFO("ResourceManager: " + msg);
+  }
+
+  void ResourceManager::LoadConfig(const std::string& path, bool result)
+  {
+    std::string msg;
+    msg = (result) ? ("Config is finding  " + path) : "Config isn't finding success";
+    AV_LOG_INFO("ResourceManager: " + msg);
+  }
+  
+  void ResourceManager::LoadModel(const std::string& path, bool result)
+  {
+    std::string msg;
+    msg = (result) ? ("Model is finding  " + path) : "Model isn't finding success";
+    AV_LOG_INFO("ResourceManager: " + msg);
+  }
+
+  bool ResourceManager::LoadTextFile(const std::string& filename, FsPath& path, ResourceType type)
   {
     std::string path_str(path.c_str());
-
     auto [_, result] = m_resources.emplace(filename, std::make_unique<ResourceHolder<FsPath>>(path_str));
     
-    std::string msg;
-    msg = (result) ? ("Shader is finding  " + path_str) : "Shader isn't finding success";
-    AV_LOG_INFO("ResourceManager: " + msg);
+    switch(type)
+    {
+      case ResourceType::kShader:
+      {
+        LoadShader(path_str, result);
+        break;
+      }
+      case ResourceType::kConfig:
+      {
+        LoadConfig(path_str, result);
+        break;
+      }
+      case ResourceType::kModel:
+      {
+        m_model_loaded_list.push_back(filename);
+        LoadModel(path_str, result);
+        break;
+      }
+      case ResourceType::kTexture:
+      case ResourceType::kUnknown:
+      {
+        break;
+      }
+    }
+    return result;
   }
 
   std::string ResourceManager::NormalizePath(std::string_view path) const
@@ -77,6 +126,8 @@ namespace avion::core::resman
 
   bool ResourceManager::RegisterResource(ResourceType resource, std::string_view path_to_resource) 
   {
+    using namespace std::literals;
+
     FsPath path = m_path_exe / path_to_resource;
 
     // auto create_load_texture = [&](const std::string& filename, FsPath& path) {
@@ -93,29 +144,62 @@ namespace avion::core::resman
         AV_LOG_INFO("ResourceManager::RegisterResource: resource " + filename + " is duplicate");
         continue;
       }
+
       // TODO: It is stupid every once checking type of resource
       switch(resource)
       {
         case ResourceType::kTexture: 
         {
-          CreateAndLoadTexture(filename, path_canonical_resource);
+          [[maybe_unused]] auto result = CreateAndLoadTexture(filename, path_canonical_resource);
           break;
         }
         case ResourceType::kShader:
         {
-          LoadShader(filename, path_canonical_resource);
+          [[maybe_unused]] auto result = LoadTextFile(filename, path_canonical_resource, resource);
+          break;
+        }
+        case ResourceType::kConfig:
+        {
+          [[maybe_unused]] auto result = LoadTextFile(filename, path_canonical_resource, resource);
+          break;
+        }
+        case ResourceType::kModel:
+        { 
+          if (it_entry.is_directory())
+          {
+            for (const auto& it_entry_subdir : std::filesystem::directory_iterator(it_entry.path()))
+            {
+              auto path_model = it_entry_subdir.path();
+              if (path_model.extension() == ".obj"sv)
+              {
+                std::string model_filename(path_model.filename());
+                FsPath model_path_canonical_resource(std::filesystem::canonical(it_entry_subdir));
+                LoadTextFile(model_filename, model_path_canonical_resource, resource);
+              }
+            }
+          }
           break;
         }
         case ResourceType::kUnknown:
         {
           AV_LOG_DEBUG("ResourceManager::RegisterResource: ResourceType::kUnknown");
+          break;
         }
       }
-      
     }
 
     // TODO: Always return true that it is wrong
     return true;
+  }
+
+
+  Texture* ResourceManager::RegisterTexture(std::string_view path_to_resource)
+  {
+    FsPath path(path_to_resource);
+
+    auto result = CreateAndLoadTexture(path.filename(), path);
+
+    return result.value();
   }
   
 } // namespace avion::core::resman::fs

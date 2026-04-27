@@ -1,5 +1,8 @@
 #include "AvionEngineCore/renderer/renderer.hpp"
+#include "AvionEngineCore/renderer/mesh.hpp"
+
 #include "AvionEngineCore/core/resource_manager.hpp"
+#include "AvionEngineCore/core/texture.hpp"
 
 namespace avion::gfx {
 
@@ -18,10 +21,13 @@ namespace avion::gfx {
             glDeleteBuffers(1, &value);
         }
 
-        std::cout << "Renderer is destroyed" << '\n';
+        AV_LOG_INFO("Renderer is destroyed");
     }
 
     void Renderer::Init() {
+        glEnable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // text_ = new TextRender(PATH_TO_FONT);
         // text_->Initialaztion();
@@ -388,17 +394,17 @@ namespace avion::gfx {
 
     void Renderer::LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const 
     {
-        glGenTextures(1, &index_texture);
-        AV_LOG_DEBUG("Renderer::LoadTexture2D: id texture is assign " + std::to_string(index_texture));
-        glBindTexture(GL_TEXTURE_2D, index_texture);
-        
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, buffer);
-        glGenerateMipmap(GL_TEXTURE_2D);
+      glGenTextures(1, &index_texture);
+      AV_LOG_DEBUG("Renderer::LoadTexture2D(many args): id texture is assign " + std::to_string(index_texture));
+      glBindTexture(GL_TEXTURE_2D, index_texture);
+      
+      glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, buffer);
+      glGenerateMipmap(GL_TEXTURE_2D);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     glm::vec3 Renderer::PickUpObject(double x_px, double y_px, int width, int height, GLfloat depth) const {
@@ -413,6 +419,32 @@ namespace avion::gfx {
         return obj_coord;
     }
 
+    void Renderer::LoadTexture2D(core::Texture* ptr_texture) const
+    {
+      auto& id = ptr_texture->GetId();
+      glGenTextures(1, &id);
+      AV_LOG_DEBUG("Renderer::LoadTexture2D(core::Texture* ptr_texture): id texture is assign " + std::to_string(ptr_texture->GetId()));
+      glBindTexture(GL_TEXTURE_2D, ptr_texture->GetId());
+      
+      glTexImage2D(GL_TEXTURE_2D, 
+        0, 
+        ptr_texture->GetColorChannels(), 
+        ptr_texture->GetWidth(), 
+        ptr_texture->GetHeight(), 
+        0, 
+        ptr_texture->GetColorChannels(), 
+        GL_UNSIGNED_BYTE, 
+        ptr_texture->GetBuffer());
+      glGenerateMipmap(GL_TEXTURE_2D);
+
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+      ptr_texture->SetUploadOpenGL();
+      AV_LOG_DEBUG(std::to_string(ptr_texture->GetId()));
+    }
 
     // void Renderer::DrawText(std::string text, float x, float y, float scale, glm::vec3 color) {
     //     shader_text_->use();
@@ -505,5 +537,121 @@ namespace avion::gfx {
     void Renderer::ProcessMouseMovement(double xoffset, double yoffset) const noexcept {
         camera_->ProcessMouseMovement(xoffset, yoffset);
     }
+
+    void Renderer::RegisterMesh(Mesh* mesh) noexcept
+    {
+      if (mesh == nullptr)
+      {
+        AV_LOG_ERROR("Renderer::RegisterMesh: mesh pointer is nullptr.")
+        return;
+      }
+      
+      auto buffers_indices  = mesh->GetBuffersIndices();
+      auto& vertices        = mesh->GetVerticesArray();
+      auto& indices         = mesh->GetIndicesArray();
+      auto& textures        = mesh->GetTexturesArray();
+
+      glGenVertexArrays(1, &buffers_indices.m_vao);
+      glGenBuffers(1, &buffers_indices.m_vbo);
+      glGenBuffers(1, &buffers_indices.m_ebo);
+      mesh->SetBuffersIndices(buffers_indices);
+
+      glBindVertexArray(buffers_indices.m_vao);
+      glBindBuffer(GL_ARRAY_BUFFER, buffers_indices.m_vbo);
+      
+      glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex_t), &vertices[0], GL_STATIC_DRAW);  
+      
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_indices.m_ebo);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),  &indices[0], GL_STATIC_DRAW);
+
+      // vertex positions
+      glEnableVertexAttribArray(0);	
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_t), (void*)0);
+      // vertex normals
+      glEnableVertexAttribArray(1);	
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex_t), (void*)offsetof(Vertex_t, normal));
+      // vertex texture coords
+      glEnableVertexAttribArray(2);	
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex_t), (void*)offsetof(Vertex_t, texture_coordinates));
+
+      glBindVertexArray(0);
+      
+      for (auto& texture : textures)
+      {
+        auto* ptr = texture.ptr_texture;
+        if (ptr->IsUploadedOpenGL())
+        {
+          texture.id = ptr->GetId();
+          continue;
+        }
+        LoadTexture2D(ptr);
+        texture.id = ptr->GetId();
+      }
+    }
+
+    void Renderer::Draw(Mesh& mesh, const std::string& name_shader) 
+    {
+      auto& textures = mesh.GetTexturesArray();
+      auto indices_size = mesh.GetIndicesArray().size();
+      auto buffers_indices = mesh.GetBuffersIndices();
+
+      int i = 1;
+      for (auto& texture : textures)
+      {
+        glActiveTexture(GL_TEXTURE0 + i);
+
+        std::string name_texture("material.");
+        unsigned int id = texture.ptr_texture->GetId();
+        
+        switch(texture.type)
+        {
+          case TextureType::kDiffuse:
+          {
+            name_texture += "diffuse" + std::to_string(i);
+            break;
+          }
+          case TextureType::kSpecular:
+          {
+            name_texture += "specular" + std::to_string(i);
+          }
+          case TextureType::kUnknown:
+          {
+            break;
+          }
+        }
+
+        m_storage_shaders.PutData(name_shader, name_texture, i++);
+        m_storage_shaders.ExecuteAfterUse(name_shader);
+        std::string msg = name_texture;
+        msg += " " + std::to_string(texture.id);
+        // AV_LOG_DEBUG(msg);
+
+        glBindTexture(GL_TEXTURE_2D, texture.id);
+      }
+
+      BindVertexArray(buffers_indices.m_vao); 
+      glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices_size), GL_UNSIGNED_INT, 0);
+      BindVertexArray(0);
+
+      glActiveTexture(GL_TEXTURE0);
+    }
     
+    void Renderer::SetRenderContext(RenderContext& render_ctx) noexcept
+    {
+      auto [type_shader, name_shader, transform, mat_tex, key] = render_ctx;
+
+      glm::mat4 model_matrix = glm::mat4(1.f);
+      model_matrix = TranslateMatrix(model_matrix, transform.position);
+      model_matrix = ScaleMatrix(model_matrix, transform.size);
+
+      glm::mat4 view_matrix = glm::mat4(1.f);                  
+      view_matrix = camera_->GetViewMatrix();
+      glm::vec3 view_pos = camera_->GetPosition();
+
+      m_storage_shaders.PutData(name_shader, "view", view_matrix);
+      m_storage_shaders.PutData(name_shader, "view_pos", view_pos);
+      m_storage_shaders.PutData(name_shader, "model", model_matrix);
+
+      m_storage_shaders.UseShader(name_shader);
+    }
 } // namespace avion::gfx

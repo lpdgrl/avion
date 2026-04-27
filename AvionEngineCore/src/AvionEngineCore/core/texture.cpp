@@ -45,41 +45,42 @@ namespace avion::core {
 
     bool Texture::LoadTexture()
     {
-        if (IsUploaded()) {
-            AV_LOG_ERROR("Texture::LoadTexture: texture is already uploaded" + m_path);
-            return false;
-        }
+      // stbi_set_flip_vertically_on_load(true);
+      if (IsUploaded()) {
+          AV_LOG_ERROR("Texture::LoadTexture: texture is already uploaded" + m_path);
+          return false;
+      }
 
-        int width = 0;
-        int height = 0;
-        int num_color_channels = 0;
+      int width = 0;
+      int height = 0;
+      int num_color_channels = 0;
 
-        m_buffer = stbi_load(m_path.c_str(), &width, &height, &num_color_channels, 0);
-          //if (stbi_failure_reason()) {
-        if (!m_buffer) {
-            AV_LOG_ERROR("Texture::LoadTexture: Texture failed to load at path: " + m_path);
+      m_buffer = stbi_load(m_path.c_str(), &width, &height, &num_color_channels, 0);
+        //if (stbi_failure_reason()) {
+      if (!m_buffer) {
+          AV_LOG_ERROR("Texture::LoadTexture: Texture failed to load at path: " + m_path);
 
-            auto er_stbi = stbi_failure_reason();
-            
-            std::string error; 
-            error += "stbi failure reason ";
-            error += er_stbi;
+          auto er_stbi = stbi_failure_reason();
+          
+          std::string error; 
+          error += "stbi failure reason ";
+          error += er_stbi;
 
-            AV_LOG_ERROR(error); 
+          AV_LOG_ERROR(error); 
 
-            stbi_image_free(m_buffer);
-            m_buffer = nullptr;
+          stbi_image_free(m_buffer);
+          m_buffer = nullptr;
 
-            return false;
-        }
+          return false;
+      }
 
-        m_width = width;
-        m_height = height;
-        m_num_color_channels = num_color_channels;
+      m_width = width;
+      m_height = height;
+      m_num_color_channels = num_color_channels;
 
-        m_is_uploaded = true; 
+      m_is_uploaded = true; 
 
-        return m_is_uploaded;
+      return m_is_uploaded;
     }
     
     // That's too promising a name
@@ -154,4 +155,13 @@ namespace avion::core {
         return m_path;
     }
 
+    bool Texture::IsUploadedOpenGL() const noexcept
+    {
+      return m_is_uploaded_opengl;
+    }
+
+    void Texture::SetUploadOpenGL() noexcept
+    {
+      m_is_uploaded_opengl = true;
+    }
 } // namespace avion::core

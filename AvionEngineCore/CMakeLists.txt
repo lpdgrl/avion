@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.20)
 
 set(ENGINE_PROJECT_NAME AvionEngineCore)
 
@@ -8,10 +8,24 @@ set(ENGINE_PROJECT_NAME AvionEngineCore)
 SET(CMAKE_EXE_LINKER_FLAGS "-v")
 
 SET(IMGUI_DIR libs/imgui)
-
 SET(GLFW_DIR libs/glfw)
+SET(ASSIMP_DIR libs/assimp)
 
 add_subdirectory(${GLFW_DIR})
+
+SET(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
+SET(ASSIMP_BUILD_OBJ_IMPORTER ON)
+SET(ASSIMP_BUILD_FBX_IMPORTER ON)
+
+SET(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+SET(ASSIMP_BUILD_OBJ_EXPORTER ON)
+SET(ASSIMP_BUILD_FBX_EXPORTER ON)
+
+SET(ASSIMP_INSTALL OFF)
+SET(ASSIMP_INSTALL_PDB OFF)
+SET(ASSIMP_BUILD_ASSIMP_VIEW OFF)
+
+add_subdirectory(${ASSIMP_DIR})
 
 add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/logger/logger.cpp
@@ -20,6 +34,10 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/renderer/pipeline.cpp
     src/AvionEngineCore/renderer/shader.cpp
     src/AvionEngineCore/renderer/camera.cpp
+    src/AvionEngineCore/renderer/model.cpp
+    src/AvionEngineCore/renderer/mesh.cpp
+    src/AvionEngineCore/renderer/pipeline_queue.cpp
+    src/AvionEngineCore/core/engine.cpp
     src/AvionEngineCore/core/scene.cpp
     src/AvionEngineCore/core/object.cpp
     src/AvionEngineCore/core/texture.cpp
@@ -37,7 +55,6 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     libs/imgui/imgui.cpp
     libs/imgui/backends/imgui_impl_glfw.cpp
     libs/imgui/backends/imgui_impl_opengl3.cpp
-    
 )
 
 target_include_directories(${ENGINE_PROJECT_NAME} 
@@ -51,11 +68,13 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
     PUBLIC
         ${FREETYPE_LIBRARIES}
         glfw
+        assimp
 )
 
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_23)
 target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -O3)
+
 # target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -fconcepts-diagnostics-depth=4)
 
 message(STATUS "FINAL include dirs:")

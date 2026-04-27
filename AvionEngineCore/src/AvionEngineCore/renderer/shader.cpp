@@ -96,7 +96,7 @@ namespace avion::gfx {
 
   Shader::~Shader() {
     // TODO: Delete shader from GPU memory
-    std::cout << "Shader is destroyed" << '\n';
+    AV_LOG_DEBUG("Shader is destroyed");
   }
 
   void Shader::Use() 
@@ -186,6 +186,33 @@ namespace avion::gfx {
     m_data.clear();
   }
 
+  void ShaderExecutor::ExecuteAfterUse()
+  {
+    if (m_data.empty())
+    {
+      AV_LOG_ERROR("Data for shader is empty");
+      assert(false);
+    }
+
+    // TODO: When data isn't changed so no necessary write to shader 
+    for (const auto& shader_param : m_data) {
+      m_shader->SetValue(shader_param.name, shader_param.value);
+    }
+
+    m_data.clear();
+  }
+
+  void ShaderStorage::ExecuteAfterUse(const std::string& name_shader)
+  {
+    auto it_sh = m_storage_shaders.find(name_shader);
+    if (it_sh == m_storage_shaders.end()) {
+      AV_LOG_ERROR("ShaderStorage::ExecuteAfterUse: " + name_shader + " isn't find");
+      assert(false);
+    }
+    
+    auto& executor = it_sh->second;
+    executor->ExecuteAfterUse();
+  }
 
   void ShaderStorage::RegisterShader(const std::string& name_shader, std::string vertex, std::string fragment)
   {

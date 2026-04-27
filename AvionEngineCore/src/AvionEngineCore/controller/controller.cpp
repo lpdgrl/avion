@@ -1,4 +1,5 @@
 #include "../../../includes/AvionEngineCore/controller/controller.hpp"
+#include "AvionEngineCore/macro.h"
 
 namespace avion::controller {
 
@@ -7,7 +8,7 @@ namespace avion::controller {
     }
 
     Controller::~Controller() {
-        std::cout << "Controller is destroyed" << '\n';
+        AV_LOG_DEBUG("Controller is destroyed");
     }
 
     void Controller::MouseCallback(GLFWwindow* window, double xpos, double ypos) {
