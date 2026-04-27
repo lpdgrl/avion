@@ -1,18 +1,25 @@
-#include "../../../includes/AvionEngineCore/core/scene.hpp"
+#include "AvionEngineCore/core/scene.hpp"
+#include "AvionEngineCore/core/resource_manager.hpp"
+#include "AvionEngineCore/renderer/pipeline_queue.hpp"
 
 namespace avion::core {  
-   Scene::Scene(size_t number_objects) {
+   Scene::Scene(size_t number_objects, ResManager& resman, PipelineQueue& pl_queue) 
+   : m_resman(resman)
+   , m_pl_queue(pl_queue)
+   {
        objects_on_scene_.reserve(number_objects);
        source_lights_on_scene_.reserve(number_objects);
+       m_models.reserve(number_objects);
    }
 
-   Scene::~Scene() {
-       std::cout << "Scene is destroyed" << '\n';
+   Scene::~Scene() 
+   {
+    AV_LOG_DEBUG("Scene is destroyed");
    }
 
    void Scene::AddObject(ObjectType type, ObjectParams params) {
        size_t n = objects_on_scene_.size();
-       objects_on_scene_.emplace_back(type, ++n, params);
+       objects_on_scene_.emplace_back(type, ++n, std::move(params));
    }
 
    void Scene::AddSourceLight(LightType type) 
@@ -153,4 +160,26 @@ namespace avion::core {
         , object(id, params)
     {}
 
+    bool Scene::AddModel(const std::string& model_name) 
+    {
+      auto* p_res = m_resman.GetResource<resman::ResourceManager::FsPath>(model_name);
+      if (p_res == nullptr)
+      {
+        AV_LOG_ERROR("Scene::AddModel");
+        return false;
+      }
+
+      auto& ref = m_models.emplace_back(p_res->parent_path(), p_res->filename(), m_resman);
+      auto result = ref.LoadModel();
+
+      // PIPELINE QUEUE????
+      m_pl_queue.Enqueue(ref.GetMeshs());
+
+      return result;
+    }
+
+    Scene::Models& Scene::GetModels()
+    {
+      return m_models;
+    }
 } // namespace avion::core

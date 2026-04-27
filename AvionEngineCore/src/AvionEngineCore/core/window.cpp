@@ -6,8 +6,9 @@ namespace avion::core {
     , width_window_(width)
     , height_window_(height)
     , controller_(controller::Controller((1.0 * width / 2), (1.0 * height / 2))) 
-    , scene_(Scene(kObjectsCreate))
     , m_resman(std::make_unique<resman::ResourceManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
+    , m_pl_queue(std::make_unique<gfx::PipelineQueue>())
+    , scene_(Scene(kObjectsCreate, *m_resman.get(), *m_pl_queue.get()))
     {}
 
   Window::Window(const char* window_name, int width, int height)
@@ -15,8 +16,9 @@ namespace avion::core {
     , width_window_(width)
     , height_window_(height)
     , controller_(controller::Controller((1.0 * width / 2), (1.0 * height / 2)))
-    , scene_(Scene(kObjectsCreate))
     , m_resman(std::make_unique<resman::ResourceManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
+    , m_pl_queue(std::make_unique<gfx::PipelineQueue>())
+    , scene_(Scene(kObjectsCreate, *m_resman.get(), *m_pl_queue.get()))
     {}
 
   Window::~Window() {
@@ -49,7 +51,7 @@ namespace avion::core {
       glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
       glfwSetCursorPos(window_, width_window_, 1.0 * height_window_ / 2.0);
       
-      pipeline_ = new gfx::Pipeline(scene_, *m_resman.get());
+      pipeline_ = new gfx::Pipeline(scene_, *m_resman.get(), *m_pl_queue.get());
       pipeline_->Init(width_window_, height_window_);
 
       ImGui::CreateContext();   
@@ -137,6 +139,12 @@ namespace avion::core {
           
           // shader_object.screen_aspect.value = scr_aspect;
           // shader_object.delta.value = std::sin(GetDeltaTime());
+
+          auto opt_result = widget_->w_AddModel();
+          if (opt_result.has_value())
+          {
+            scene_.AddModel(opt_result.value());
+          }
 
           auto added_opt_obj = widget_->WindowAddObject();
           if (added_opt_obj.has_value()) {

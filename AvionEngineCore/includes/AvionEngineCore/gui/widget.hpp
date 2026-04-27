@@ -69,6 +69,8 @@ namespace avion::gui {
         bool w_LightProperties(core::LightParams&) const;
         int w_ListLights(const std::vector<core::SceneLight>& lights) const;
 
+        std::optional<std::string> w_AddModel() const;
+
     private:
         ImGuiWindowFlags BaseWindowFlags() const noexcept;
         bool Begin(const char *name) const;

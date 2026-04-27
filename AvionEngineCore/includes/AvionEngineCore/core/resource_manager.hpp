@@ -11,6 +11,11 @@
 
   #include "../macro.h"
 
+  namespace avion::core
+  {
+    class Texture;
+  }
+
   namespace avion::core::resman 
   {
     
@@ -31,29 +36,38 @@
 
     enum class ResourceType {
       kUnknown = -1, 
-      kTexture = 1,
-      kShader  = 2,
+      kTexture =  1,
+      kShader  =  2,
+      kModel   =  3,
+      kConfig =  4,
     };
 
     class ResourceManager {
     public:
-      using FsPath = std::filesystem::path;
+      using FsPath      = std::filesystem::path;
       using ListTexture = std::vector<std::string>;
-
+      using ModelList   = std::vector<std::string>;
+ 
       ResourceManager() = delete;
       ResourceManager(std::string_view path);
       ~ResourceManager() = default;
 
-      bool RegisterResource(ResourceType resource, std::string_view path_to_resource); 
+      bool      RegisterResource(ResourceType resource, std::string_view path_to_resource); 
+      Texture*  RegisterTexture(std::string_view path_to_resource);
       
       template <typename T>
       T* GetResource(std::string_view resource) const;
 
       const ListTexture& GetListTexture() const noexcept;
+      const ModelList&   GetModelLoadedList() const noexcept;
 
     private:
-      void CreateAndLoadTexture(const std::string& filename, FsPath& path);
-      void LoadShader(const std::string& filename, FsPath& path);
+      std::optional<Texture*> CreateAndLoadTexture(const std::string& filename, FsPath& path);
+      void LoadShader(const std::string& path, bool result);
+      void LoadConfig(const std::string& path, bool result);
+      void LoadModel(const std::string& path, bool result);
+      bool LoadTextFile(const std::string& filename, FsPath& path, ResourceType type);
+
       std::string NormalizePath(std::string_view path) const; 
 
     private:
@@ -72,8 +86,9 @@
       using ResourceStorage = std::unordered_map<std::string, std::unique_ptr<IResourceHolder>>;
 
       ResourceStorage m_resources;
-      ListTexture m_list_texture_loaded;
-      FsPath m_path_exe;
+      ListTexture     m_texture_loaded_list;
+      ModelList       m_model_loaded_list;
+      FsPath          m_path_exe;
     };
 
     template<typename T>
@@ -88,15 +103,13 @@
       auto it_res = m_resources.find(resource.data());
       if (it_res == m_resources.end()) {
         std::string err(resource);
-        AV_LOG_ERROR("ResourceManager::GetResource: " + err + "is invalid resource.");
+        AV_LOG_ERROR("ResourceManager::GetResource: " + err + " is invalid resource.");
         return nullptr;
       }
 
       ResourceHolder<T>* holder_observer = static_cast<ResourceHolder<T>*>(it_res->second.get());
       return &holder_observer->data;
     }
-    
-
-  } // namespace avion::core::resman::fs
+  } // namespace avion::core::resman
 
 #endif

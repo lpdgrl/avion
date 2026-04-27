@@ -1,18 +1,12 @@
-#include "../../AvionEngineCore/includes/AvionEngineCore/core/window.hpp"
-#include "../../AvionEngineCore/includes/AvionEngineCore/macro.h"
-
-#include <unistd.h>
-
-const char* name_window = "Test Engine";
+#include "../../AvionEngineCore/includes/AvionEngineCore/core/engine.hpp"
 
 int main(int argc, char** argv) {
 
-    AV_LOG_INFO("Avion Engine v. 0.0.1")
-    
-    avion::core::Window window(name_window, 1920, 1080); 
+    const char* name_window = "Test Engine";
+    avion::core::Engine app(name_window, 1920, 1080); 
 
-    window.Init();
-    window.Update();
+    app.Init();
+    app.Update();
 
     return 0;
 }

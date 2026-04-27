@@ -4,10 +4,12 @@
 
 #include "glad/glad.h"
 
-#include "../controller/controller.hpp"
-#include "../renderer/pipeline.hpp"
-#include "../gui/widget.hpp"
+#include "AvionEngineCore/controller/controller.hpp"
+#include "AvionEngineCore/renderer/pipeline.hpp"
+#include "AvionEngineCore/renderer/pipeline_queue.hpp"
+#include "AvionEngineCore/gui/widget.hpp"
 
+#include "resource_manager.hpp"
 #include "scene.hpp"
 
 namespace avion::core {
@@ -61,13 +63,14 @@ namespace avion::core {
         int height_window_ = 0;
 
         controller::Controller controller_;
-        Scene scene_;
-
+      
         gui::Widget* widget_ = nullptr;
         gfx::Pipeline* pipeline_ = nullptr;
         GLFWwindow* window_ = nullptr;
 
         std::unique_ptr<resman::ResourceManager> m_resman;
+        std::unique_ptr<gfx::PipelineQueue>      m_pl_queue;
+        Scene scene_;
 
         // TODO: Understand how to works it (calculate delay and fps)
         GLfloat delta_time_ = 0.f;

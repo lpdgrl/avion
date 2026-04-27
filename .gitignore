@@ -1,4 +1,14 @@
+## VS code artifacts
 .vscode
+
+## Build artifacts
 build
-.cache
+
+## TTMD-CLI artifacts
 .history
+
+## VIM artifacts
+.cache
+
+## Models artifacts
+assets/models

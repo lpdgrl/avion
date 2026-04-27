@@ -1,4 +1,3 @@
-
 #ifndef AVION_CORE_MATERIAL_H 
 #define AVION_CORE_MATERIAL_H
 

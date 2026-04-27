@@ -5,3 +5,7 @@
 	path = AvionEngineCore/libs/glfw
 	url = https://github.com/glfw/glfw.git
 	branch = master
+[submodule "AvionEngineCore/libs/assimp"]
+	path = AvionEngineCore/libs/assimp
+	url = https://github.com/assimp/assimp.git
+	branch = master

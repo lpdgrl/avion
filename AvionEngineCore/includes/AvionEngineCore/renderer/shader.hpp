@@ -63,6 +63,7 @@ namespace avion::gfx {
     explicit ShaderExecutor(const std::string& vertex, const std::string& fragment);
    
     void Execute();
+    void ExecuteAfterUse();
     
     template <typename T>
     void PutData(const std::string& name_param, T data);
@@ -90,6 +91,7 @@ namespace avion::gfx {
     void UnRegisterShader();
     
     void UseShader(const std::string& key);
+    void ExecuteAfterUse(const std::string& name_shader);
     
     template <typename  T>
     void PutData(const std::string& name_sahder, const std::string& name_param, T data);
@@ -109,7 +111,7 @@ namespace avion::gfx {
       assert(!name_shader.empty());
     }
     
-    AV_LOG_DEBUG("ShaderStorage::PutData " + name_shader + " " + name_param);
+    // AV_LOG_DEBUG("ShaderStorage::PutData " + name_shader + " " + name_param);
     auto it_sh = m_storage_shaders.find(name_shader);
     if (it_sh == m_storage_shaders.end()) {
       AV_LOG_ERROR("Shader " + name_shader + " isn't register");

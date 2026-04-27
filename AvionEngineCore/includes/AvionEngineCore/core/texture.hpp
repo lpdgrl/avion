@@ -1,4 +1,3 @@
-
 #ifndef AVION_CORE_TEXTURE_H
 #define AVION_CORE_TEXTURE_H
     
@@ -31,6 +30,7 @@
             bool LoadTexture();
             bool FreeTexture();
             void SwitchPathToTexture(const std::string& path_texture);
+            void SetUploadOpenGL() noexcept;
 
             std::uint32_t&        GetId()             noexcept;
             
@@ -41,6 +41,7 @@
             std::string           GetPath()           const noexcept;
 
             bool IsUploaded() const noexcept;
+            bool IsUploadedOpenGL() const noexcept;
             
             ~Texture(); 
 
@@ -52,6 +53,7 @@
             std::uint16_t m_height{};
             std::uint8_t* m_buffer = nullptr;
             bool m_is_uploaded = false;
+            bool m_is_uploaded_opengl = false;
         };
     } // namespace avion:;core
      
