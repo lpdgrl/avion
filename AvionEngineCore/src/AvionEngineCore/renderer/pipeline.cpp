@@ -5,11 +5,14 @@
 
 namespace avion::gfx {
 
-    Pipeline::Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue)
+    Pipeline::Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue, Pipeline::CameraState& camera_state)
     : scene_(scene)
     , m_resman(resman) 
     , m_pl_queue(pl_queue)
-    {}
+    , renderer_(new Renderer(m_shaders_storage, camera_state))
+    {
+      
+    }
 
     Pipeline::~Pipeline() {
         delete renderer_;
@@ -43,8 +46,6 @@ namespace avion::gfx {
           m_resman.GetResource<core::resman::ResourceManager::FsPath>("simple_light_transform.vert")->c_str(),
           m_resman.GetResource<core::resman::ResourceManager::FsPath>("simple_light_color.frag")->c_str());
 
-      renderer_ = new Renderer(m_shaders_storage);
-
       renderer_->Init();
       renderer_->SetPerspectiveProjection(45.f, width, height, 0.1f, 50.f);
 
@@ -71,7 +72,9 @@ namespace avion::gfx {
     }
 
     void Pipeline::ProcessMouseMovement(double xoffset, double yoffset) const noexcept {
+        AV_LOG_DEBUG("TEST");
         renderer_->ProcessMouseMovement(xoffset, yoffset);
+        AV_LOG_DEBUG("TEST1");
     }
 
     void Pipeline::TransferDataToFrameBuffer() noexcept 
@@ -309,5 +312,11 @@ namespace avion::gfx {
     }
     m_shaders_storage.PutData(name_shader, "number_point_lights", static_cast<int>(count_point_light));
     m_shaders_storage.PutData(name_shader, "number_spot_lights", static_cast<int>(count_spot_light)); 
+  }
+
+
+  glm::vec3 Pipeline::GetCameraPosition() const noexcept
+  {
+    return renderer_->GetCameraPosition();
   }
 } // namespace avion::gfx

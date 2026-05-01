@@ -3,11 +3,13 @@
 
 #include "AvionEngineCore/core/resource_manager.hpp"
 #include "AvionEngineCore/core/texture.hpp"
+#include "AvionEngineCore/core/profiler.hpp"
 
 namespace avion::gfx {
 
-    Renderer::Renderer(ShaderStorage& storage)
+    Renderer::Renderer(ShaderStorage& storage, Renderer::CameraState& camera_state)
     : m_storage_shaders(storage)
+    , m_camera_state(camera_state)
     {}
 
     Renderer::~Renderer() {
@@ -42,6 +44,7 @@ namespace avion::gfx {
         glm::vec3 camera_up     = glm::vec3(0.0f, 1.0f, 0.0f);
 
         camera_ = new Camera(camera_pos, camera_up);
+        m_camera_state.camera_position = camera_->GetPosition();
     }
 
     void Renderer::InitRenderer() {
@@ -530,12 +533,16 @@ namespace avion::gfx {
         return glm::scale(model, glm::vec3(size));
     }
 
-    void Renderer::ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept {
-        camera_->ProcessKeyboard(direction, delta_time);
+    void Renderer::ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept 
+    {
+      camera_->ProcessKeyboard(direction, delta_time);
+      m_camera_state.camera_position = camera_->GetPosition();
     }
 
-    void Renderer::ProcessMouseMovement(double xoffset, double yoffset) const noexcept {
-        camera_->ProcessMouseMovement(xoffset, yoffset);
+    void Renderer::ProcessMouseMovement(double xoffset, double yoffset) const noexcept 
+    {           
+      camera_->ProcessMouseMovement(xoffset, yoffset);
+      m_camera_state.camera_position = camera_->GetPosition();
     }
 
     void Renderer::RegisterMesh(Mesh* mesh) noexcept
@@ -653,5 +660,10 @@ namespace avion::gfx {
       m_storage_shaders.PutData(name_shader, "model", model_matrix);
 
       m_storage_shaders.UseShader(name_shader);
+    }
+
+    glm::vec3 Renderer::GetCameraPosition() const noexcept
+    {
+      return camera_->GetPosition();
     }
 } // namespace avion::gfx

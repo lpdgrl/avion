@@ -20,6 +20,7 @@ namespace avion::core::resman
 namespace avion::core
 {
   class Texture;
+  struct CameraState;
 }
 
 namespace avion::gfx {
@@ -81,9 +82,10 @@ namespace avion::gfx {
 
   class Renderer {  
   public:
-    using ResManager = core::resman::ResourceManager;
-
-    Renderer(ShaderStorage& storage);
+    using ResManager  = core::resman::ResourceManager;
+    using CameraState = core::CameraState;
+     
+    Renderer(ShaderStorage& storage, CameraState& camera_state);
 
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
@@ -122,6 +124,9 @@ namespace avion::gfx {
     void LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const;
     void LoadTexture2D(core::Texture* ptr_texture) const;
 
+
+    glm::vec3 GetCameraPosition() const noexcept;
+
   private:
     void InitCamera();
     void InitRenderer();
@@ -150,6 +155,7 @@ namespace avion::gfx {
 
   private:
     Camera* camera_ = nullptr;
+    CameraState& m_camera_state;
 
     std::map<VertexObjectType, GLuint> vao_;
     std::map<VertexObjectType, GLuint> vbo_;

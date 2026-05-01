@@ -16,11 +16,11 @@ namespace avion::gfx {
     };
 
     // Default camera values
-    static const float YAW         = -90.0f;
-    static const float PITCH       =  0.0f;
-    static const float SPEED       =  5.5f;
-    static const float SENSITIVITY =  0.1f;
-    static const float ZOOM        =  45.0f;
+    static constexpr float YAW         = -90.0f;
+    static constexpr float PITCH       =  0.0f;
+    static constexpr float SPEED       =  5.5f;
+    static constexpr float SENSITIVITY =  0.1f;
+    static constexpr float ZOOM        =  45.0f;
 
     // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
     class Camera

@@ -1,5 +1,12 @@
 ## DevLog
 
+**2026-04-30**
+
+**2026-04-27**
+- Added Assimp importer
+- Added Model, Mesh classes 
+- Added ability to load 3d model (while only .obj)
+
 **2026-04-20**
 - Added loading presets from ini file (ImGui)
 

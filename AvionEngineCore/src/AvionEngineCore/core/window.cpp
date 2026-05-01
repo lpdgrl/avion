@@ -1,40 +1,41 @@
 #include "AvionEngineCore/core/window.hpp"
 
+#include "AvionEngineCore/renderer/pipeline.hpp"
+
 namespace avion::core {
-  Window::Window(const std::string& window_name, int width, int height)
+  Window::Window(const std::string& window_name, int width, int height, Pipeline& pipeline, Profiler& profiler)
     : window_name_(window_name)
     , width_window_(width)
     , height_window_(height)
     , controller_(controller::Controller((1.0 * width / 2), (1.0 * height / 2))) 
-    , m_resman(std::make_unique<resman::ResourceManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
-    , m_pl_queue(std::make_unique<gfx::PipelineQueue>())
-    , scene_(Scene(kObjectsCreate, *m_resman.get(), *m_pl_queue.get()))
-    {}
+    , m_pipeline(pipeline)
+    , m_profiler(profiler)
+    {
 
-  Window::Window(const char* window_name, int width, int height)
+    }
+
+  Window::Window(const char* window_name, int width, int height, Pipeline& pipeline, Profiler& profiler)
     : window_name_(window_name)
     , width_window_(width)
     , height_window_(height)
     , controller_(controller::Controller((1.0 * width / 2), (1.0 * height / 2)))
-    , m_resman(std::make_unique<resman::ResourceManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
-    , m_pl_queue(std::make_unique<gfx::PipelineQueue>())
-    , scene_(Scene(kObjectsCreate, *m_resman.get(), *m_pl_queue.get()))
-    {}
+    , m_pipeline(pipeline)
+    , m_profiler(profiler)
+    {
+
+    }
 
   Window::~Window() {
-      delete widget_;
-      delete pipeline_;
-      
-      if (window_) {
-          glfwDestroyWindow(window_);
-          glfwTerminate();
-          AV_LOG_INFO("Window is destroyed");
-      }
+    if (window_) {
+      glfwDestroyWindow(window_);
+      glfwTerminate();
+      AV_LOG_INFO("Window is destroyed");
+    }
   }
 
   void Window::Init() {
       glfwInit();
-
+      
       glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
       glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
       glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -50,17 +51,38 @@ namespace avion::core {
       glfwSetCursorPosCallback(window_, controller::Controller::MouseCallback);
       glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
       glfwSetCursorPos(window_, width_window_, 1.0 * height_window_ / 2.0);
-      
-      pipeline_ = new gfx::Pipeline(scene_, *m_resman.get(), *m_pl_queue.get());
-      pipeline_->Init(width_window_, height_window_);
 
-      ImGui::CreateContext();   
-      widget_ = new gui::Widget(window_, *m_resman.get());
-      widget_->Init();
+      m_profiler.frame_state.m_lt = glfwGetTime();
+
+      // ImGui::CreateContext();   
+      // widget_ = new gui::Widget(window_, *m_resman.get());
+      // widget_->Init();
   }
 
   void Window::Update() {
-      Render();
+
+  }
+
+  bool Window::WindowShouldClose()
+  {
+    return glfwWindowShouldClose(window_);
+  }
+
+  void Window::SwapBuffers()
+  {
+    glfwSwapBuffers(window_);
+    controller_.ClearStateKeys();
+  }
+
+  void Window::ClearColorGl() noexcept
+  {
+    glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
+
+  void Window::PollEvents()
+  {
+    glfwPollEvents(); 
   }
 
   void Window::Render() {
@@ -72,7 +94,7 @@ namespace avion::core {
       bool pickup_obj = false;
       int id_pickup = 0;
 
-      lt_ = glfwGetTime();
+      // lt_ = glfwGetTime();
       
   while (!glfwWindowShouldClose(window_)) {
           DeltaTimeUpdate();
@@ -97,18 +119,18 @@ namespace avion::core {
           double x_ndc = 2 * x_px / width_window_ - 1;
           double y_ndc = 1 - 2 * y_px / height_window_;
 
-          widget_->Frame();
-          widget_->WindowLogs({
-              .fps = fps_, 
-              .delay = delay_,
-              .x_px = x_px,
-              .y_px = y_px, 
-              .x_ndc = x_ndc,
-              .y_ndc = y_ndc
-          });
+          // widget_->Frame();
+          // widget_->WindowLogs({
+          //     .fps = fps_, 
+          //     .delay = delay_,
+          //     .x_px = x_px,
+          //     .y_px = y_px, 
+          //     .x_ndc = x_ndc,
+          //     .y_ndc = y_ndc
+          // });
 
-          const auto& objects = scene_.GetAllObjects();
-          const auto& lights = scene_.GetAllSourceLights();
+          // const auto& objects = scene_.GetAllObjects();
+          // const auto& lights = scene_.GetAllSourceLights();
           
           // This code for ObjectPickup
           // if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -132,62 +154,62 @@ namespace avion::core {
           //     } else { std::cout << "Doesn't find pickup!!!" << '\n'; pickup_obj = false;}
           // }
 
-          selected_object_id = widget_->WindowListObjects(objects);
-          selected_lights_id = widget_->w_ListLights(lights);
+          // selected_object_id = widget_->WindowListObjects(objects);
+          // selected_lights_id = widget_->w_ListLights(lights);
           
           // gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
           
           // shader_object.screen_aspect.value = scr_aspect;
           // shader_object.delta.value = std::sin(GetDeltaTime());
 
-          auto opt_result = widget_->w_AddModel();
-          if (opt_result.has_value())
-          {
-            scene_.AddModel(opt_result.value());
-          }
+          // auto opt_result = widget_->w_AddModel();
+          // if (opt_result.has_value())
+          // {
+          //   scene_.AddModel(opt_result.value());
+          // }
 
-          auto added_opt_obj = widget_->WindowAddObject();
-          if (added_opt_obj.has_value()) {
-              auto obj = added_opt_obj.value();
-              scene_.AddObjectToScene(obj.type_obj, obj.params); 
-          }
+          // auto added_opt_obj = widget_->WindowAddObject();
+          // if (added_opt_obj.has_value()) {
+          //     auto obj = added_opt_obj.value();
+          //     scene_.AddObjectToScene(obj.type_obj, obj.params); 
+          // }
           
-          auto added_opt_light = widget_->w_LightAdd(); 
-          if (added_opt_light.has_value()) {
-              auto type_light = added_opt_light.value();
-              scene_.AddSourceLight(type_light);
-          }
+          // auto added_opt_light = widget_->w_LightAdd(); 
+          // if (added_opt_light.has_value()) {
+          //     auto type_light = added_opt_light.value();
+          //     scene_.AddSourceLight(type_light);
+          // }
 
-          if (selected_object_id > 0) {
-              Object* object_ptr = scene_.GetObject(selected_object_id);
-              if (object_ptr) {
-                  auto object_params = object_ptr->GetParams();
-                  bool changed_material = widget_->WindowMaterial(object_params);
-                  if (changed_material) {
-                      object_ptr->SetParams(object_params);
-                  }
-              } 
-          } 
+          // if (selected_object_id > 0) {
+          //     Object* object_ptr = scene_.GetObject(selected_object_id);
+          //     if (object_ptr) {
+          //         auto object_params = object_ptr->GetParams();
+          //         bool changed_material = widget_->WindowMaterial(object_params);
+          //         if (changed_material) {
+          //             object_ptr->SetParams(object_params);
+          //         }
+          //     } 
+          // } 
 
-          // TODO: This is bad code. 
-          if (selected_lights_id > 0 && lights.size() > 0) {
-              // TODO: This is bad access to element of light 
-              auto* scene_light = scene_.GetLight(selected_lights_id);
+          // // TODO: This is bad code. 
+          // if (selected_lights_id > 0 && lights.size() > 0) {
+          //     // TODO: This is bad access to element of light 
+          //     auto* scene_light = scene_.GetLight(selected_lights_id);
 
-              // TODO: This bad practice transfer raw pointer from unique_ptr. Maybe observer??
-              LightParams params{
-                .light = scene_light->light.get(),
-                .color = scene_light->color,
-                .size = scene_light->size
-              };
+          //     // TODO: This bad practice transfer raw pointer from unique_ptr. Maybe observer??
+          //     LightParams params{
+          //       .light = scene_light->light.get(),
+          //       .color = scene_light->color,
+          //       .size = scene_light->size
+          //     };
 
 
-              bool changed_light = widget_->w_LightProperties(params);
-          }
+          //     bool changed_light = widget_->w_LightProperties(params);
+          // }
 
-          pipeline_->TransferDataToFrameBuffer();
+          m_pipeline.TransferDataToFrameBuffer();
 
-          widget_->Render();
+          // widget_->Render();
 
           glfwSwapBuffers(window_);
           
@@ -199,36 +221,39 @@ namespace avion::core {
   }
 
   void Window::ProcessEvents() {
+     
       if (IsDown(GLFW_KEY_W)) {
-          pipeline_->ChangeCameraPosition(gfx::CameraMovement::FORWARD, delta_time_);
+          m_pipeline.ChangeCameraPosition(gfx::CameraMovement::FORWARD, delta_time_);
       }
-
+       
       if (IsDown(GLFW_KEY_A)) {
-          pipeline_->ChangeCameraPosition(gfx::CameraMovement::LEFT, delta_time_);
+          m_pipeline.ChangeCameraPosition(gfx::CameraMovement::LEFT, delta_time_);
       }
 
       if (IsDown(GLFW_KEY_D)) {
-          pipeline_->ChangeCameraPosition(gfx::CameraMovement::RIGHT, delta_time_);
+          m_pipeline.ChangeCameraPosition(gfx::CameraMovement::RIGHT, delta_time_);
       }
 
       if (IsDown(GLFW_KEY_S)) {
-          pipeline_->ChangeCameraPosition(gfx::CameraMovement::BACKWARD, delta_time_);
+          m_pipeline.ChangeCameraPosition(gfx::CameraMovement::BACKWARD, delta_time_);
       }
 
       if (WasPressedKey(GLFW_KEY_H)) {
           cursor_state_ = cursor_state_ ? false : true;
       }    
 
-      if (!cursor_state_) {
-          auto [xoffset, yoffset] = GetOffsetController();
-          pipeline_->ProcessMouseMovement(xoffset, yoffset);
-      }
-
+      // if (!cursor_state_) {
+      //     auto [xoffset, yoffset] = GetOffsetController();
+      //     m_pipeline.ProcessMouseMovement(xoffset, yoffset);
+      // }
+    
       if (cursor_state_) {
           glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       } else if (!cursor_state_) {
           glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       }
+      
+      GetLastPosCursor();
   }
 
   void Window::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -236,19 +261,19 @@ namespace avion::core {
   }
 
   void Window::CreateWindow() {
-      window_ = glfwCreateWindow(width_window_, height_window_, window_name_.data(), NULL, NULL);
-      if (window_ == NULL) {
-          std::cerr << "Failed to create GLFW window" << std::endl;
-          glfwTerminate();
-          // return -1;
-      }
+    window_ = glfwCreateWindow(width_window_, height_window_, window_name_.data(), NULL, NULL);
+    if (window_ == NULL) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        // return -1;
+    }
 
-      glfwMakeContextCurrent(window_);
-      
-      // glad: load all OpenGL function pointers
-      if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-          std::cerr << "Failed to initialize GLAD" << std::endl;
-      }  
+    glfwMakeContextCurrent(window_);
+    
+    // glad: load all OpenGL function pointers
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize GLAD" << std::endl;
+    }  
   }
 
   GLFWwindow* Window::GetPointer() const {
@@ -294,12 +319,21 @@ namespace avion::core {
       double current_time = glfwGetTime();
       n_frames++;
 
-      if (current_time - lt_ >= 1.0) {
-          fps_ = n_frames;
-          delay_ = 1000.0 / static_cast<double>(n_frames);
+      if (current_time - m_profiler.frame_state.m_lt >= 1.0) {
+          m_profiler.frame_state.m_frames = n_frames;
+          m_profiler.frame_state.m_delay = 1000.0 / static_cast<double>(n_frames);
           n_frames = 0;    
-          lt_++;
+          m_profiler.frame_state.m_lt++;
       }
+  }
+
+  void Window::GetLastPosCursor() noexcept
+  {
+    m_profiler.cursor_pos.x_px_cursor = controller_.GetLastXposCursor();
+    m_profiler.cursor_pos.y_px_cursor = controller_.GetLastYposCursor();
+              
+    m_profiler.cursor_pos.x_ndc_cursor = 2 * m_profiler.cursor_pos.x_px_cursor / width_window_ - 1;
+    m_profiler.cursor_pos.y_ndc_cursor = 1 - 2 * m_profiler.cursor_pos.y_px_cursor / height_window_;
   }
 
 } // namespace avion::core

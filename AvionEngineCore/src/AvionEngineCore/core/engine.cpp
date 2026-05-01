@@ -1,26 +1,56 @@
 #include "AvionEngineCore/core/engine.hpp"
 
-namespace avion::core
+namespace avion::core::engine
 {
-  Engine::Engine(const char* name, int width, int height)
-  : m_window(std::make_unique<Window>(name, width, height))
+  Engine::Engine()
+  : m_resman(std::make_unique<ResManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
+  , m_pl_queue(std::make_unique<PipelineQueue>())
+  , m_scene(kObjectsCreate, *m_resman.get(), *m_pl_queue.get())
+  , m_pipeline(std::make_unique<Pipeline>(m_scene, *m_resman.get(), *m_pl_queue.get(), m_profiler.camera_state))
   {
-    AV_LOG_INFO("Avion Engine v. " + m_version_engine)
+    
+    AV_LOG_INFO("Running avion engine v. " + m_version_engine)
   }
 
-  void Engine::Init()
+  void Engine::Init(int width, int height)
   {
-    m_window->Init();
+    
+    m_pipeline->Init(width, height);
   }
 
-  void Engine::Update()
+  void Engine::Render()
   {
-    m_window->Update();
+
+  }
+
+  void Engine::Run()
+  {
+
   }
 
   void Engine::Shutdown()
   {
 
+  }
+
+  Engine::ResManager& Engine::GetResourceManager()
+  {
+    return *m_resman.get();
+  }
+
+  Engine::Pipeline& Engine::GetPipeline()
+  {
+    return *m_pipeline.get();
+  }
+
+  Scene& Engine::GetScene()
+  {
+    return m_scene;
+  }
+
+  Profiler& Engine::GetProfiler()
+  {
+    return m_profiler;
   }
 
 } // namespace avion::core
