@@ -9,10 +9,16 @@ namespace avion::editor::gui
   , m_profiler_panel(ProfileContex{.profiler = context.engine.GetProfiler()})
   , m_hierarchy_panel(context)
   , m_asset_panel(context)
+  , m_scene_panel(m_editor_context)
   {
 
   }
 
+
+  EditorGui::EditorContext& EditorGui::GetContext() noexcept
+  {
+    return m_editor_context;
+  }
 
   void EditorGui::Render()
   {
@@ -20,6 +26,7 @@ namespace avion::editor::gui
     m_profiler_panel.Render();
     m_hierarchy_panel.Render();
     m_asset_panel.Render();
+    m_scene_panel.Render();
   }
 
 } // namespace avion::editor::gui

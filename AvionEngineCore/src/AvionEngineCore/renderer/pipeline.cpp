@@ -72,9 +72,7 @@ namespace avion::gfx {
     }
 
     void Pipeline::ProcessMouseMovement(double xoffset, double yoffset) const noexcept {
-        AV_LOG_DEBUG("TEST");
         renderer_->ProcessMouseMovement(xoffset, yoffset);
-        AV_LOG_DEBUG("TEST1");
     }
 
     void Pipeline::TransferDataToFrameBuffer() noexcept 
@@ -114,7 +112,7 @@ namespace avion::gfx {
 
         type_shader_t.name = "lighting";
 
-        // AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader: " + type_shader_t.name);
+        AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader: " + type_shader_t.name);
         
         bool is_texture = material.is_texture; 
 

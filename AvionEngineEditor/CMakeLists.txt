@@ -11,11 +11,13 @@ add_library(${EDITOR_PROJECT_NAME} SHARED
     src/AvionEngineEditor/ui/av_gui_scoped_window.cpp
     src/AvionEngineEditor/ui/av_gui_tab_bar.cpp
     src/AvionEngineEditor/ui/av_gui_tab_item.cpp
+    src/AvionEngineEditor/ui/av_gui_child.cpp
     src/AvionEngineEditor/ui/utils/imgui_helper.cpp
     src/AvionEngineEditor/panels/inspector_panel.cpp
     src/AvionEngineEditor/panels/profiler_panel.cpp
     src/AvionEngineEditor/panels/hierarchy_panel.cpp
     src/AvionEngineEditor/panels/asset_panel.cpp
+    src/AvionEngineEditor/panels/scene_panel.cpp
     libs/imgui/imgui_draw.cpp
     libs/imgui/imgui_tables.cpp
     libs/imgui/imgui_widgets.cpp

@@ -47,7 +47,7 @@ namespace avion::core {
         // TODO: Put it in a separate method MakePointLight
         source_lights_on_scene_.emplace_back(
           std::make_unique<PointLight>(
-            glm::vec3(0.f),
+            glm::vec3(1.f),
             glm::vec3(1.f),
             glm::vec3(1.f),
             glm::vec3(1.f),

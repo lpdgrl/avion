@@ -5,6 +5,7 @@
 #include "AvionEngineEditor/panels/profiler_panel.hpp"
 #include "AvionEngineEditor/panels/hierarchy_panel.hpp"
 #include "AvionEngineEditor/panels/asset_panel.hpp"
+#include "AvionEngineEditor/panels/scene_panel.hpp"
 
 namespace avion::editor::gui
 {
@@ -17,11 +18,14 @@ namespace avion::editor::gui
       using ProfilerPanel   = panel::ProfilerPanel;
       using HierarchyPanel  = panel::HierarchyPanel;
       using AssetPanel      = panel::AssetPanel;
+      using ScenePanel      = panel::ScenePanel;
 
       EditorGui() = delete;
       EditorGui(EditorContext context);
 
       void Render();
+
+      EditorContext& GetContext() noexcept;
      
       ~EditorGui() = default;
 
@@ -32,7 +36,8 @@ namespace avion::editor::gui
       ProfilerPanel   m_profiler_panel;
       HierarchyPanel  m_hierarchy_panel;
       AssetPanel      m_asset_panel;
-      
+      ScenePanel      m_scene_panel;
+
       int m_width_window;
       int m_height_window;
   };

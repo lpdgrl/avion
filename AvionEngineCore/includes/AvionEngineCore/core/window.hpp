@@ -6,6 +6,8 @@
 
 #include "AvionEngineCore/controller/controller.hpp"
 
+#include "AvionEngineCore/renderer/framebuffer.hpp"
+
 #include "profiler.hpp"
 #include "resource_manager.hpp"
 
@@ -59,7 +61,17 @@ namespace avion::core {
         void DeltaTimeUpdate() noexcept;
         void FramePerSecond() noexcept;
 
-        void ClearColorGl() noexcept;
+        // TODO: OpenGL funct is dirty arch
+        void GlEnable() const noexcept;
+        void ClearColorGl(float r, float g, float b) noexcept;
+        void GlViewPort(float width, float height) noexcept;
+
+
+        inline void SetFrameBuffer(gfx::FrameBuffer* buffer)
+        {
+          m_framebuffer = buffer;
+        }
+
     private:
         void CreateWindow();
         void Render();
@@ -76,10 +88,12 @@ namespace avion::core {
         Pipeline& m_pipeline;
         Profiler& m_profiler;
 
+        gfx::FrameBuffer* m_framebuffer = nullptr;
+
         // TODO: Understand how to works it (calculate delay and fps)
         GLfloat delta_time_ = 0.f;
         GLfloat last_time_ = 0.f;
 
-        bool cursor_state_ = false;
+        bool cursor_state_ = true;
     };
 } // namespace avion::core

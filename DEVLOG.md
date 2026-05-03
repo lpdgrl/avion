@@ -1,6 +1,12 @@
 ## DevLog
 
+**2026-04-01**
+- Added base framebuffer class
+- Added scene framebuffer for editor
+
 **2026-04-30**
+- Gui functionality is derived from the core part of the engine
+- Added wrappers on ImGui elements
 
 **2026-04-27**
 - Added Assimp importer

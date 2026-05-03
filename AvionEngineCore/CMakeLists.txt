@@ -39,6 +39,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
     src/AvionEngineCore/renderer/model.cpp
     src/AvionEngineCore/renderer/mesh.cpp
     src/AvionEngineCore/renderer/pipeline_queue.cpp
+    src/AvionEngineCore/renderer/framebuffer.cpp
+    src/AvionEngineCore/renderer/renderer_command.cpp
     src/AvionEngineCore/core/engine.cpp
     src/AvionEngineCore/core/scene.cpp
     src/AvionEngineCore/core/object.cpp

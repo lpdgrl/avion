@@ -13,12 +13,15 @@ namespace avion::editor::detail
 
   struct EditorState
   {
-
+    unsigned int texture_id_fbo = 0;
+    unsigned int viewport_width = 0;
+    unsigned int viewport_height = 0;
   };
 
   struct EditorContext
   {
     core::engine::Engine& engine;
+    EditorState state;
   };
 
 

@@ -7,6 +7,7 @@
 
   #include "AvionEngineCore/renderer/pipeline.hpp"
   #include "AvionEngineCore/renderer/pipeline_queue.hpp"
+  #include "AvionEngineCore/renderer/renderer_command.hpp"
 
   namespace avion::core::engine
   {
@@ -14,12 +15,15 @@
     class Engine 
     {
       public:
-        using ResManager    = resman::ResourceManager;
-        using PipelineQueue = gfx::PipelineQueue;
-        using Pipeline      = gfx::Pipeline;
+        using ResManager      = resman::ResourceManager;
+
+        using RendererCommand = gfx::RendererCommand; 
+        using PipelineQueue   = gfx::PipelineQueue;
+        using Pipeline        = gfx::Pipeline;
+        using FrameBuffer     = gfx::FrameBuffer;
 
         template <typename T>
-        using UPtr  = std::unique_ptr<T>;
+        using UPtr = std::unique_ptr<T>;
 
         Engine();
 
@@ -28,10 +32,14 @@
         void Render();
         void Shutdown();
 
-        ResManager& GetResourceManager();
-        Pipeline&   GetPipeline();
-        Profiler&   GetProfiler();
-        Scene&      GetScene();
+        void CreateFrameBuffer(float width, float height);
+
+
+        ResManager&   GetResourceManager();
+        Pipeline&     GetPipeline();
+        Profiler&     GetProfiler();
+        Scene&        GetScene();
+        FrameBuffer&  GetFrameBuffer();
 
       private:
         static constexpr int kObjectsCreate = 1000;
@@ -41,7 +49,9 @@
         Scene               m_scene;
         UPtr<Pipeline>      m_pipeline;
         Profiler            m_profiler;
-        
+        RendererCommand     m_render_cmd;
+        FrameBuffer         m_frame_buffer;
+
         std::string         m_version_engine = "0.0.1";
         bool                m_is_running = false;
     };

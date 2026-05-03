@@ -74,9 +74,9 @@ namespace avion::core {
     controller_.ClearStateKeys();
   }
 
-  void Window::ClearColorGl() noexcept
+  void Window::ClearColorGl(float r, float g, float b) noexcept
   {
-    glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+    glClearColor(r, g, b, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 
@@ -242,10 +242,10 @@ namespace avion::core {
           cursor_state_ = cursor_state_ ? false : true;
       }    
 
-      // if (!cursor_state_) {
-      //     auto [xoffset, yoffset] = GetOffsetController();
-      //     m_pipeline.ProcessMouseMovement(xoffset, yoffset);
-      // }
+      if (!cursor_state_) {
+          auto [xoffset, yoffset] = GetOffsetController();
+          m_pipeline.ProcessMouseMovement(xoffset, yoffset);
+      }
     
       if (cursor_state_) {
           glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -336,4 +336,13 @@ namespace avion::core {
     m_profiler.cursor_pos.y_ndc_cursor = 1 - 2 * m_profiler.cursor_pos.y_px_cursor / height_window_;
   }
 
+  void Window::GlViewPort(float width, float height) noexcept 
+  {
+    glViewport(0, 0, width, height);
+  }
+
+  void Window::GlEnable() const noexcept
+  {
+    glEnable(GL_DEPTH_TEST);
+  }
 } // namespace avion::core
