@@ -5,6 +5,30 @@
 
 namespace avion::editor::detail
 {
+  struct SelectPrimitive 
+  {
+    bool is_select = false;
+    std::uint8_t id{};
+  };
+
+  struct SelectLight 
+  {
+    bool is_select = false;
+    std::uint8_t id{};
+  };
+
+  struct SelectModel
+  {
+    bool is_select = false;
+    std::string filename;
+  };
+
+  struct Selection
+  {
+    SelectPrimitive primitive;
+    SelectLight     light;
+    SelectModel     model;
+  };
 
   struct EditorService
   {

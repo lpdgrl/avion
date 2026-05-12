@@ -9,4 +9,16 @@ namespace avion::ui::utils
     ImGui::SetNextWindowSize(size, cond);
   }
 
+  ImGuiTreeNodeFlags CheckSelectableTreeNode(int selection_mask, size_t index)
+  {
+    ImGuiTreeNodeFlags flag = 0;
+
+    if (selection_mask == index)
+    {
+      flag = ImGuiTreeNodeFlags_Selected;
+    }
+
+    return flag;
+  }
+
 } // namespace avion::ui::utils

@@ -3,7 +3,7 @@
 int main(int argc, char** argv) {
 
     const char* name_window = "Test Engine";
-    avion::core::Engine app(name_window, 1920, 1080); 
+    avion::core::engine::Engine app(name_window, 1920, 1080); 
 
     app.Init();
     app.Update();

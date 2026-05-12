@@ -22,7 +22,6 @@ namespace avion::editor::app
   void EditorApp::Run()
   {
     m_engine.CreateFrameBuffer(1020, 700);
-    // m_window->SetFrameBuffer(&m_engine.GetFrameBuffer());
     RenderLoop();
   }
 
@@ -61,9 +60,9 @@ namespace avion::editor::app
       m_window->GlViewPort(m_window->GetWidth(), m_window->GetHeight());
 
       m_editor_gui.GetContext().state.texture_id_fbo = scene_fbo.GetFrameTextures();
+      
       RunFrame();
       
-
       m_window->SwapBuffers();
       m_window->PollEvents();
       m_window->FramePerSecond();

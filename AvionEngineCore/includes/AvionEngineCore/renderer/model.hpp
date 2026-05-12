@@ -29,6 +29,8 @@
 
         std::vector<Mesh>& GetMeshs() noexcept;
 
+        std::string GetFileName() const noexcept;
+
         ~Model() = default;
       private:
         void                    ProcessNode(aiNode *node, const aiScene *scene);

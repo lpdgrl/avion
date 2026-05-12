@@ -5,8 +5,6 @@ namespace avion::gfx
 {
   void PipelineQueue::Enqueue(std::vector<Mesh>& mesh_vec) noexcept 
   {
-    AV_LOG_DEBUG("PipelineQueue::Enqueue: count meshes");
-    AV_LOG_DEBUG(std::to_string(mesh_vec.size()));
     for (auto& mesh : mesh_vec)
     {
        m_queue_meshs.push_back(&mesh);

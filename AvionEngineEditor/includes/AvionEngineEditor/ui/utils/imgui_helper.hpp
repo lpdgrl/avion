@@ -8,6 +8,8 @@
   namespace avion::ui::utils
   {
     void SetupWindow(ImVec2 pos, ImVec2 size, ImGuiCond cond = 0, const ImVec2 pivot = ImVec2(0, 0));
+
+    ImGuiTreeNodeFlags CheckSelectableTreeNode(int selection_mask, size_t index);
   } // namespace avion::ui::utils
 
 

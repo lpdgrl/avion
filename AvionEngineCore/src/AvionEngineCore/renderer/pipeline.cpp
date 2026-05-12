@@ -86,7 +86,7 @@ namespace avion::gfx {
       for (const auto& [curr_light, id, type_light,  light_color, light_size] : lights_scene) {  
 
         type_shader_t.name = "shader_model_light_source";
-        AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader of light " + type_shader_t.name);
+        // AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader of light " + type_shader_t.name);
         
         m_shaders_storage.PutData(type_shader_t.name, "light_color", light_color.color);
 
@@ -112,7 +112,7 @@ namespace avion::gfx {
 
         type_shader_t.name = "lighting";
 
-        AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader: " + type_shader_t.name);
+        // AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader: " + type_shader_t.name);
         
         bool is_texture = material.is_texture; 
 
@@ -171,8 +171,6 @@ namespace avion::gfx {
       
       while (!m_pl_queue.IsEmpty()) 
       {
-        AV_LOG_DEBUG("Pipeline::ProcessMesh:");
-        AV_LOG_DEBUG("Pipeline::ProcessMesh:111");
         Mesh *mesh = m_pl_queue.Dequeue();
         renderer_->RegisterMesh(mesh);
       }
@@ -203,8 +201,8 @@ namespace avion::gfx {
 
       Transform transform 
       {
-        .position = glm::vec3(0.f, 0.f, 0.f),
-        .size     = glm::vec3(0.05f, 0.05f, 0.05f),
+        .position = glm::vec3(0.f, 1.f, 3.f),
+        .size     = glm::vec3(1.f, 1.f, 1.f),
         .axis     = AxisRotate::NONE,
         .rotate   = 0.f
       };

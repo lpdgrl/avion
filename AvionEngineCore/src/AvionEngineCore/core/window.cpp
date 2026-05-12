@@ -43,8 +43,8 @@ namespace avion::core {
       CreateWindow();
 
       glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
-      // glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-      glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      // glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
       glfwSetWindowUserPointer(window_, &controller_);
       glfwSetKeyCallback(window_, controller::Controller::KeyCallback);
@@ -241,17 +241,17 @@ namespace avion::core {
       if (WasPressedKey(GLFW_KEY_H)) {
           cursor_state_ = cursor_state_ ? false : true;
       }    
-
-      if (!cursor_state_) {
+      
+      if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
           auto [xoffset, yoffset] = GetOffsetController();
           m_pipeline.ProcessMouseMovement(xoffset, yoffset);
       }
     
-      if (cursor_state_) {
-          glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-      } else if (!cursor_state_) {
-          glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-      }
+      // if (cursor_state_) {
+      //     glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      // } else if (!cursor_state_) {
+      //     glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      // }
       
       GetLastPosCursor();
   }

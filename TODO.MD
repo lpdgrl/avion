@@ -1,5 +1,8 @@
 ## TODO
 
+### Render
+- [ ] Сделать прослойку между Render и Backend API
+
 ### GUI 
 - [x] Загрузка настроек из ini-файла в ImGui при старте;
 

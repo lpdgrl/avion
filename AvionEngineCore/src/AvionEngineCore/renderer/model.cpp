@@ -125,7 +125,7 @@ namespace avion::gfx
     // AV_LOG_DEBUG("Model::LoadMaterialTextures");
 
     std::vector<Texture_t> textures;
-    AV_LOG_DEBUG("Model::LoadMaterialTextures: " + std::to_string(mat->GetTextureCount(type)));
+    // AV_LOG_DEBUG("Model::LoadMaterialTextures: " + std::to_string(mat->GetTextureCount(type)));
 
     for (size_t i = 0; i < mat->GetTextureCount(type); ++i)
     {
@@ -181,5 +181,10 @@ namespace avion::gfx
   std::vector<Mesh>& Model::GetMeshs() noexcept
   {
     return m_meshes;
+  }
+
+  std::string Model::GetFileName() const noexcept
+  {
+    return m_filename;
   }
 } // namespace avion::gfx

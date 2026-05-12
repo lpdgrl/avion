@@ -31,8 +31,8 @@ namespace avion::editor::panel
     ImGui::Image(
       reinterpret_cast<void*>(static_cast<intptr_t>(m_context.state.texture_id_fbo)),
       size_child,
-      ImVec2(0, 0),
-      ImVec2(1, 1));
+      ImVec2(0, 1),
+      ImVec2(1, 0));
     
   }
 
