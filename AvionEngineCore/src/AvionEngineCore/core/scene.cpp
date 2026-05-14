@@ -115,10 +115,10 @@ namespace avion::core {
     return GetNumberObjects() + GetNumberSourceLights() + GetNumberModels();
   }
 
-  Scene::Model* Scene::GetModel(const std::string& filename)
+  Model* Scene::GetModel(const std::string& filename)
   {
     auto it_model = std::find_if(m_models.begin(), m_models.end(), [&](Model& model) {
-        return model.GetFileName() == filename;
+        return model.model.GetFileName() == filename;
     });
 
     if (it_model == m_models.end()) {
@@ -182,11 +182,13 @@ namespace avion::core {
       return false;
     }
 
-    auto& ref = m_models.emplace_back(p_res->parent_path(), p_res->filename(), m_resman);
-    auto result = ref.LoadModel();
+    std::uint16_t id = static_cast<std::uint16_t>(m_models.size() + 1);
+
+    auto& [_, ref_model] = m_models.emplace_back(id, p_res->parent_path(), p_res->filename(), m_resman);
+    auto result = ref_model.LoadModel();
 
     // PIPELINE QUEUE????
-    m_pl_queue.Enqueue(ref.GetMeshs());
+    m_pl_queue.Enqueue(ref_model.GetMeshs());
 
     return result;
   }
@@ -227,7 +229,7 @@ namespace avion::core {
     return p_light;
   }
 
-  const Scene::Model* Scene::GetModel(const std::string& filename) const noexcept
+  const Model* Scene::GetModel(const std::string& filename) const noexcept
   {
     const Model* p_model = nullptr;
     p_model = GetModel(filename);
@@ -235,4 +237,11 @@ namespace avion::core {
     return p_model;
   }
 
+
+  Model::Model(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman)
+  : id(id)
+  , model(path, filename, resman)
+  {
+
+  }
 } // namespace avion::core

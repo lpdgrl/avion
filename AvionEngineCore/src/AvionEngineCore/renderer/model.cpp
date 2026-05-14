@@ -12,6 +12,70 @@ namespace avion::gfx
 
   }
 
+
+  Model::Model(const Model& other)
+  : m_filename(other.m_filename)
+  , m_path(other.m_path)
+  , m_meshes(other.m_meshes)
+  , m_resman(other.m_resman)
+  {
+
+  }
+
+  Model::Model(Model&& other)
+  : m_filename(std::move(other.m_filename))
+  , m_path(std::move(other.m_path))
+  , m_meshes(std::move(other.m_meshes))
+  , m_resman(other.m_resman)
+  {
+
+  }
+
+  Model& Model::operator=(const Model& other)
+  {
+    if (this == &other)
+    {
+      return *this;
+    }
+
+    assert(&m_resman == &other.m_resman);
+
+    Model t_model(other);
+    Swap(t_model);
+
+    return *this;
+  }
+
+  Model& Model::operator=(Model&& other) noexcept
+  {
+    if (this == &other)
+    {
+      return *this;
+    }
+
+    assert(&m_resman == &other.m_resman);
+
+    Swap(other);
+
+    return *this;
+  }
+
+  void Model::Swap(Model& other) noexcept
+  {
+    if (this == &other)
+    {
+      return;
+    }
+
+    assert(&m_resman == &other.m_resman);
+
+    using std::swap;
+
+    swap(m_filename, other.m_filename);
+    swap(m_path, other.m_path);
+    swap(m_meshes, other.m_meshes);
+  }
+
   bool Model::LoadModel()
   {
     AV_LOG_DEBUG("Model::LoadModel");
@@ -186,5 +250,10 @@ namespace avion::gfx
   std::string Model::GetFileName() const noexcept
   {
     return m_filename;
+  }
+
+  void Swap(Model& lhs, Model& rhs) noexcept
+  {
+    lhs.Swap(rhs);
   }
 } // namespace avion::gfx

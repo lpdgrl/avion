@@ -25,11 +25,19 @@
         Model() = delete;
         Model(const std::string& path, const std::string& filename, ResManager& resman);
 
+        Model(const Model& other);
+        Model(Model&& other);
+
+        Model& operator=(const Model& other);
+        Model& operator=(Model&& other) noexcept;
+
         bool LoadModel();
 
         std::vector<Mesh>& GetMeshs() noexcept;
 
         std::string GetFileName() const noexcept;
+
+        void Swap(Model& other) noexcept;
 
         ~Model() = default;
       private:
@@ -47,6 +55,7 @@
         ResManager&                 m_resman;
     };
     
+    void Swap(Model& lhs, Model& rhs) noexcept;
   } // namespace avion::gfx
 
 #endif

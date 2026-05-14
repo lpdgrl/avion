@@ -105,9 +105,10 @@ namespace avion::editor::panel
       if (tree_node.IsOpen())
       {
         std::string text;
-        for (const auto& model : scene_ctx.GetModels())
+        for (const auto& [id, model] : scene_ctx.GetModels())
         {
           text = model.GetFileName();
+          text += ", id: " + std::to_string(id);
           TreeNode node(text.c_str(), ImGuiTreeNodeFlags_Leaf | ui::utils::CheckSelectableTreeNode(selection_mask, selection_index));
           if (node.IsOpen())
           {
@@ -142,8 +143,7 @@ namespace avion::editor::panel
       
       // decltype(auto) p_primitive = scene.GetObject(primitive.id);
 
-      msg += " " + std::to_string(primitive.id);
-      AV_LOG_DEBUG(msg);
+      msg += " " + std::to_string(primitive.id);;
     }
     
     if (m_selection_ctx.light.is_select)
@@ -155,7 +155,6 @@ namespace avion::editor::panel
       // decltype(auto) p_light = scene.GetLight(light.id);
 
       msg += " " + std::to_string(light.id);
-      AV_LOG_DEBUG(msg);
     }
 
     if (m_selection_ctx.model.is_select)
@@ -167,7 +166,6 @@ namespace avion::editor::panel
       // decltype(auto) p_light = scene.GetModel(model.filename);
 
       msg += " " + model.filename;
-      AV_LOG_DEBUG(msg);
     }
 
   }

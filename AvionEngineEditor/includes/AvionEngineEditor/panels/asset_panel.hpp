@@ -4,6 +4,8 @@
   #include "AvionEngineEditor/ui/av_gui_scoped_window.hpp"
   #include "AvionEngineEditor/editor/editor_context.hpp"
 
+  #include <vector>
+
   namespace avion::editor::panel
   {
     
@@ -18,6 +20,8 @@
         void Render();
         
         ~AssetPanel() = default;
+      private:
+        void RenderAsset() const noexcept;
       private:
         EditorContext m_context;
     };

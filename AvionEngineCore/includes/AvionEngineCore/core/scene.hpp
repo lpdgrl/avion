@@ -23,11 +23,11 @@ namespace avion::gfx
 namespace avion::core {
   
   enum class LightType {
-      kUnknownLight = -1,
-      kSimpleLight = 0,
-      kDirLight = 1,
-      kPointLight = 2,
-      kSpotLight = 3,
+    kUnknownLight = -1,
+    kSimpleLight = 0,
+    kDirLight = 1,
+    kPointLight = 2,
+    kSpotLight = 3,
   };
 
   enum class ObjectType {
@@ -41,24 +41,32 @@ namespace avion::core {
   };
   
   struct SceneObject {
-      SceneObject(ObjectType type, int id, ObjectParams params);
-      ObjectType type;
-      Object object;
+    SceneObject(ObjectType type, int id, ObjectParams params);
+    ObjectType type;
+    Object object;
   };
   
   struct SceneLight {
-      std::unique_ptr<ILight> light;
-      std::size_t id = 0;
-      LightType type_light;
-      Color color;
-      Size size;
+    std::unique_ptr<ILight> light;
+    std::size_t id = 0;
+    LightType type_light;
+    Color color;
+    Size size;
+  };
+
+  struct Model
+  {
+    Model() = delete;
+    Model(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman);
+
+    std::uint16_t id = 0;
+    avion::gfx::Model model;
   };
 
   class Scene {
   public:
     using Objects       = std::vector<SceneObject>;
     using SourceLight   = std::vector<SceneLight>;
-    using Model         = avion::gfx::Model;
     using Models        = std::vector<Model>;
     using ResManager    = resman::ResourceManager;
     using PipelineQueue = gfx::PipelineQueue;

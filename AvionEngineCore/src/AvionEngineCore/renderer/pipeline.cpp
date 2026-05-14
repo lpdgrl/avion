@@ -216,7 +216,7 @@ namespace avion::gfx {
         .key         = VertexObjectType::kModel
       };
       
-      for (auto& model : models)
+      for (auto& [id, model] : models)
       {
         renderer_->SetRenderContext(render_context);
         auto& meshs = model.GetMeshs();
