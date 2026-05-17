@@ -9,21 +9,27 @@ namespace avion::editor::detail
   {
     bool is_select = false;
     std::uint8_t id{};
+
+    explicit operator bool() const { return is_select; }
   };
 
   struct SelectLight 
   {
     bool is_select = false;
     std::uint8_t id{};
+
+    explicit operator bool() const { return is_select; }
   };
 
   struct SelectModel
   {
     bool is_select = false;
     std::string filename;
+
+    explicit operator bool() const { return is_select; }
   };
 
-  struct Selection
+  struct SelectionContext
   {
     SelectPrimitive primitive;
     SelectLight     light;

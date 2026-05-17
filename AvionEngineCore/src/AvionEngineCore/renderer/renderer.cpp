@@ -510,7 +510,8 @@ namespace avion::gfx {
                 break;
             }
             case AxisRotate::NONE: {
-                r_vec = {0.f, 0.f, 0.5f};
+                rotate = 0.f;
+                r_vec = {1.f, 1.f, 1.f};
                 break;
             }
         }
@@ -629,10 +630,6 @@ namespace avion::gfx {
 
         m_storage_shaders.PutData(name_shader, name_texture, i++);
         m_storage_shaders.ExecuteAfterUse(name_shader);
-        std::string msg = name_texture;
-        msg += " " + std::to_string(texture.id);
-        // AV_LOG_DEBUG(msg);
-
         glBindTexture(GL_TEXTURE_2D, texture.id);
       }
 
@@ -647,8 +644,9 @@ namespace avion::gfx {
     {
       auto [type_shader, name_shader, transform, mat_tex, key] = render_ctx;
 
-      glm::mat4 model_matrix = glm::mat4(1.f);
+      glm::mat4 model_matrix{1.f};
       model_matrix = TranslateMatrix(model_matrix, transform.position);
+      model_matrix = RotateMatrix(model_matrix, transform.axis, transform.rotate);
       model_matrix = ScaleMatrix(model_matrix, transform.size);
 
       glm::mat4 view_matrix = glm::mat4(1.f);                  

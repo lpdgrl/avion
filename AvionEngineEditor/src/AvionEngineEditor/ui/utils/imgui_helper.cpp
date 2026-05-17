@@ -21,4 +21,26 @@ namespace avion::ui::utils
     return flag;
   }
 
+  void SliderFloat3V(const std::string& title, glm::vec3& values, float val_min, float val_max, const char* format, ImGuiSliderFlags flag)
+  {
+    std::string text;
+    text.reserve(title.size() + 2);
+    text.append("##");
+    text.append(title);
+
+    ImGui::SliderFloat3(text.c_str(), reinterpret_cast<float*>(&values), val_min, val_max, format, flag);
+  }
+
+  void InputFloat3V(const std::string& title, glm::vec3& values, float step, float step_fast, const char* format, ImGuiInputTextFlags flag)
+  {
+    std::string text;
+    text.reserve(title.size() + 2);
+    text.append("##");
+    text.append(title);
+
+    ImGui::InputFloat((text + "x").c_str(), &values.x, step, step_fast, format, flag);
+    ImGui::InputFloat((text + "y").c_str(), &values.y, step, step_fast, format, flag);
+    ImGui::InputFloat((text + "z").c_str(), &values.z, step, step_fast, format, flag);
+  }
+
 } // namespace avion::ui::utils

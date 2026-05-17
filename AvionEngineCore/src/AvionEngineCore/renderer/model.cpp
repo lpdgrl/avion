@@ -8,6 +8,7 @@ namespace avion::gfx
   : m_filename(filename)
   , m_path(path)
   , m_resman(resman)
+  , m_transform{.position{0.f, 0.f, 0.f}, .size{1.f, 1.f, 1.f}, .axis = AxisRotate::NONE, .rotate{}}
   {
 
   }
@@ -18,6 +19,7 @@ namespace avion::gfx
   , m_path(other.m_path)
   , m_meshes(other.m_meshes)
   , m_resman(other.m_resman)
+  , m_transform(other.m_transform)
   {
 
   }
@@ -27,6 +29,7 @@ namespace avion::gfx
   , m_path(std::move(other.m_path))
   , m_meshes(std::move(other.m_meshes))
   , m_resman(other.m_resman)
+  , m_transform(std::move(other.m_transform))
   {
 
   }
@@ -53,7 +56,7 @@ namespace avion::gfx
       return *this;
     }
 
-    assert(&m_resman == &other.m_resman);
+    assert(&m_resman == &other.m_resman && "Move assignment between Models with different ResourceManager");
 
     Swap(other);
 
@@ -67,13 +70,14 @@ namespace avion::gfx
       return;
     }
 
-    assert(&m_resman == &other.m_resman);
+    assert(&m_resman == &other.m_resman && "Swap between Models with different ResourceManager");
 
     using std::swap;
 
     swap(m_filename, other.m_filename);
     swap(m_path, other.m_path);
     swap(m_meshes, other.m_meshes);
+    swap(m_transform, other.m_transform);
   }
 
   bool Model::LoadModel()
@@ -252,8 +256,19 @@ namespace avion::gfx
     return m_filename;
   }
 
-  void Swap(Model& lhs, Model& rhs) noexcept
+  void swap(Model& lhs, Model& rhs) noexcept
   {
     lhs.Swap(rhs);
   }
+
+  Transform& Model::GetTransform() noexcept
+  {
+    return m_transform;
+  }
+
+  const Transform& Model::GetTransform() const noexcept
+  {
+    return m_transform;
+  }
+
 } // namespace avion::gfx

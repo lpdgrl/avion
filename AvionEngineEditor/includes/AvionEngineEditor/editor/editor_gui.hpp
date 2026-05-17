@@ -12,13 +12,14 @@ namespace avion::editor::gui
   class EditorGui
   {
     public:
-      using EditorContext   = detail::EditorContext;
-      using ProfileContex   = detail::ProfilerContext;
-      using InspectorPanel  = panel::InspectorPanel;
-      using ProfilerPanel   = panel::ProfilerPanel;
-      using HierarchyPanel  = panel::HierarchyPanel;
-      using AssetPanel      = panel::AssetPanel;
-      using ScenePanel      = panel::ScenePanel;
+      using EditorContext    = detail::EditorContext;
+      using ProfilerContex   = detail::ProfilerContext;
+      using SelectionContext = detail::SelectionContext;
+      using InspectorPanel   = panel::InspectorPanel;
+      using ProfilerPanel    = panel::ProfilerPanel;
+      using HierarchyPanel   = panel::HierarchyPanel;
+      using AssetPanel       = panel::AssetPanel;
+      using ScenePanel       = panel::ScenePanel;
 
       EditorGui() = delete;
       EditorGui(EditorContext context);
@@ -30,13 +31,14 @@ namespace avion::editor::gui
       ~EditorGui() = default;
 
     private:
-      EditorContext   m_editor_context;
-
-      InspectorPanel  m_inspector_panel;
-      ProfilerPanel   m_profiler_panel;
-      HierarchyPanel  m_hierarchy_panel;
-      AssetPanel      m_asset_panel;
-      ScenePanel      m_scene_panel;
+      EditorContext     m_editor_context;
+      SelectionContext  m_selection_ctx;
+      
+      InspectorPanel    m_inspector_panel;
+      ProfilerPanel     m_profiler_panel;
+      HierarchyPanel    m_hierarchy_panel;
+      AssetPanel        m_asset_panel;
+      ScenePanel        m_scene_panel;
 
       int m_width_window;
       int m_height_window;

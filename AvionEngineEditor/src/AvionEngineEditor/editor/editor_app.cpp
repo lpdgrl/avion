@@ -5,7 +5,7 @@ namespace avion::editor::app
 
   EditorApp::EditorApp(const char* name_window, int width, int height)
   : m_gui_context(m_engine.GetResourceManager())
-  , m_editor_gui(detail::EditorContext{.engine = m_engine, .state{1, 1, 1}})
+  , m_editor_gui(detail::EditorContext{.engine = m_engine, .state{}})
   {
     m_window = std::make_unique<Window>(name_window, width, height, m_engine.GetPipeline(), m_engine.GetProfiler());
     m_window->Init();

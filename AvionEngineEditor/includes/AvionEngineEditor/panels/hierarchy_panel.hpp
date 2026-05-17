@@ -15,10 +15,10 @@
       using ScopeWindow       = ui::avguicontext::AvGuiScopedWindow;
       using TreeNode          = ui::avguicontext::AvGuiTreeNode;
       using EditorContext     = detail::EditorContext;
-      using SelectionContext  = detail::Selection;
+      using SelectionContext  = detail::SelectionContext;
       
       public:
-        HierarchyPanel(EditorContext context);
+        HierarchyPanel(EditorContext editor_ctx, SelectionContext& select_ctx);
 
         void Render();   
         ~HierarchyPanel() = default;
@@ -29,7 +29,7 @@
         void TestSelectObject() const noexcept;
       private:
         EditorContext     m_editor_ctx;
-        mutable SelectionContext  m_selection_ctx;
+        SelectionContext& m_selection_ctx;
         std::uint16_t     m_number_objects{};
     };
   } // namespace avion::editor::panel

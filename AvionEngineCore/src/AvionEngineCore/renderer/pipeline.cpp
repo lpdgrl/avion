@@ -199,25 +199,18 @@ namespace avion::gfx {
 
       m_shaders_storage.PutData(type_shader_t.name, "material.fl_shininess", 32.f);
 
-      Transform transform 
-      {
-        .position = glm::vec3(0.f, 1.f, 3.f),
-        .size     = glm::vec3(1.f, 1.f, 1.f),
-        .axis     = AxisRotate::NONE,
-        .rotate   = 0.f
-      };
-
       RenderContext render_context
       {
         .type_shader = type_shader_t.type,
         .name_shader = type_shader_t.name,
-        .transform   = transform,
+        .transform   = {},
         .mat_tex     = {},
         .key         = VertexObjectType::kModel
       };
       
       for (auto& [id, model] : models)
       {
+        render_context.transform = model.GetTransform();
         renderer_->SetRenderContext(render_context);
         auto& meshs = model.GetMeshs();
         for (auto& mesh : meshs)

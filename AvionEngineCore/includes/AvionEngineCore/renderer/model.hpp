@@ -9,6 +9,7 @@
 
   #include "../macro.h"
   #include "mesh.hpp"
+  #include "renderer.hpp"
 
   namespace avion::core::resman
   {
@@ -37,6 +38,9 @@
 
         std::string GetFileName() const noexcept;
 
+        Transform&  GetTransform() noexcept;
+        const Transform& GetTransform() const noexcept;
+
         void Swap(Model& other) noexcept;
 
         ~Model() = default;
@@ -49,13 +53,14 @@
         TextureType             ConvertAiTextureType(aiTextureType type) const noexcept;
      
       private:
-        std::string                 m_filename;
-        std::string                 m_path;
-        std::vector<Mesh>           m_meshes;
-        ResManager&                 m_resman;
+        std::string       m_filename;
+        std::string       m_path;
+        std::vector<Mesh> m_meshes;
+        ResManager&       m_resman;
+        Transform         m_transform;                   
     };
     
-    void Swap(Model& lhs, Model& rhs) noexcept;
+    void swap(Model& lhs, Model& rhs) noexcept;
   } // namespace avion::gfx
 
 #endif
