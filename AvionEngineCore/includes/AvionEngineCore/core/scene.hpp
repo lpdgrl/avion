@@ -113,6 +113,7 @@ namespace avion::core {
 
   private:
     void AddObject(ObjectType type, ObjectParams params);
+    std::unique_ptr<ILight> MakeSourceLight(LightType type) const noexcept;
 
   private:
     Objects objects_on_scene_;

@@ -8,7 +8,7 @@ namespace avion::gfx
   : m_filename(filename)
   , m_path(path)
   , m_resman(resman)
-  , m_transform{.position{0.f, 0.f, 0.f}, .size{1.f, 1.f, 1.f}, .axis = AxisRotate::NONE, .rotate{}}
+  , m_transform{.position{0.f, 0.f, 0.f}, .size{1.f}, .value_rotate{0.f}, .axis = AxisRotate::NONE}
   {
 
   }

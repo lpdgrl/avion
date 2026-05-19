@@ -22,69 +22,65 @@ namespace avion::core {
       objects_on_scene_.emplace_back(type, ++n, std::move(params));
   }
 
+  std::unique_ptr<ILight> Scene::MakeSourceLight(LightType type) const noexcept
+  {
+    std::unique_ptr<ILight> ptr;
+
+    switch (type)
+    {
+      case LightType::kDirLight:
+      {
+        ptr = std::make_unique<DirLight>(
+          glm::vec3{0.f}, // direction
+          glm::vec3{1.f}, // ambient
+          glm::vec3{1.f}, // diffuse
+          glm::vec3{1.f}  // specular
+        );
+        break;
+      }
+      case LightType::kPointLight:
+      {
+        ptr = std::make_unique<PointLight>(
+          glm::vec3(1.f), // position
+          glm::vec3(1.f), // ambient
+          glm::vec3(1.f), // diffuse
+          glm::vec3(1.f), // specular
+          1.f,            // float constant
+          0.09f,          // float linear
+          0.032f          // float quadratic
+        );
+        break;
+      }
+      case LightType::kSpotLight:
+      {
+        ptr = std::make_unique<SpotLight>(
+          glm::vec3(0.f), // position
+          glm::vec3(0.f), // direction
+          glm::vec3(1.f), // ambient
+          glm::vec3(1.f), // diffuse
+          glm::vec3(1.f), // specular
+          1.f,            // float constant
+          0.09f,          // float linear
+          0.032,          // float quadratic
+          0.f,            // float cutoff
+          0.f             // float outercutoff  
+        );
+        break;
+      }
+    }
+    return ptr;
+  }
+
   void Scene::AddSourceLight(LightType type) 
   {
-  std::size_t n = source_lights_on_scene_.size() + 1;
-  switch(type)
-  {
-    case LightType::kDirLight:
-    {
-      // TODO: Put it in a separate method MakeDirLight
-      source_lights_on_scene_.emplace_back( 
-        std::make_unique<DirLight>(
-          glm::vec3(0.f), 
-          glm::vec3(1.f), 
-          glm::vec3(1.f), 
-          glm::vec3(1.f)),
-        n,
-        type,
-        glm::vec3(1.f),
-        glm::vec3(0.25f));
-      break;
-    }
-    case LightType::kPointLight:
-    {
-      // TODO: Put it in a separate method MakePointLight
-      source_lights_on_scene_.emplace_back(
-        std::make_unique<PointLight>(
-          glm::vec3(1.f),
-          glm::vec3(1.f),
-          glm::vec3(1.f),
-          glm::vec3(1.f),
-          1.f,
-          0.09f,
-          0.032f
-          ),
-        n,
-        type,
-        glm::vec3(1.f),
-        glm::vec3(0.25));
-      break;
-    }
+    std::size_t n = source_lights_on_scene_.size() + 1;
 
-    case LightType::kSpotLight:
-    {
-      
-      source_lights_on_scene_.emplace_back(
-          std::make_unique<SpotLight>(
-              glm::vec3(0.f),
-              glm::vec3(0.f),
-              glm::vec3(1.f),
-              glm::vec3(1.f),
-              glm::vec3(1.f),
-              1.f,
-              0.09f,
-              0.032,
-              0.f,
-              0.f
-            ),
-          n,
-          type,
-          glm::vec3(1.f),
-          glm::vec3(0.25));
-      break;
-    }
-  }
+    source_lights_on_scene_.emplace_back( 
+      MakeSourceLight(type),
+      n,
+      type,
+      glm::vec3(1.f),
+      glm::vec3(0.25f));
   }
 
   Scene::SourceLight& Scene::GetAllSourceLights()

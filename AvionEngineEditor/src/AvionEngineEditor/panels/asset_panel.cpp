@@ -31,6 +31,7 @@ namespace avion::editor::panel
     TabBar tab("asset_tab");
     RenderModelTab();
     RenderPrimitiveTab();
+    RenderLightTab();
   }
 
   void AssetPanel::RenderModelTab() const noexcept
@@ -69,8 +70,10 @@ namespace avion::editor::panel
       ImGui::Selectable("Pyramid", &selection[1]);
 
       core::ObjectParams params {
-        .position{0.f, 0.f, 0.f},
-        .size{1.f, 1.f, 1.f},
+        .transform{
+          .position{0.f, 0.f, 0.f},
+          .size{1.f, 1.f, 1.f},
+        },
         .color{0.f, 1.f, 0.f},
         .mixing_color{},
         .material{.ambient{0.f, 0.5f, 0.f}, .diffuse{0.f, 1.f, 0.f}, .specular{}, .shininess{}}
@@ -85,6 +88,38 @@ namespace avion::editor::panel
       else if (selection[1])
       {
         scene.AddObjectToScene(core::ObjectType::kPyramid, params);
+      }
+
+      std::ranges::fill(selection, false);
+    }
+  }
+
+  void AssetPanel::RenderLightTab() const noexcept
+  {
+    TabItem tab_item("Light");
+    if (tab_item.IsOpen())
+    {
+      auto& scene = m_context.engine.GetScene();
+      static std::array<bool, 3> selection;
+
+      ImGui::Selectable("Point light", &selection[0]);
+      ImGui::Selectable("Direction light", &selection[1]);
+      ImGui::Selectable("Spot light", &selection[2]);
+
+      // Add point light to scene
+      if (selection[0])
+      {
+        scene.AddSourceLight(avion::core::LightType::kPointLight);
+      }
+      // Add direction light to scene
+      else if (selection[1])
+      {
+        scene.AddSourceLight(avion::core::LightType::kDirLight);
+      }
+      // Add spot light to scene
+      else if (selection[2])
+      {
+        scene.AddSourceLight(avion::core::LightType::kSpotLight);
       }
 
       std::ranges::fill(selection, false);

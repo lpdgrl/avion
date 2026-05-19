@@ -92,9 +92,10 @@ namespace avion::gfx {
 
         Transform transform {
           .position = curr_light->GetGeometry(),
+          .rotation{1.f},
           .size = light_size.size,
+          .value_rotate{},
           .axis = AxisRotate::NONE,
-          .rotate = 0.f
         };
 
         RenderContext render_context{
@@ -108,7 +109,9 @@ namespace avion::gfx {
       } 
       
       for (const auto& [type, object] : objects_scene) {
-        auto [position, size, color, mixing_color, material] = object.GetParams();
+        auto [_, color, mixing_color, material] = object.GetParams();
+
+        auto& transform = object.GetTransform();
 
         type_shader_t.name = "lighting";
 
@@ -130,20 +133,13 @@ namespace avion::gfx {
         }
         else 
         {
-          m_shaders_storage.PutData(type_shader_t.name, "material.v3_ambient", material.ambient);
-          m_shaders_storage.PutData(type_shader_t.name, "material.v3_diffuse", material.diffuse);
-          m_shaders_storage.PutData(type_shader_t.name, "material.v3_specular",  material.specular);
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_ambient",  material.ambient);
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_diffuse",  material.diffuse);
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_specular", material.specular);
 
           m_shaders_storage.PutData(type_shader_t.name, "material_type.is_texture", false);
           m_shaders_storage.PutData(type_shader_t.name, "material_type.is_prefab_material", true);
         }
-
-        Transform transform {
-          .position = position,
-          .size = size,
-          .axis = AxisRotate::NONE,
-          .rotate = 0.f
-        };
 
         TransferMaterial mat_tex {
           .is_texture = is_texture,

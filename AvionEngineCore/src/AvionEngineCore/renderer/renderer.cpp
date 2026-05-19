@@ -5,6 +5,8 @@
 #include "AvionEngineCore/core/texture.hpp"
 #include "AvionEngineCore/core/profiler.hpp"
 
+#include <glm/ext.hpp>
+
 namespace avion::gfx {
 
     Renderer::Renderer(ShaderStorage& storage, Renderer::CameraState& camera_state)
@@ -313,15 +315,9 @@ namespace avion::gfx {
     void Renderer::Draw(RenderContext& render_context) {
         auto [type_shader, name_shader, transform, mat_tex, key] = render_context;
 
-        glm::mat4 model_matrix = glm::mat4(1.f);
-        model_matrix = TranslateMatrix(model_matrix, transform.position);
-        model_matrix = RotateMatrix(model_matrix, transform.axis, transform.rotate);
-        model_matrix = ScaleMatrix(model_matrix, transform.size);
+        auto model_matrix = transform.GetMatrix();
 
-        // view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
-
-        glm::mat4 view_matrix = glm::mat4(1.f);                  
-        view_matrix = camera_->GetViewMatrix();
+        glm::mat4 view_matrix = camera_->GetViewMatrix();
         glm::vec3 view_pos = camera_->GetPosition();
 
         m_storage_shaders.PutData(name_shader, "view", view_matrix);
@@ -518,6 +514,16 @@ namespace avion::gfx {
         return glm::rotate(model, glm::radians(rotate), r_vec);
     }
 
+    glm::mat4 Renderer::RotateMatrix(glm::mat4& model, AxisRotate axis, glm::vec3& rotate, GLfloat val_rotate)
+    {
+      if (AxisRotate::NONE == axis)
+      {
+        return model;
+      }
+      
+      return glm::rotate(model, glm::radians(val_rotate), rotate);
+    }
+
     glm::mat4 Renderer::TranslateMatrix(glm::mat4& model, const glm::vec2& position) {
         return glm::translate(model, glm::vec3(position, 0.f));
     }
@@ -644,13 +650,9 @@ namespace avion::gfx {
     {
       auto [type_shader, name_shader, transform, mat_tex, key] = render_ctx;
 
-      glm::mat4 model_matrix{1.f};
-      model_matrix = TranslateMatrix(model_matrix, transform.position);
-      model_matrix = RotateMatrix(model_matrix, transform.axis, transform.rotate);
-      model_matrix = ScaleMatrix(model_matrix, transform.size);
+      auto model_matrix = transform.GetMatrix();
 
-      glm::mat4 view_matrix = glm::mat4(1.f);                  
-      view_matrix = camera_->GetViewMatrix();
+      glm::mat4 view_matrix = camera_->GetViewMatrix();
       glm::vec3 view_pos = camera_->GetPosition();
 
       m_storage_shaders.PutData(name_shader, "view", view_matrix);

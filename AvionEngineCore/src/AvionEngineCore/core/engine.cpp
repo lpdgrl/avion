@@ -16,31 +16,36 @@ namespace avion::core::engine
     m_pipeline->Init(width, height);
 
     m_scene.AddObjectToScene(ObjectType::kCube, ObjectParams{
-      .position{0.f, -1.f, 0.f},
-      .size{20.f, 0.05f, 20.f},
+      .transform{
+        .position{0.f, -1.f, 0.f},
+        .size{20.f, 0.05f, 20.f},
+      },
       .color{0.5f, 0.f, 0.f},
       .mixing_color{0.f, 0.f, 0.f},
-      .material{.ambient{0.5f, 0.f, 0.f}, .diffuse{0.5f, 0.f, 0.f}, .specular{0.f, 0.f, 0.f}}
+      .material{.ambient{0.5f, 0.f, 0.f}, .diffuse{0.5f, 0.f, 0.f}, .specular{0.f, 0.f, 0.f}, .shininess = 32.f}
     });
 
     m_scene.AddObjectToScene(ObjectType::kCube, ObjectParams{
-      .position{1.f, 0.f, 0.f},
-      .size{1.f, 1.f, 1.f},
+      .transform{
+        .position{1.f, 0.f, 0.f},
+        .size{1.f, 1.f, 1.f},
+      },
       .color{1.f, 0.f, 0.f},
       .mixing_color{0.f, 0.f, 0.f},
-      .material{.ambient{1.f, 0.f, 0.f}, .diffuse{1.f, 1.f, 1.f}, .specular{0.f, 0.f, 0.f}}
+      .material{.ambient{1.f, 0.f, 0.f}, .diffuse{1.f, 1.f, 1.f}, .specular{0.f, 0.f, 0.f}, .shininess = 32.f}
     });
 
     m_scene.AddObjectToScene(ObjectType::kPyramid, ObjectParams{
-      .position{-2.f, 0.f, 0.f},
-      .size{1.f, 1.f, 1.f},
+      .transform{
+        .position{-2.f, 0.f, 0.f},
+        .size{1.f, 1.f, 1.f},
+      },
       .color{0.f, 0.5f, 0.f},
       .mixing_color{0.f, 0.f, 0.f},
-      .material{.ambient{0.f, 0.5f, 0.f}, .diffuse{0.f, 0.5f, 0.f}, .specular{0.f, 0.f, 0.f}}
+      .material{.ambient{0.f, 0.5f, 0.f}, .diffuse{0.f, 0.5f, 0.f}, .specular{0.f, 0.f, 0.f}, .shininess = 32.f}
     });
 
-
-    m_scene.AddModel("model_female.obj");
+    m_scene.AddModel("backpack.obj");
 
     m_scene.AddSourceLight(LightType::kPointLight);
   }

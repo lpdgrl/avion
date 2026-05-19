@@ -28,7 +28,7 @@ namespace avion::ui::utils
     text.append("##");
     text.append(title);
 
-    ImGui::SliderFloat3(text.c_str(), reinterpret_cast<float*>(&values), val_min, val_max, format, flag);
+    ImGui::SliderFloat3(text.c_str(), &values.x, val_min, val_max, format, flag);
   }
 
   void InputFloat3V(const std::string& title, glm::vec3& values, float step, float step_fast, const char* format, ImGuiInputTextFlags flag)

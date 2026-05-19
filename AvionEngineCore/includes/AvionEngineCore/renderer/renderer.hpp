@@ -6,10 +6,10 @@
 #include <memory>
 
 #include "shader.hpp"
+#include "transform.hpp"
 // #include "text_rendering.hpp"
 #include "camera.hpp"
 
-#include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 namespace avion::core::resman 
@@ -51,19 +51,6 @@ namespace avion::gfx {
       kModel    =  5,
   };
 
-  enum class AxisRotate {
-      NONE   = -1,
-      AXIS_X =  0,
-      AXIS_Y =  1,
-      AXIS_Z =  2,
-  };
-
-  struct Transform {
-    glm::vec3 position; 
-    glm::vec3 size;
-    AxisRotate axis = AxisRotate::NONE;
-    GLfloat rotate = 0.f;
-  };
 
   struct TransferMaterial {
     bool is_texture = false;
@@ -146,6 +133,7 @@ namespace avion::gfx {
     void LoadVerticesSourceLigth();
 
     glm::mat4 RotateMatrix(glm::mat4& model, AxisRotate axis, GLfloat rotate);
+    glm::mat4 RotateMatrix(glm::mat4& model, AxisRotate axis, glm::vec3& rotate, GLfloat val_rotate);
 
     glm::mat4 TranslateMatrix(glm::mat4& model, const glm::vec2& position);
     glm::mat4 TranslateMatrix(glm::mat4& model, const glm::vec3& position);
