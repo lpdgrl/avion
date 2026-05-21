@@ -17,10 +17,10 @@ namespace avion::gfx {
 
   class Pipeline {
   public:
-    using CameraState = core::CameraState;
+    using RenderState = core::RenderState;
 
     Pipeline() = delete;
-    Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue, CameraState& camera_state);
+    Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue, RenderState& render_state);
 
     Pipeline(const Pipeline& other) = delete;
     Pipeline(Pipeline&& other) = delete;

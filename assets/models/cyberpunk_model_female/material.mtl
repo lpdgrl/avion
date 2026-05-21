@@ -1,0 +1,8 @@
+newmtl Material
+Kd 0.800 0.800 0.800
+Ke 0.000 0.000 0.000
+Ni 1.500
+d 1.0
+illum 2
+map_Kd model_female_diffuse.png
+map_Bump model_female_normal.png

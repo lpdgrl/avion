@@ -103,7 +103,7 @@
       auto it_res = m_resources.find(resource.data());
       if (it_res == m_resources.end()) {
         std::string err(resource);
-        AV_LOG_ERROR("ResourceManager::GetResource: " + err + " is invalid resource.");
+        AV_LOG_ERROR("ResourceManager::GetResource: The resource " + err + " isn't loaded.");
         return nullptr;
       }
 

@@ -165,7 +165,7 @@ namespace avion::editor::panel
       auto& transform = primitive_obj->GetTransform();
       auto& color = primitive_obj->GetColor();
       auto& material = primitive_obj->GetMaterial();
-      
+
       ImGui::Text("Position");
       ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);
       ui::utils::InputFloat3V("inp_position", transform.position, 0.25f, 0.5f);
@@ -191,7 +191,65 @@ namespace avion::editor::panel
 
       ImGui::Text("Rotate");
       ImGui::SliderFloat3("##rotate", &transform.rotation.x, -180.f, 180.f);
+
+      auto& textures = m_editor_ctx.engine.GetResourceManager().GetListTexture();
+
+      ImGui::Text("Diffuse texture");
+      static size_t index_item_diffuse_selected = 0;
+      index_item_diffuse_selected = DrawComboTexture("diffuse", index_item_diffuse_selected, textures, material);
+
+      ImGui::Text("Specular texture");
+      static size_t index_item_specular_selected = 0;
+      index_item_specular_selected = DrawComboTexture("specular", index_item_specular_selected, textures, material);
     }
+  }
+
+  size_t InspectorPanel::DrawComboTexture(const char* label, 
+    size_t index_selected_texture,
+    const core::resman::ResourceManager::ListTexture& textures,
+    core::Material& material) const noexcept
+  {
+    const char* combo_preview_value = textures[index_selected_texture].c_str();
+
+    std::string combo_name("##combo_");
+    combo_name.append(label);
+
+    ComboItem combo_specular(combo_name.c_str(), combo_preview_value);
+    if (combo_specular.IsOpen())
+    {
+      for (int n = 0; auto& name : textures)
+      {
+        const bool is_selected = (index_selected_texture == n);
+        if (ImGui::Selectable(name.c_str(), is_selected))
+        {
+          ImGui::SetItemDefaultFocus();
+          index_selected_texture = n;
+        }
+        ++n;
+      }
+    }
+
+    std::string button_name("Apply ");
+    button_name.append(label);
+
+    if (ImGui::Button(button_name.c_str()))
+    {
+      auto* texture = m_editor_ctx.engine.GetResourceManager().GetResource<core::Texture>(textures[index_selected_texture]);
+      if (texture != nullptr)
+      {
+        material.is_texture = true;
+        if (label == "diffuse")
+        {
+          material.texture_diffuse = texture->GetId();
+        }
+        else if (label == "specular")
+        {
+          material.texture_specular = texture->GetId();
+        }
+      }
+    }
+
+    return index_selected_texture;
   }
 
 } // namespace avion::editor::panel

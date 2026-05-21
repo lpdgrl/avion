@@ -71,6 +71,7 @@ namespace avion::core {
   void Window::SwapBuffers()
   {
     glfwSwapBuffers(window_);
+    m_profiler.render_state.render_stat.Clear();
     controller_.ClearStateKeys();
   }
 

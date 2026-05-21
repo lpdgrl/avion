@@ -13,6 +13,7 @@ add_library(${EDITOR_PROJECT_NAME} SHARED
     src/AvionEngineEditor/ui/av_gui_tab_item.cpp
     src/AvionEngineEditor/ui/av_gui_child.cpp
     src/AvionEngineEditor/ui/av_gui_tree_node.cpp
+    src/AvionEngineEditor/ui/av_gui_combo_item.cpp
     src/AvionEngineEditor/ui/utils/imgui_helper.cpp
     src/AvionEngineEditor/panels/inspector_panel.cpp
     src/AvionEngineEditor/panels/profiler_panel.cpp

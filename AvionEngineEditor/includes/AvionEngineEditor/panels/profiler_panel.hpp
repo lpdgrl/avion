@@ -26,6 +26,7 @@
       private:
       void ProfilerTab() const noexcept;
       void CameraTab()  const noexcept;
+      void RenderStatTab() const noexcept;
       
       private:
         ProfilerContext m_context;

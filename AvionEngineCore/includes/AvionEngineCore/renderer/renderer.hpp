@@ -20,7 +20,7 @@ namespace avion::core::resman
 namespace avion::core
 {
   class Texture;
-  struct CameraState;
+  struct RenderState;
 }
 
 namespace avion::gfx {
@@ -70,9 +70,9 @@ namespace avion::gfx {
   class Renderer {  
   public:
     using ResManager  = core::resman::ResourceManager;
-    using CameraState = core::CameraState;
+    using RenderState = core::RenderState;
      
-    Renderer(ShaderStorage& storage, CameraState& camera_state);
+    Renderer(ShaderStorage& storage, RenderState& render_state);
 
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
@@ -143,7 +143,7 @@ namespace avion::gfx {
 
   private:
     Camera* camera_ = nullptr;
-    CameraState& m_camera_state;
+    RenderState& m_render_state;
 
     std::map<VertexObjectType, GLuint> vao_;
     std::map<VertexObjectType, GLuint> vbo_;

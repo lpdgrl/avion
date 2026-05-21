@@ -5,11 +5,11 @@
 
 namespace avion::gfx {
 
-    Pipeline::Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue, Pipeline::CameraState& camera_state)
+    Pipeline::Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue, RenderState& render_state)
     : scene_(scene)
     , m_resman(resman) 
     , m_pl_queue(pl_queue)
-    , renderer_(new Renderer(m_shaders_storage, camera_state))
+    , renderer_(new Renderer(m_shaders_storage, render_state))
     {
       
     }

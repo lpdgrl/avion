@@ -22,7 +22,7 @@
         bool m_is_opened = false;
     };
 
-  } // nammespace avion::ui::avguicontext
+  } // namespace avion::ui::avguicontext
 
 
 #endif

@@ -134,13 +134,14 @@ namespace avion::editor::panel
 
   void HierarchyPanel::TestSelectObject() const noexcept
   {
+    auto& scene = m_editor_ctx.engine.GetScene();
     if (m_selection_ctx.primitive)
     {
       const auto& primitive = m_selection_ctx.primitive;
       std::string msg;
       msg += "Select is primitive";
       
-      // decltype(auto) p_primitive = scene.GetObject(primitive.id);
+      decltype(auto) p_primitive = scene.GetObject(primitive.id);
 
       msg += " " + std::to_string(primitive.id);
     }
@@ -151,7 +152,7 @@ namespace avion::editor::panel
       std::string msg;
       msg += "Select is light";
       
-      // decltype(auto) p_light = scene.GetLight(light.id);
+      decltype(auto) p_light = scene.GetLight(light.id);
 
       msg += " " + std::to_string(light.id);
     }
@@ -162,7 +163,7 @@ namespace avion::editor::panel
       std::string msg;
       msg += "Select is model";
       
-      // decltype(auto) p_light = scene.GetModel(model.filename);
+      decltype(auto) p_light = scene.GetModel(model.filename);
 
       msg += " " + model.filename;
     }

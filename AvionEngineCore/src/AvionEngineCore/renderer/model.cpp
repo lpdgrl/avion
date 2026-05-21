@@ -178,6 +178,7 @@ namespace avion::gfx
     if (mesh->mMaterialIndex >= 0)
     {
       aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+
       std::vector<Texture_t> diffuse_map  = LoadMaterialTextures(material, aiTextureType_DIFFUSE);
       textures.insert_range(textures.begin(), diffuse_map);
   

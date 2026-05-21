@@ -27,6 +27,7 @@ namespace avion::editor::gui
       void Render();
 
       EditorContext& GetContext() noexcept;
+      const EditorContext& GetContext() const noexcept;
      
       ~EditorGui() = default;
 

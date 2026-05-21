@@ -15,8 +15,12 @@ namespace avion::editor::gui
 
   }
 
-
   EditorGui::EditorContext& EditorGui::GetContext() noexcept
+  {
+    return m_editor_context;
+  }
+
+  const EditorGui::EditorContext& EditorGui::GetContext() const noexcept
   {
     return m_editor_context;
   }

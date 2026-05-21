@@ -1,0 +1,14 @@
+# Exported from Fuse 2017.1.0
+
+newmtl PackedMaterial0
+illum 4
+Kd 1.00 1.00 1.00 
+Tf 1.00 1.00 1.00 
+Ni 1.00 
+Ks 1.00 1.00 1.00 
+Ns 512 
+d 1.0 
+
+map_d woman_opacity.png
+map_Kd woman_diffuse.png
+map_Ks woman_specular.png

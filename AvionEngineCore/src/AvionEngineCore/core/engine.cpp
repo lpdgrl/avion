@@ -6,7 +6,7 @@ namespace avion::core::engine
   : m_resman(std::make_unique<ResManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
   , m_pl_queue(std::make_unique<PipelineQueue>())
   , m_scene(kObjectsCreate, *m_resman.get(), *m_pl_queue.get())
-  , m_pipeline(std::make_unique<Pipeline>(m_scene, *m_resman.get(), *m_pl_queue.get(), m_profiler.camera_state))
+  , m_pipeline(std::make_unique<Pipeline>(m_scene, *m_resman.get(), *m_pl_queue.get(), m_profiler.render_state))
   {
     AV_LOG_INFO("Running avion engine v. " + m_version_engine)
   }

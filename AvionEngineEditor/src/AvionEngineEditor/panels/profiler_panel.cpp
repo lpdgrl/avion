@@ -26,6 +26,7 @@ namespace avion::editor::panel
    TabBar tab("prof_tab");
    ProfilerTab();
    CameraTab();
+   RenderStatTab();
   }
   
 
@@ -76,20 +77,52 @@ namespace avion::editor::panel
       std::string text;
       ImGui::Text("Camera position:");
       text.append("x: ");
-      text.append(std::to_string(m_context.profiler.camera_state.camera_position.x));
+      text.append(std::to_string(m_context.profiler.render_state.camera_state.camera_position.x));
       ImGui::Text(text.c_str());
       text.clear();
 
       text.append("y: ");
-      text.append(std::to_string(m_context.profiler.camera_state.camera_position.y));
+      text.append(std::to_string(m_context.profiler.render_state.camera_state.camera_position.y));
       ImGui::Text(text.c_str());
       text.clear();
 
       text.append("z: ");
-      text.append(std::to_string(m_context.profiler.camera_state.camera_position.z));
+      text.append(std::to_string(m_context.profiler.render_state.camera_state.camera_position.z));
       ImGui::Text(text.c_str());
       text.clear();
     }
+  }
+
+  void ProfilerPanel::RenderStatTab() const noexcept
+  {
+    TabItem tab_item("RenderStat");
+    if (tab_item.IsOpen())
+    {
+      auto& render_stat = m_context.profiler.render_state.render_stat;
+      std::string text;
+      
+      ImGui::Text("Render statistics:");
+      text.append("draw calls: ");
+      text.append(std::to_string(render_stat.draw_calls));
+      ImGui::Text(text.c_str());
+      text.clear();
+
+      text.append("vertices: ");
+      text.append(std::to_string(render_stat.number_vertex));
+      ImGui::Text(text.c_str());
+      text.clear();
+
+      text.append("triangles : ");
+      text.append(std::to_string(render_stat.number_triangles));
+      ImGui::Text(text.c_str());
+      text.clear();
+
+      text.append("indices: ");
+      text.append(std::to_string(render_stat.number_indices));
+      ImGui::Text(text.c_str());
+      text.clear();
+    }
+    
   }
 
 } // namespace avion::editor::panel

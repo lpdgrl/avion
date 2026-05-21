@@ -5,13 +5,14 @@
 #include "AvionEngineCore/core/texture.hpp"
 #include "AvionEngineCore/core/profiler.hpp"
 
+
 #include <glm/ext.hpp>
 
 namespace avion::gfx {
 
-    Renderer::Renderer(ShaderStorage& storage, Renderer::CameraState& camera_state)
+    Renderer::Renderer(ShaderStorage& storage, RenderState& render_state)
     : m_storage_shaders(storage)
-    , m_camera_state(camera_state)
+    , m_render_state(render_state)
     {}
 
     Renderer::~Renderer() {
@@ -46,7 +47,7 @@ namespace avion::gfx {
         glm::vec3 camera_up     = glm::vec3(0.0f, 1.0f, 0.0f);
 
         camera_ = new Camera(camera_pos, camera_up);
-        m_camera_state.camera_position = camera_->GetPosition();
+        m_render_state.camera_state.camera_position = camera_->GetPosition();
     }
 
     void Renderer::InitRenderer() {
@@ -130,7 +131,8 @@ namespace avion::gfx {
         // Normal attribute
         SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,  8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
         EnableVertexAttribArray(1);
-
+        
+        // Texture attribute
         SetVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
         EnableVertexAttribArray(2);
 
@@ -313,37 +315,42 @@ namespace avion::gfx {
     }
 
     void Renderer::Draw(RenderContext& render_context) {
-        auto [type_shader, name_shader, transform, mat_tex, key] = render_context;
+      auto [type_shader, name_shader, transform, mat_tex, key] = render_context;
 
-        auto model_matrix = transform.GetMatrix();
+      auto model_matrix = transform.GetMatrix();
 
-        glm::mat4 view_matrix = camera_->GetViewMatrix();
-        glm::vec3 view_pos = camera_->GetPosition();
+      glm::mat4 view_matrix = camera_->GetViewMatrix();
+      glm::vec3 view_pos = camera_->GetPosition();
 
-        m_storage_shaders.PutData(name_shader, "view", view_matrix);
-        m_storage_shaders.PutData(name_shader, "view_pos", view_pos);
-        m_storage_shaders.PutData(name_shader, "model", model_matrix);
+      m_storage_shaders.PutData(name_shader, "view", view_matrix);
+      m_storage_shaders.PutData(name_shader, "view_pos", view_pos);
+      m_storage_shaders.PutData(name_shader, "model", model_matrix);
 
-        m_storage_shaders.UseShader(name_shader);
+      m_storage_shaders.UseShader(name_shader);
+      
+      if (mat_tex.is_texture) {
+        // Diffuse texture 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture);
         
-        if (mat_tex.is_texture) {
-          // Diffuse texture 
-          glActiveTexture(GL_TEXTURE0);
-          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture);
-          
-          // Specular texture
-          glActiveTexture(GL_TEXTURE1);
-          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_specular);
-          
-          // Emission texture
-          glActiveTexture(GL_TEXTURE2);
-          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_emission);
-      }
+        // Specular texture
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_specular);
+        
+        // Emission texture
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_emission);
+    }
 
-        BindVertexArray(GetVAO(key)); 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+      BindVertexArray(GetVAO(key)); 
 
-        BindVertexArray(0);
+      int num_vertex = (key == VertexObjectType::kPyramid ? 18 : 36); 
+      glDrawArrays(GL_TRIANGLES, 0, num_vertex);
+
+      BindVertexArray(0);
+
+      // Collect render statistics
+      m_render_state.render_stat.Update(num_vertex, 0);
     }
 
     void Renderer::SetOrthoProjection(float left, float width, float bottom, float height, float zNear, float zFar) {
@@ -394,6 +401,7 @@ namespace avion::gfx {
     void Renderer::LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const 
     {
       glGenTextures(1, &index_texture);
+      std::cout << "index texture: " << index_texture << '\n';
       AV_LOG_DEBUG("Renderer::LoadTexture2D(many args): id texture is assign " + std::to_string(index_texture));
       glBindTexture(GL_TEXTURE_2D, index_texture);
       
@@ -422,6 +430,7 @@ namespace avion::gfx {
     {
       auto& id = ptr_texture->GetId();
       glGenTextures(1, &id);
+      std::cout << "index texture: " << id << '\n';
       AV_LOG_DEBUG("Renderer::LoadTexture2D(core::Texture* ptr_texture): id texture is assign " + std::to_string(ptr_texture->GetId()));
       glBindTexture(GL_TEXTURE_2D, ptr_texture->GetId());
       
@@ -543,13 +552,13 @@ namespace avion::gfx {
     void Renderer::ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept 
     {
       camera_->ProcessKeyboard(direction, delta_time);
-      m_camera_state.camera_position = camera_->GetPosition();
+      m_render_state.camera_state.camera_position = camera_->GetPosition();
     }
 
     void Renderer::ProcessMouseMovement(double xoffset, double yoffset) const noexcept 
     {           
       camera_->ProcessMouseMovement(xoffset, yoffset);
-      m_camera_state.camera_position = camera_->GetPosition();
+      m_render_state.camera_state.camera_position = camera_->GetPosition();
     }
 
     void Renderer::RegisterMesh(Mesh* mesh) noexcept
@@ -644,6 +653,10 @@ namespace avion::gfx {
       BindVertexArray(0);
 
       glActiveTexture(GL_TEXTURE0);
+      
+      // Collect render statistics
+      int num_vertex = mesh.GetVerticesArray().size();
+      m_render_state.render_stat.Update(num_vertex, 0);
     }
     
     void Renderer::SetRenderContext(RenderContext& render_ctx) noexcept
