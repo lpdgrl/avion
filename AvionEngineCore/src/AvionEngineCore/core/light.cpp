@@ -1,4 +1,4 @@
-#include "../../includes/AvionEngineCore/core/light.hpp"
+#include "AvionEngineCore/core/light.hpp"
 
 namespace avion::core {
   glm::vec3 ILight::GetAmbient() const {

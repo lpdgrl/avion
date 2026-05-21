@@ -2,21 +2,19 @@
 
 namespace avion::core {
 
-    Object::Object(int id, Position position, Size size, Color color, Color mixing_color, Material material)
+    Object::Object(int id, gfx::Transform transform, Color color, Color mixing_color, Material material)
         : id_(id)
-        , size_(size)
-        , position_(position)
+        , m_transform(transform)
         , color_(color)
         , mixing_color_(mixing_color) 
         , material_(material)
     {
-        AV_LOG_INFO("Object ctor " + std::to_string(position_.position.x) + " " + std::to_string(position_.position.y) + " " + std::to_string(position_.position.z));
+        AV_LOG_INFO("Object ctor " + std::to_string(m_transform.position.x) + " " + std::to_string(m_transform.position.y) + " " + std::to_string(m_transform.position.z));
     }
 
     Object::Object(int id, ObjectParams params) 
         : id_(id)
-        , size_(params.size)
-        , position_(params.position)
+        , m_transform(params.transform)
         , color_(params.color)
         , mixing_color_(params.mixing_color)
         , material_(params.material)
@@ -25,53 +23,50 @@ namespace avion::core {
     }
 
     // TODO: Object copy-ctor isn't actually!!
-    Object::Object(const Object& object): position_(object.position_), size_(object.size_), color_(object.color_) {
-        std::cout << "Object ctor copy " << position_  << '\n';
+    Object::Object(const Object& object): m_transform(object.m_transform),  color_(object.color_) {
+        std::cout << "Object ctor copy " <<  '\n';
     }
     
     // TODO: Object move-ctor isn't actually!!
-    Object::Object(Object&& object): position_(object.position_), size_(object.size_), color_(object.color_) {
-        std::cout << "Object ctor move " << position_ <<  '\n';
+    Object::Object(Object&& object): m_transform(object.m_transform), color_(object.color_) {
+        std::cout << "Object ctor move "  <<  '\n';
     }
 
     Object& Object::operator=(const Object& object) { 
         if (this != &object) {
-            position_ = object.position_;
-            size_ = object.size_;
+            m_transform = object.m_transform;
             color_ = object.color_;
             mixing_color_ = object.mixing_color_;
             material_ = object.material_;
         }
-        std::cout << "Object copy assingment " << position_  <<  '\n';    
+        std::cout << "Object copy assingment " <<  id_ << '\n';    
         return *this; 
     }
 
     Object& Object::operator=(Object&& object) {
         if (this != &object) {
-            position_ = object.position_;
-            size_ = object.size_;
+            id_ = object.id_;
+            m_transform = object.m_transform;
             color_ = object.color_;
             mixing_color_ = object.mixing_color_;
             material_ = object.material_;
         }
-        std::cout << "Object move assingment " << position_ << '\n';
+        std::cout << "Object move assingment " << '\n';
         return *this; 
     }
 
     Object::~Object() {
-        std::cout << "Object dtor " << position_  <<  '\n';
+        std::cout << "Object dtor " <<  id_ <<  '\n';
     }
 
-    Position Object::GetPosition() const noexcept {
-        return position_;
-    }
 
-    Size Object::GetSize() const noexcept {
-        return size_; 
-    }
-
-    Color Object::GetColor() const noexcept {
+    const Color& Object::GetColor() const noexcept {
         return color_;
+    }
+
+    Color& Object::GetColor() noexcept 
+    {
+      return color_;
     }
 
     Color Object::GetMixingColor() const noexcept {
@@ -80,8 +75,7 @@ namespace avion::core {
 
     ObjectParams Object::GetParams() const noexcept {
         ObjectParams params{
-            .position = position_.position,
-            .size = size_.size,
+            .transform = m_transform,
             .color = color_.color,
             .mixing_color = color_.color,
             .material = material_
@@ -93,20 +87,22 @@ namespace avion::core {
         return id_;
     }
 
-    std::ostream& operator<<(std::ostream& out, Size size) {
-        return out << size.size.x << ' ' << size.size.y << ' ' << size.size.z << '\n';
-    }
-
-    std::ostream& operator<<(std::ostream& out, Position pos) {
-        return out << pos.position.x << ' ' << pos.position.y << ' ' << pos.position.z << '\n';
-    }
-
     void Object::SetParams(ObjectParams params) noexcept {
-        position_ = params.position;
-        size_ = params.size;
+        m_transform = params.transform;
         color_ = params.color;
         mixing_color_ = params.mixing_color;
         material_ = params.material;
+    }
+
+
+    gfx::Transform& Object::GetTransform() noexcept 
+    {
+      return m_transform;
+    }
+
+    const gfx::Transform& Object::GetTransform() const noexcept
+    {
+      return m_transform;
     }
 
     Position::operator glm::vec3() const {
@@ -119,6 +115,16 @@ namespace avion::core {
 
     Color::operator glm::vec3() const {
         return color;
+    }
+
+    const Material& Object::GetMaterial() const noexcept
+    {
+      return material_;
+    }
+
+    Material& Object::GetMaterial() noexcept
+    {
+      return material_;
     }
 
     // ObjectId::ObjectId(int id, Position position, Size size, Color color): id(id), object(position, size, color) {}

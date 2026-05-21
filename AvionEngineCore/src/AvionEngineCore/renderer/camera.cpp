@@ -1,4 +1,5 @@
 #include "../../../includes/AvionEngineCore/renderer/camera.hpp"
+#include "AvionEngineCore/macro.h"
 
 namespace avion::gfx {
 
@@ -62,8 +63,11 @@ namespace avion::gfx {
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void Camera::ProcessMouseMovement(float x_offset, float y_offset, GLboolean constrain_pitch) {
+        
         x_offset *= mouse_senstivity_;
         y_offset *= mouse_senstivity_;
+
+       
 
         angle_yaw_   += x_offset;
         angle_pitch_ += y_offset;
@@ -76,7 +80,7 @@ namespace avion::gfx {
             if (angle_pitch_ < -89.0f)
                 angle_pitch_ = -89.0f;
         }
-
+        
         // update Front, Right and Up Vectors using the updated Euler angles
         UpdateCameraVectors();
     }

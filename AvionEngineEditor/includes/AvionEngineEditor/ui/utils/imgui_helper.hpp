@@ -1,0 +1,21 @@
+#ifndef AVION_UI_UTILS_IMGUI_HELPER_H
+#define AVION_UI_UTILS_IMGUI_HELPER_H
+  
+  #include <string>
+
+  #include "imgui.h"
+  #include "../../../AvionEngineCore/includes/glm/glm.hpp"
+
+  namespace avion::ui::utils
+  {
+    void SetupWindow(ImVec2 pos, ImVec2 size, ImGuiCond cond = 0, const ImVec2 pivot = ImVec2(0, 0));
+
+    ImGuiTreeNodeFlags CheckSelectableTreeNode(int selection_mask, size_t index);
+
+    void SliderFloat3V(const std::string& title, glm::vec3& values, float val_min, float val_max, const char* format = "%.3f", ImGuiSliderFlags flag = 0);
+    void InputFloat3V(const std::string& title, glm::vec3& values, float step, float step_fast, const char* format = "%.3f", ImGuiInputTextFlags flag = 0);
+
+  } // namespace avion::ui::utils
+
+
+#endif

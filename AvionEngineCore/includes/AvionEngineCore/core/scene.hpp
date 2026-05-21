@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <type_traits>
 
 #include "object.hpp"
 #include "light.hpp"
@@ -22,39 +23,51 @@ namespace avion::gfx
 namespace avion::core {
   
   enum class LightType {
-      kUnknownLight = -1,
-      kSimpleLight = 0,
-      kDirLight = 1,
-      kPointLight = 2,
-      kSpotLight = 3,
+    kUnknownLight = -1,
+    kSimpleLight = 0,
+    kDirLight = 1,
+    kPointLight = 2,
+    kSpotLight = 3,
   };
 
   enum class ObjectType {
       kCube = 3,
       kPyramid = 4,
   };
+
+  enum class ModelType
+  {
+
+  };
   
   struct SceneObject {
-      SceneObject(ObjectType type, int id, ObjectParams params);
-      ObjectType type;
-      Object object;
+    SceneObject(ObjectType type, int id, ObjectParams params);
+    ObjectType type;
+    Object object;
   };
   
   struct SceneLight {
-      std::unique_ptr<ILight> light;
-      std::size_t id = 0;
-      LightType type_light;
-      Color color;
-      Size size;
+    std::unique_ptr<ILight> light;
+    std::size_t id = 0;
+    LightType type_light;
+    Color color;
+    Size size;
   };
 
-  std::string TypeObjectToString(ObjectType type);
+  struct Model
+  {
+    Model() = delete;
+    Model(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman);
+
+    std::uint16_t id = 0;
+    avion::gfx::Model model;
+  };
 
   class Scene {
   public:
     using Objects       = std::vector<SceneObject>;
     using SourceLight   = std::vector<SceneLight>;
-    using Models        = std::vector<avion::gfx::Model>;
+    using Models        = std::vector<Model>;
     using ResManager    = resman::ResourceManager;
     using PipelineQueue = gfx::PipelineQueue;
 
@@ -79,15 +92,28 @@ namespace avion::core {
     Objects& GetAllObjects();
     Models& GetModels();
 
-    size_t GetNumberObjects() const;
-    size_t GetNumberSourceLights() const;
+    const SourceLight&   GetAllSourceLights() const noexcept;
+    const Objects& GetAllObjects() const noexcept;
+    const Models&  GetModels() const noexcept;
 
-    Object* GetObject(int id);
-    Object* GetObject(ObjectType type);
+    std::size_t GetNumberObjects() const noexcept;
+    std::size_t GetNumberSourceLights() const noexcept;
+    std::size_t GetNumberModels() const noexcept;
+
+    std::size_t GetAllNumberObjects() const noexcept;
+
+    Object*     GetObject(int id);
+    Object*     GetObject(ObjectType type);
     SceneLight* GetLight(int id);
+    Model*      GetModel(const std::string& filename);        
+
+    const Object*     GetObject(int id) const noexcept;
+    const SceneLight* GetLight(int id) const noexcept;
+    const Model*      GetModel(const std::string& filename) const noexcept;
 
   private:
     void AddObject(ObjectType type, ObjectParams params);
+    std::unique_ptr<ILight> MakeSourceLight(LightType type) const noexcept;
 
   private:
     Objects objects_on_scene_;
@@ -106,3 +132,65 @@ namespace avion::core {
     } 
   }
 } // namespace avion::core
+
+
+namespace avion::core::detail
+{
+  template <typename T>
+  constexpr std::string TypeObjectToString(T type)
+  { 
+    using ObjectType = core::ObjectType;
+    using LightType  = core::LightType;
+  
+    std::string result;
+    if constexpr (std::is_same_v<T, ObjectType>)
+    {
+      switch(type)
+      {
+        case ObjectType::kCube:
+        {
+          result = "Cube";
+          break;
+        }
+        case ObjectType::kPyramid:
+        {
+          result = "Pyramid";
+          break;
+        }
+      }
+    }
+
+    if constexpr (std::is_same_v<T, LightType>)
+    {
+      switch(type)
+      {
+        case LightType::kDirLight:
+        {
+          result = "DirLight";
+          break;
+        }
+        case LightType::kPointLight:
+        {
+          result = "PointLight";
+          break;
+        }
+        case LightType::kSpotLight:
+        {
+          result = "SpotLight";
+          break;
+        }
+        case LightType::kSimpleLight:
+        {
+          result = "SimpleLight";
+          break;
+        }
+        case LightType::kUnknownLight:
+        {
+          result = "UnknownLight";
+          break;
+        }
+      }
+    }
+    return result;
+  }
+} // namespace avion::core::detail

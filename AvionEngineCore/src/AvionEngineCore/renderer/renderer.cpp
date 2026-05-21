@@ -3,11 +3,16 @@
 
 #include "AvionEngineCore/core/resource_manager.hpp"
 #include "AvionEngineCore/core/texture.hpp"
+#include "AvionEngineCore/core/profiler.hpp"
+
+
+#include <glm/ext.hpp>
 
 namespace avion::gfx {
 
-    Renderer::Renderer(ShaderStorage& storage)
+    Renderer::Renderer(ShaderStorage& storage, RenderState& render_state)
     : m_storage_shaders(storage)
+    , m_render_state(render_state)
     {}
 
     Renderer::~Renderer() {
@@ -42,6 +47,7 @@ namespace avion::gfx {
         glm::vec3 camera_up     = glm::vec3(0.0f, 1.0f, 0.0f);
 
         camera_ = new Camera(camera_pos, camera_up);
+        m_render_state.camera_state.camera_position = camera_->GetPosition();
     }
 
     void Renderer::InitRenderer() {
@@ -125,7 +131,8 @@ namespace avion::gfx {
         // Normal attribute
         SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,  8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
         EnableVertexAttribArray(1);
-
+        
+        // Texture attribute
         SetVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
         EnableVertexAttribArray(2);
 
@@ -308,43 +315,42 @@ namespace avion::gfx {
     }
 
     void Renderer::Draw(RenderContext& render_context) {
-        auto [type_shader, name_shader, transform, mat_tex, key] = render_context;
+      auto [type_shader, name_shader, transform, mat_tex, key] = render_context;
 
-        glm::mat4 model_matrix = glm::mat4(1.f);
-        model_matrix = TranslateMatrix(model_matrix, transform.position);
-        model_matrix = RotateMatrix(model_matrix, transform.axis, transform.rotate);
-        model_matrix = ScaleMatrix(model_matrix, transform.size);
+      auto model_matrix = transform.GetMatrix();
 
-        // view_matrix = TranslateMatrix(view_matrix, glm::vec3(0.f, 0.f, -5.f));
+      glm::mat4 view_matrix = camera_->GetViewMatrix();
+      glm::vec3 view_pos = camera_->GetPosition();
 
-        glm::mat4 view_matrix = glm::mat4(1.f);                  
-        view_matrix = camera_->GetViewMatrix();
-        glm::vec3 view_pos = camera_->GetPosition();
+      m_storage_shaders.PutData(name_shader, "view", view_matrix);
+      m_storage_shaders.PutData(name_shader, "view_pos", view_pos);
+      m_storage_shaders.PutData(name_shader, "model", model_matrix);
 
-        m_storage_shaders.PutData(name_shader, "view", view_matrix);
-        m_storage_shaders.PutData(name_shader, "view_pos", view_pos);
-        m_storage_shaders.PutData(name_shader, "model", model_matrix);
-
-        m_storage_shaders.UseShader(name_shader);
+      m_storage_shaders.UseShader(name_shader);
+      
+      if (mat_tex.is_texture) {
+        // Diffuse texture 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture);
         
-        if (mat_tex.is_texture) {
-          // Diffuse texture 
-          glActiveTexture(GL_TEXTURE0);
-          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture);
-          
-          // Specular texture
-          glActiveTexture(GL_TEXTURE1);
-          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_specular);
-          
-          // Emission texture
-          glActiveTexture(GL_TEXTURE2);
-          glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_emission);
-      }
+        // Specular texture
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_specular);
+        
+        // Emission texture
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, mat_tex.idx_texture_emission);
+    }
 
-        BindVertexArray(GetVAO(key)); 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+      BindVertexArray(GetVAO(key)); 
 
-        BindVertexArray(0);
+      int num_vertex = (key == VertexObjectType::kPyramid ? 18 : 36); 
+      glDrawArrays(GL_TRIANGLES, 0, num_vertex);
+
+      BindVertexArray(0);
+
+      // Collect render statistics
+      m_render_state.render_stat.Update(num_vertex, 0);
     }
 
     void Renderer::SetOrthoProjection(float left, float width, float bottom, float height, float zNear, float zFar) {
@@ -395,6 +401,7 @@ namespace avion::gfx {
     void Renderer::LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const 
     {
       glGenTextures(1, &index_texture);
+      std::cout << "index texture: " << index_texture << '\n';
       AV_LOG_DEBUG("Renderer::LoadTexture2D(many args): id texture is assign " + std::to_string(index_texture));
       glBindTexture(GL_TEXTURE_2D, index_texture);
       
@@ -423,6 +430,7 @@ namespace avion::gfx {
     {
       auto& id = ptr_texture->GetId();
       glGenTextures(1, &id);
+      std::cout << "index texture: " << id << '\n';
       AV_LOG_DEBUG("Renderer::LoadTexture2D(core::Texture* ptr_texture): id texture is assign " + std::to_string(ptr_texture->GetId()));
       glBindTexture(GL_TEXTURE_2D, ptr_texture->GetId());
       
@@ -507,11 +515,22 @@ namespace avion::gfx {
                 break;
             }
             case AxisRotate::NONE: {
-                r_vec = {0.f, 0.f, 0.5f};
+                rotate = 0.f;
+                r_vec = {1.f, 1.f, 1.f};
                 break;
             }
         }
         return glm::rotate(model, glm::radians(rotate), r_vec);
+    }
+
+    glm::mat4 Renderer::RotateMatrix(glm::mat4& model, AxisRotate axis, glm::vec3& rotate, GLfloat val_rotate)
+    {
+      if (AxisRotate::NONE == axis)
+      {
+        return model;
+      }
+      
+      return glm::rotate(model, glm::radians(val_rotate), rotate);
     }
 
     glm::mat4 Renderer::TranslateMatrix(glm::mat4& model, const glm::vec2& position) {
@@ -530,12 +549,16 @@ namespace avion::gfx {
         return glm::scale(model, glm::vec3(size));
     }
 
-    void Renderer::ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept {
-        camera_->ProcessKeyboard(direction, delta_time);
+    void Renderer::ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept 
+    {
+      camera_->ProcessKeyboard(direction, delta_time);
+      m_render_state.camera_state.camera_position = camera_->GetPosition();
     }
 
-    void Renderer::ProcessMouseMovement(double xoffset, double yoffset) const noexcept {
-        camera_->ProcessMouseMovement(xoffset, yoffset);
+    void Renderer::ProcessMouseMovement(double xoffset, double yoffset) const noexcept 
+    {           
+      camera_->ProcessMouseMovement(xoffset, yoffset);
+      m_render_state.camera_state.camera_position = camera_->GetPosition();
     }
 
     void Renderer::RegisterMesh(Mesh* mesh) noexcept
@@ -622,10 +645,6 @@ namespace avion::gfx {
 
         m_storage_shaders.PutData(name_shader, name_texture, i++);
         m_storage_shaders.ExecuteAfterUse(name_shader);
-        std::string msg = name_texture;
-        msg += " " + std::to_string(texture.id);
-        // AV_LOG_DEBUG(msg);
-
         glBindTexture(GL_TEXTURE_2D, texture.id);
       }
 
@@ -634,18 +653,19 @@ namespace avion::gfx {
       BindVertexArray(0);
 
       glActiveTexture(GL_TEXTURE0);
+      
+      // Collect render statistics
+      int num_vertex = mesh.GetVerticesArray().size();
+      m_render_state.render_stat.Update(num_vertex, 0);
     }
     
     void Renderer::SetRenderContext(RenderContext& render_ctx) noexcept
     {
       auto [type_shader, name_shader, transform, mat_tex, key] = render_ctx;
 
-      glm::mat4 model_matrix = glm::mat4(1.f);
-      model_matrix = TranslateMatrix(model_matrix, transform.position);
-      model_matrix = ScaleMatrix(model_matrix, transform.size);
+      auto model_matrix = transform.GetMatrix();
 
-      glm::mat4 view_matrix = glm::mat4(1.f);                  
-      view_matrix = camera_->GetViewMatrix();
+      glm::mat4 view_matrix = camera_->GetViewMatrix();
       glm::vec3 view_pos = camera_->GetPosition();
 
       m_storage_shaders.PutData(name_shader, "view", view_matrix);
@@ -653,5 +673,10 @@ namespace avion::gfx {
       m_storage_shaders.PutData(name_shader, "model", model_matrix);
 
       m_storage_shaders.UseShader(name_shader);
+    }
+
+    glm::vec3 Renderer::GetCameraPosition() const noexcept
+    {
+      return camera_->GetPosition();
     }
 } // namespace avion::gfx

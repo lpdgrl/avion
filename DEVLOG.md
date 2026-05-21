@@ -1,63 +1,112 @@
 ## DevLog
 
+**2026-05-21**
+- Добавил в render statistics количество вершин, треугольников.
+- Обновил README.MD репозитория.
+
+**2026-05-20**
+- Добавил RAII-обертку над ImGui::BeginCombo()
+- Добавил возможность в Inspector panel привязывать текстуры (diffuse map и specular map) к выбранному объекту (только работает для кубов)
+- Начал работу над сущностью render statistics. Пока  считаются только draw calls.
+
+**2026-05-19**
+- Вынес из renderer сущность Transform в отдельный класс.
+- Transform теперь сам обсчитывает матрицу модели на основе операций translate, rotate, scale 
+- Реализовал функционал inspector panel
+
+**2026-05-17**
+- Добавлено поле transform в класс Model.
+- Теперь можно вращать, перемещать, мастшабировать модель выбранную в панели иерархии сцены.
+
+**2026-05-15**
+- Теперь можно добавлять примитивы (куб, конус) на сцену из asset-панели.
+
+**2026-05-14**
+- Добавлена возможность добавления моделей на сцену из asset-панели.
+- Добавлен id к моделям
+- Добавлен вывод id модели в иерархии объектов сцены
+
+**2026-05-12**
+- Добавлена иерархия объектов на сцене.
+- Добавлена возможность выбирать объекты из иерархии.
+
+**2026-05-01**
+- Добавлен базовый класс framebuffer.
+- Добавлен framebuffer сцены для редактора.
+
+**2026-04-30**
+- GUI-функциональность вынесена из core-части движка.
+- Добавлены обёртки над элементами ImGui.
+
+**2026-04-27**
+- Добавлен импорт через Assimp.
+- Добавлены классы `Model` и `Mesh`.
+- Добавлена возможность загружать 3D-модели. Пока поддерживается только формат `.obj`.
+
 **2026-04-20**
-- Added loading presets from ini file (ImGui)
+- Добавлена загрузка пресетов из `.ini`-файла для ImGui.
 
 **2026-04-10**
-- Added combine calculations ligths (direction light, point light, spot light)
+- Добавлен комбинированный расчёт освещения:
+  - directional light;
+  - point light;
+  - spot light.
 
 **2026-04-05**
-- Select is added (texture or prefam material)
+- Добавлен выбор текстуры или prefab-материала.
 
 **2026-03-29**
-- Added resource manager
+- Добавлен менеджер ресурсов.
 
 **2026-03-17**
-- Added diffuse and specular map to Materias
+- В материалы добавлены diffuse- и specular-карты.
 
-**2026-03-15**  wa
-- Added prefab of materials (metals, plastic, rubber) [Taken here](http://devernay.free.fr/cours/opengl/materials.html)
-- Added basic subsystem Texture 
+**2026-03-15**
+- Добавлены prefab-материалы: металлы, пластик, резина.  
+  Материалы взяты отсюда: [OpenGL Materials](http://devernay.free.fr/cours/opengl/materials.html)
+- Добавлена базовая подсистема текстур.
 
 **2026-03-14**
-- Added Material/Light subsystems 
+- Добавлены подсистемы материалов и освещения.
 
 **2026-03-12**
-- Added devlog to git.
-- Gui func which added new object to scene is refactoring. Switch only variable parameters to struct 
-parameters.
+- Добавлен devlog в git.
+- Отрефакторена GUI-функция добавления нового объекта на сцену.
+- Переменные параметры вынесены в структуру.
 
 **2026-02-21**
-- Added macros of logging. Logger is refactoring. Logger has become simple and static class.
+- Добавлены макросы для логирования.
+- Отрефакторен logger.
+- Logger стал простым статическим классом.
 
 **2026-01-22**
-- Added class pipeline for data is filling to framebuffers (using struct RenderContext)
-- Added struct ShaderLight and ShaderObject for comfortable transfer data from gui to shader and render
+- Добавлен класс pipeline для заполнения данных во framebuffer с использованием структуры `RenderContext`.
+- Добавлены структуры `ShaderLight` и `ShaderObject` для удобной передачи данных из GUI в shader и renderer.
 
 **2026-01-21**
-- Common small improvements
-- Added class widget (ImGui) for control parameters of shaders and objects
+- Небольшие общие улучшения.
+- Добавлен ImGui-виджет для управления параметрами shader-ов и объектов.
 
 **2026-01-19**
-- Added stupid picker objects (More bugs!!!)
+- Добавлен простой object picker. Пока содержит много багов.
 
 **2026-01-18**
-- Added names types of objects in widget (ImGui) 
-- Added bash scripts for building and run Engine
-- Added func convert pixels of cursor to NDC coordinates (OpenGL)
+- В ImGui-виджет добавлены имена типов объектов.
+- Добавлены bash-скрипты для сборки и запуска движка.
+- Добавлена функция конвертации позиции курсора из пикселей в NDC-координаты OpenGL.
 
 **2026-01-13**
-- Added namespaces
+- Добавлены namespaces.
 
 **2026-01-07**
-- Calculate FPS and delay. Display them in GUI.
+- Добавлен расчёт FPS и задержки.
+- FPS и задержка отображаются в GUI.
 
-**2026-01-05** 
-- Changed InputFloat to SliderFloat in GUI Object
+**2026-01-05**
+- `InputFloat` заменён на `SliderFloat` в GUI объекта.
 
 **2026-01-04**
-- Added simple listbox of objects
-- Implemented adding new object to listbox
-- Implemented pick object from listbox
-- Binding object parameters by ID from listbox and chage it's 
-
+- Добавлен простой listbox объектов.
+- Реализовано добавление нового объекта в listbox.
+- Реализован выбор объекта из listbox.
+- Реализована привязка параметров объекта по ID из listbox и их изменение.

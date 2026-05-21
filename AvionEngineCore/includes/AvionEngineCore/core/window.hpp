@@ -5,26 +5,29 @@
 #include "glad/glad.h"
 
 #include "AvionEngineCore/controller/controller.hpp"
-#include "AvionEngineCore/renderer/pipeline.hpp"
-#include "AvionEngineCore/renderer/pipeline_queue.hpp"
-#include "AvionEngineCore/gui/widget.hpp"
 
+#include "AvionEngineCore/renderer/framebuffer.hpp"
+
+#include "profiler.hpp"
 #include "resource_manager.hpp"
-#include "scene.hpp"
+
+namespace avion::gfx
+{
+  class Pipeline;
+}
 
 namespace avion::core {
-
-    static constexpr int kObjectsCreate = 1000;
-
     class Window {
     public:
 
-        using PressedKeys = std::array<bool, controller::SIZE_ARRAY_KEYS>;
-        using CoordinateOffset = controller::CoordOffset;
+        using PressedKeys       = std::array<bool, controller::SIZE_ARRAY_KEYS>;
+        using CoordinateOffset  = controller::CoordOffset;
+        using ResManager        = resman::ResourceManager;
+        using Pipeline          = gfx::Pipeline;
 
         Window() = delete;
-        Window(const std::string& window_name, int width, int height);
-        Window(const char* window_name, int width, int height);
+        Window(const std::string& window_name, int width, int height, Pipeline& pipeline, Profiler& profiler);
+        Window(const char* window_name, int width, int height, Pipeline& pipeline, Profiler& profiler);
 
         Window(const Window& other_window) = delete;
         Window(Window&& other_window) = delete;
@@ -39,6 +42,10 @@ namespace avion::core {
         void ProcessEvents();
         void Update();
 
+        bool WindowShouldClose();
+        void PollEvents();
+        void SwapBuffers();
+
         // Callbacks OpenGL
         static void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
 
@@ -51,11 +58,24 @@ namespace avion::core {
         bool             WasPressedKey(int key)  const noexcept;
         bool             IsDown(int key)         const noexcept;
 
+        void DeltaTimeUpdate() noexcept;
+        void FramePerSecond() noexcept;
+
+        // TODO: OpenGL funct is dirty arch
+        void GlEnable() const noexcept;
+        void ClearColorGl(float r, float g, float b) noexcept;
+        void GlViewPort(float width, float height) noexcept;
+
+
+        inline void SetFrameBuffer(gfx::FrameBuffer* buffer)
+        {
+          m_framebuffer = buffer;
+        }
+
     private:
         void CreateWindow();
-        void DeltaTimeUpdate() noexcept;
         void Render();
-        void FramePerSecond() noexcept;
+        void GetLastPosCursor() noexcept;
 
     private:
         std::string window_name_;
@@ -63,23 +83,17 @@ namespace avion::core {
         int height_window_ = 0;
 
         controller::Controller controller_;
-      
-        gui::Widget* widget_ = nullptr;
-        gfx::Pipeline* pipeline_ = nullptr;
+    
         GLFWwindow* window_ = nullptr;
+        Pipeline& m_pipeline;
+        Profiler& m_profiler;
 
-        std::unique_ptr<resman::ResourceManager> m_resman;
-        std::unique_ptr<gfx::PipelineQueue>      m_pl_queue;
-        Scene scene_;
+        gfx::FrameBuffer* m_framebuffer = nullptr;
 
         // TODO: Understand how to works it (calculate delay and fps)
         GLfloat delta_time_ = 0.f;
         GLfloat last_time_ = 0.f;
-        double lt_ = 0;
-        double delay_ = 0;
 
-        int fps_ = 0;
-
-        bool cursor_state_ = false;
+        bool cursor_state_ = true;
     };
 } // namespace avion::core

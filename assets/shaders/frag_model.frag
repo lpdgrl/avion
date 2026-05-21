@@ -1,7 +1,5 @@
 #version 460 core
 
-
-
 struct Material {
   sampler2D diffuse1;
   sampler2D specular1;

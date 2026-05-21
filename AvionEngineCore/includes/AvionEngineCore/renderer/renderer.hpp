@@ -6,10 +6,10 @@
 #include <memory>
 
 #include "shader.hpp"
+#include "transform.hpp"
 // #include "text_rendering.hpp"
 #include "camera.hpp"
 
-#include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 namespace avion::core::resman 
@@ -20,6 +20,7 @@ namespace avion::core::resman
 namespace avion::core
 {
   class Texture;
+  struct RenderState;
 }
 
 namespace avion::gfx {
@@ -50,19 +51,6 @@ namespace avion::gfx {
       kModel    =  5,
   };
 
-  enum class AxisRotate {
-      NONE   = -1,
-      AXIS_X =  0,
-      AXIS_Y =  1,
-      AXIS_Z =  2,
-  };
-
-  struct Transform {
-    glm::vec3 position; 
-    glm::vec3 size;
-    AxisRotate axis = AxisRotate::NONE;
-    GLfloat rotate = 0.f;
-  };
 
   struct TransferMaterial {
     bool is_texture = false;
@@ -81,9 +69,10 @@ namespace avion::gfx {
 
   class Renderer {  
   public:
-    using ResManager = core::resman::ResourceManager;
-
-    Renderer(ShaderStorage& storage);
+    using ResManager  = core::resman::ResourceManager;
+    using RenderState = core::RenderState;
+     
+    Renderer(ShaderStorage& storage, RenderState& render_state);
 
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
@@ -122,6 +111,9 @@ namespace avion::gfx {
     void LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const;
     void LoadTexture2D(core::Texture* ptr_texture) const;
 
+
+    glm::vec3 GetCameraPosition() const noexcept;
+
   private:
     void InitCamera();
     void InitRenderer();
@@ -141,6 +133,7 @@ namespace avion::gfx {
     void LoadVerticesSourceLigth();
 
     glm::mat4 RotateMatrix(glm::mat4& model, AxisRotate axis, GLfloat rotate);
+    glm::mat4 RotateMatrix(glm::mat4& model, AxisRotate axis, glm::vec3& rotate, GLfloat val_rotate);
 
     glm::mat4 TranslateMatrix(glm::mat4& model, const glm::vec2& position);
     glm::mat4 TranslateMatrix(glm::mat4& model, const glm::vec3& position);
@@ -150,6 +143,7 @@ namespace avion::gfx {
 
   private:
     Camera* camera_ = nullptr;
+    RenderState& m_render_state;
 
     std::map<VertexObjectType, GLuint> vao_;
     std::map<VertexObjectType, GLuint> vbo_;

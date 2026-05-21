@@ -4,6 +4,7 @@
 
 #include "../macro.h"
 #include "material.hpp"
+#include "AvionEngineCore/renderer/transform.hpp"
 
 namespace avion::core {
     static constexpr glm::vec3 kDefMixColor(1.f, 1.f, 1.f);
@@ -33,12 +34,12 @@ namespace avion::core {
     };
 
     struct ObjectParams {
-        glm::vec3 position;
-        glm::vec3 size;
-        glm::vec3 color;
-        glm::vec3 mixing_color;
-        Material material;
+      gfx::Transform transform;
+      glm::vec3 color;
+      glm::vec3 mixing_color;
+      Material material;
     };
+
 
     std::ostream& operator<<(std::ostream& out, Size size);
 
@@ -47,7 +48,7 @@ namespace avion::core {
     class Object {
     public:
         Object() = default;
-        Object(int id, Position position, Size size, Color color, Color mixing_color, Material material);
+        Object(int id, gfx::Transform transform, Color color, Color mixing_color, Material material);
         Object(int id, ObjectParams params);
         Object(const Object& object);
         Object(Object&& object);
@@ -57,10 +58,16 @@ namespace avion::core {
 
         ~Object();
 
-        Size GetSize() const noexcept;
-        Position GetPosition() const noexcept;
-        Color GetColor() const noexcept;
+        const gfx::Transform& GetTransform() const noexcept;
+        gfx::Transform& GetTransform() noexcept;
+
+        const Material& GetMaterial() const noexcept;
+        Material& GetMaterial() noexcept;
+
+        const Color& GetColor() const noexcept;
+        Color& GetColor() noexcept;
         Color GetMixingColor() const noexcept; 
+
         ObjectParams GetParams() const noexcept;
         int GetId() const noexcept;
 
@@ -68,8 +75,7 @@ namespace avion::core {
 
     private:
         int id_ = 0;
-        Size size_;
-        Position position_;
+        gfx::Transform m_transform;
         Color color_;
         Color mixing_color_;
         Material material_;

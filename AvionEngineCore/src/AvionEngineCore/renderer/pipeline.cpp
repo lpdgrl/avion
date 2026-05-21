@@ -5,11 +5,14 @@
 
 namespace avion::gfx {
 
-    Pipeline::Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue)
+    Pipeline::Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue, RenderState& render_state)
     : scene_(scene)
     , m_resman(resman) 
     , m_pl_queue(pl_queue)
-    {}
+    , renderer_(new Renderer(m_shaders_storage, render_state))
+    {
+      
+    }
 
     Pipeline::~Pipeline() {
         delete renderer_;
@@ -42,8 +45,6 @@ namespace avion::gfx {
           shader_model_light_source,
           m_resman.GetResource<core::resman::ResourceManager::FsPath>("simple_light_transform.vert")->c_str(),
           m_resman.GetResource<core::resman::ResourceManager::FsPath>("simple_light_color.frag")->c_str());
-
-      renderer_ = new Renderer(m_shaders_storage);
 
       renderer_->Init();
       renderer_->SetPerspectiveProjection(45.f, width, height, 0.1f, 50.f);
@@ -85,15 +86,16 @@ namespace avion::gfx {
       for (const auto& [curr_light, id, type_light,  light_color, light_size] : lights_scene) {  
 
         type_shader_t.name = "shader_model_light_source";
-        AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader of light " + type_shader_t.name);
+        // AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader of light " + type_shader_t.name);
         
         m_shaders_storage.PutData(type_shader_t.name, "light_color", light_color.color);
 
         Transform transform {
           .position = curr_light->GetGeometry(),
+          .rotation{1.f},
           .size = light_size.size,
+          .value_rotate{},
           .axis = AxisRotate::NONE,
-          .rotate = 0.f
         };
 
         RenderContext render_context{
@@ -107,7 +109,9 @@ namespace avion::gfx {
       } 
       
       for (const auto& [type, object] : objects_scene) {
-        auto [position, size, color, mixing_color, material] = object.GetParams();
+        auto [_, color, mixing_color, material] = object.GetParams();
+
+        auto& transform = object.GetTransform();
 
         type_shader_t.name = "lighting";
 
@@ -129,20 +133,13 @@ namespace avion::gfx {
         }
         else 
         {
-          m_shaders_storage.PutData(type_shader_t.name, "material.v3_ambient", material.ambient);
-          m_shaders_storage.PutData(type_shader_t.name, "material.v3_diffuse", material.diffuse);
-          m_shaders_storage.PutData(type_shader_t.name, "material.v3_specular",  material.specular);
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_ambient",  material.ambient);
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_diffuse",  material.diffuse);
+          m_shaders_storage.PutData(type_shader_t.name, "material.v3_specular", material.specular);
 
           m_shaders_storage.PutData(type_shader_t.name, "material_type.is_texture", false);
           m_shaders_storage.PutData(type_shader_t.name, "material_type.is_prefab_material", true);
         }
-
-        Transform transform {
-          .position = position,
-          .size = size,
-          .axis = AxisRotate::NONE,
-          .rotate = 0.f
-        };
 
         TransferMaterial mat_tex {
           .is_texture = is_texture,
@@ -170,8 +167,6 @@ namespace avion::gfx {
       
       while (!m_pl_queue.IsEmpty()) 
       {
-        AV_LOG_DEBUG("Pipeline::ProcessMesh:");
-        AV_LOG_DEBUG("Pipeline::ProcessMesh:111");
         Mesh *mesh = m_pl_queue.Dequeue();
         renderer_->RegisterMesh(mesh);
       }
@@ -200,25 +195,18 @@ namespace avion::gfx {
 
       m_shaders_storage.PutData(type_shader_t.name, "material.fl_shininess", 32.f);
 
-      Transform transform 
-      {
-        .position = glm::vec3(0.f, 0.f, 0.f),
-        .size     = glm::vec3(0.05f, 0.05f, 0.05f),
-        .axis     = AxisRotate::NONE,
-        .rotate   = 0.f
-      };
-
       RenderContext render_context
       {
         .type_shader = type_shader_t.type,
         .name_shader = type_shader_t.name,
-        .transform   = transform,
+        .transform   = {},
         .mat_tex     = {},
         .key         = VertexObjectType::kModel
       };
       
-      for (auto& model : models)
+      for (auto& [id, model] : models)
       {
+        render_context.transform = model.GetTransform();
         renderer_->SetRenderContext(render_context);
         auto& meshs = model.GetMeshs();
         for (auto& mesh : meshs)
@@ -309,5 +297,11 @@ namespace avion::gfx {
     }
     m_shaders_storage.PutData(name_shader, "number_point_lights", static_cast<int>(count_point_light));
     m_shaders_storage.PutData(name_shader, "number_spot_lights", static_cast<int>(count_spot_light)); 
+  }
+
+
+  glm::vec3 Pipeline::GetCameraPosition() const noexcept
+  {
+    return renderer_->GetCameraPosition();
   }
 } // namespace avion::gfx
