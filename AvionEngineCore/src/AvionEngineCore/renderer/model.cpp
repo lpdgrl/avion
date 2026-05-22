@@ -13,15 +13,13 @@ namespace avion::gfx
 
   }
 
-
   Model::Model(const Model& other)
   : m_filename(other.m_filename)
   , m_path(other.m_path)
   , m_meshes(other.m_meshes)
   , m_resman(other.m_resman)
-  , m_transform(other.m_transform)
   {
-
+    AV_LOG_DEBUG("Model::Model(const Model& other): " + m_filename);
   }
 
   Model::Model(Model&& other)
@@ -36,6 +34,8 @@ namespace avion::gfx
 
   Model& Model::operator=(const Model& other)
   {
+    AV_LOG_DEBUG("Model& Model::operator=(const Model& other) " + other.m_filename);
+
     if (this == &other)
     {
       return *this;
@@ -71,9 +71,9 @@ namespace avion::gfx
     }
 
     assert(&m_resman == &other.m_resman && "Swap between Models with different ResourceManager");
-
+    
+    // Swap Idiom (ADL lookup)
     using std::swap;
-
     swap(m_filename, other.m_filename);
     swap(m_path, other.m_path);
     swap(m_meshes, other.m_meshes);

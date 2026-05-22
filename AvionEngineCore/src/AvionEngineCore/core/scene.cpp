@@ -18,8 +18,8 @@ namespace avion::core {
   }
 
   void Scene::AddObject(ObjectType type, ObjectParams params) {
-      size_t n = objects_on_scene_.size();
-      objects_on_scene_.emplace_back(type, ++n, std::move(params));
+      size_t n = objects_on_scene_.size() + 1;
+      objects_on_scene_.emplace_back(n, type, params);
   }
 
   std::unique_ptr<ILight> Scene::MakeSourceLight(LightType type) const noexcept
@@ -111,44 +111,20 @@ namespace avion::core {
     return GetNumberObjects() + GetNumberSourceLights() + GetNumberModels();
   }
 
-  Model* Scene::GetModel(const std::string& filename)
+  ModelHandler* Scene::GetModel(const std::string& filename)
   {
-    auto it_model = std::find_if(m_models.begin(), m_models.end(), [&](Model& model) {
-        return model.model.GetFileName() == filename;
-    });
-
-    if (it_model == m_models.end()) {
-        return nullptr;
-    }
-
-    return &(*it_model);
+    return const_cast<ModelHandler*>(static_cast<const Scene*>(this)->GetModel(filename));
   }
 
 
-  Object* Scene::GetObject(int id) {
-      auto it_object = std::find_if(objects_on_scene_.begin(), objects_on_scene_.end(), [&](SceneObject& obj_scene) {
-          return obj_scene.object.GetId() == id;
-      });
-
-      if (it_object == objects_on_scene_.end()) {
-          return nullptr;
-      }
-
-      // Return pointer to Object from iterator
-      return &it_object->object;
+  Object* Scene::GetObject(int id) 
+  {
+    return const_cast<Object*>(static_cast<const Scene*>(this)->GetObject(id));
   }
 
-  SceneLight* Scene::GetLight(int id) {
-    auto it_light = std::find_if(source_lights_on_scene_.begin(), source_lights_on_scene_.end(), 
-        [&](SceneLight& light) {
-          return light.id == id;
-        });
-    
-    if (it_light == source_lights_on_scene_.end()) {
-      return nullptr;
-    }
-
-    return &(*it_light);
+  SceneLight* Scene::GetLight(int id) 
+  {
+    return const_cast<SceneLight*>(static_cast<const Scene*>(this)->GetLight(id));
   }
 
   Object* Scene::GetObject(ObjectType type) {
@@ -164,9 +140,10 @@ namespace avion::core {
        &it_object->object;
   }
 
-  SceneObject::SceneObject(ObjectType type, int id, ObjectParams params)
-      : type(type)
-      , object(id, params)
+  SceneObject::SceneObject(std::uint16_t id, ObjectType type, ObjectParams params)
+      : id(id)
+      , type(type)
+      , object(params)
   {}
 
   bool Scene::AddModel(const std::string& model_name) 
@@ -180,13 +157,34 @@ namespace avion::core {
 
     std::uint16_t id = static_cast<std::uint16_t>(m_models.size() + 1);
 
-    auto& [_, ref_model] = m_models.emplace_back(id, p_res->parent_path(), p_res->filename(), m_resman);
-    auto result = ref_model.LoadModel();
+     // Если модель есть в кэше, то возвращаем на неё указатель
+    if (auto *ptr = GetModelFromCache(model_name); ptr != nullptr)
+    {
+      m_models.emplace_back(std::make_unique<ModelHandler>(id, ptr->model));
+      return true;
+    }
+    
+    // Если в кеше нет модели, то грузим и ложим указатель в кэш
+    // Good way :)
+    auto& ptr = m_models.emplace_back(std::make_unique<ModelHandler>(id, p_res->parent_path(), p_res->filename(), m_resman));
+    auto result = ptr->model.LoadModel();
+
+    m_cache_models.emplace(model_name, ptr.get());
 
     // PIPELINE QUEUE????
-    m_pl_queue.Enqueue(ref_model.GetMeshs());
+    m_pl_queue.Enqueue(ptr->model.GetMeshs());
 
     return result;
+  }
+
+  ModelHandler* Scene::GetModelFromCache(const std::string& filename_model) noexcept
+  {
+    if (auto it_model = m_cache_models.find(filename_model); it_model != m_cache_models.cend())
+    {
+      return it_model->second;
+    }
+
+    return nullptr;
   }
 
   Scene::Models& Scene::GetModels()
@@ -211,32 +209,92 @@ namespace avion::core {
 
   const Object* Scene::GetObject(int id) const noexcept
   {
-    const Object* p_object = nullptr;
-    p_object = GetObject(id);
+    auto it_object = std::find_if(objects_on_scene_.begin(), objects_on_scene_.end(), [&](const SceneObject& obj_scene) 
+    {
+        return obj_scene.id == id;
+    });
 
-    return p_object;
+    if (it_object == objects_on_scene_.end()) {
+        return nullptr;
+    }
+
+    // Return pointer to Object from iterator
+    return &it_object->object;
   }
 
   const SceneLight* Scene::GetLight(int id) const noexcept
   {
-    const SceneLight* p_light = nullptr;
-    p_light = GetLight(id);
+    auto it_light = std::find_if(source_lights_on_scene_.begin(), source_lights_on_scene_.end(), [&](const SceneLight& light) 
+    {
+      return light.id == id;
+    });
+    
+    if (it_light == source_lights_on_scene_.end()) {
+      return nullptr;
+    }
 
-    return p_light;
+    return &(*it_light);
   }
 
-  const Model* Scene::GetModel(const std::string& filename) const noexcept
+  const ModelHandler* Scene::GetModel(const std::string& filename) const noexcept
   {
-    const Model* p_model = nullptr;
-    p_model = GetModel(filename);
+    auto it_model = std::find_if(m_models.begin(), m_models.end(), [&](const std::unique_ptr<ModelHandler>& ptr) {
+        return ptr->model.GetFileName() == filename;
+    });
 
-    return p_model;
+    if (it_model == m_models.end()) {
+        return nullptr;
+    }
+
+    return it_model->get();
   }
 
+  ModelHandler* Scene::GetModel(std::uint16_t id, const std::string& model_name) noexcept
+  {
+    return const_cast<ModelHandler*>(static_cast<const Scene*>(this)->GetModel(id, model_name));
+  }
 
-  Model::Model(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman)
+  const ModelHandler* Scene::GetModel(std::uint16_t id, const std::string& model_name) const noexcept
+  {
+    auto it_model = std::find_if(m_models.begin(), m_models.end(), [&](const std::unique_ptr<ModelHandler>& ptr) {
+     return ptr->id == id && ptr->model.GetFileName() == model_name;
+    });
+
+    if (it_model == m_models.end()) {
+        return nullptr;
+    }
+
+    return it_model->get();
+  }
+  
+  ModelHandler* Scene::GetModel(std::uint16_t id) noexcept
+  {
+    return const_cast<ModelHandler*>(static_cast<const Scene*>(this)->GetModel(id));
+  }
+
+  const ModelHandler* Scene::GetModel(std::uint16_t id) const noexcept
+  {
+    auto it_model = std::find_if(m_models.begin(), m_models.end(), [&](const std::unique_ptr<ModelHandler>& ptr) {
+     return ptr->id == id;
+    });
+
+    if (it_model == m_models.end()) {
+        return nullptr;
+    }
+
+    return it_model->get();
+  }
+
+  ModelHandler::ModelHandler(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman)
   : id(id)
   , model(path, filename, resman)
+  {
+
+  }
+
+  ModelHandler::ModelHandler(std::uint16_t id, const avion::gfx::Model& model)
+  : id(id)
+  , model(model)
   {
 
   }

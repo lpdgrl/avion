@@ -24,6 +24,7 @@ namespace avion::editor::detail
   struct SelectModel
   {
     bool is_select = false;
+    std::uint16_t id{};
     std::string filename;
 
     explicit operator bool() const { return is_select; }

@@ -25,12 +25,11 @@
       
       private:
         void RenderHierarchyScene() const noexcept;
-
-        void TestSelectObject() const noexcept;
       private:
         EditorContext     m_editor_ctx;
         SelectionContext& m_selection_ctx;
         std::uint16_t     m_number_objects{};
     };
+    
   } // namespace avion::editor::panel
 #endif

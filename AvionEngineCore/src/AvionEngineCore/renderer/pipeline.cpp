@@ -108,7 +108,7 @@ namespace avion::gfx {
         renderer_->Draw(render_context);
       } 
       
-      for (const auto& [type, object] : objects_scene) {
+      for (const auto& [id, type, object] : objects_scene) {
         auto [_, color, mixing_color, material] = object.GetParams();
 
         auto& transform = object.GetTransform();
@@ -204,11 +204,11 @@ namespace avion::gfx {
         .key         = VertexObjectType::kModel
       };
       
-      for (auto& [id, model] : models)
+      for (auto& ptr_model : models)
       {
-        render_context.transform = model.GetTransform();
+        render_context.transform = ptr_model->model.GetTransform();
         renderer_->SetRenderContext(render_context);
-        auto& meshs = model.GetMeshs();
+        auto& meshs = ptr_model->model.GetMeshs();
         for (auto& mesh : meshs)
         {
           renderer_->Draw(mesh, type_shader_t.name);
@@ -229,7 +229,7 @@ namespace avion::gfx {
       for (const auto& light_obj : scene_.GetAllSourceLights())
       {
         core::ILight* ptr_light  = light_obj.light.get();
-        core::LightType tp_light = light_obj.type_light;
+        core::LightType tp_light = light_obj.type;
 
         if (ptr_light) {
         switch (tp_light)

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 set(EDITOR_PROJECT_NAME AvionEngineEditor)
-
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 set(IMGUI_DIR libs/imgui)
 
 add_library(${EDITOR_PROJECT_NAME} SHARED
@@ -38,4 +38,4 @@ target_link_libraries(${EDITOR_PROJECT_NAME} AvionEngineCore)
 
 target_compile_features(${EDITOR_PROJECT_NAME} PUBLIC cxx_std_23)
 target_compile_options(${EDITOR_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-target_compile_options(${EDITOR_PROJECT_NAME} PRIVATE -O3)
+# target_compile_options(${EDITOR_PROJECT_NAME} PRIVATE -O3)

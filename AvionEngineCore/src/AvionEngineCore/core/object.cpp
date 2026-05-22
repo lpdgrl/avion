@@ -2,9 +2,8 @@
 
 namespace avion::core {
 
-    Object::Object(int id, gfx::Transform transform, Color color, Color mixing_color, Material material)
-        : id_(id)
-        , m_transform(transform)
+    Object::Object(gfx::Transform transform, Color color, Color mixing_color, Material material)
+        : m_transform(transform)
         , color_(color)
         , mixing_color_(mixing_color) 
         , material_(material)
@@ -12,9 +11,8 @@ namespace avion::core {
         AV_LOG_INFO("Object ctor " + std::to_string(m_transform.position.x) + " " + std::to_string(m_transform.position.y) + " " + std::to_string(m_transform.position.z));
     }
 
-    Object::Object(int id, ObjectParams params) 
-        : id_(id)
-        , m_transform(params.transform)
+    Object::Object(ObjectParams params) 
+        : m_transform(params.transform)
         , color_(params.color)
         , mixing_color_(params.mixing_color)
         , material_(params.material)
@@ -39,13 +37,12 @@ namespace avion::core {
             mixing_color_ = object.mixing_color_;
             material_ = object.material_;
         }
-        std::cout << "Object copy assingment " <<  id_ << '\n';    
+        std::cout << "Object copy assingment " <<  '\n';    
         return *this; 
     }
 
     Object& Object::operator=(Object&& object) {
         if (this != &object) {
-            id_ = object.id_;
             m_transform = object.m_transform;
             color_ = object.color_;
             mixing_color_ = object.mixing_color_;
@@ -56,7 +53,7 @@ namespace avion::core {
     }
 
     Object::~Object() {
-        std::cout << "Object dtor " <<  id_ <<  '\n';
+        std::cout << "Object dtor " <<   '\n';
     }
 
 
@@ -81,10 +78,6 @@ namespace avion::core {
             .material = material_
         };
         return params;
-    }
-
-    int Object::GetId() const noexcept {
-        return id_;
     }
 
     void Object::SetParams(ObjectParams params) noexcept {

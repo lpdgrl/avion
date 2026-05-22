@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 set(ENGINE_PROJECT_NAME AvionEngineCore)
-
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 # find_package(Freetype REQUIRED)
 # find_package(glfw3 REQUIRED)
 
@@ -68,7 +68,7 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
 
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_23)
 target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -O3)
+# target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -O3)
 
 # target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -fconcepts-diagnostics-depth=4)
 

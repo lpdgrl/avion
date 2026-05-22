@@ -48,8 +48,8 @@ namespace avion::core {
     class Object {
     public:
         Object() = default;
-        Object(int id, gfx::Transform transform, Color color, Color mixing_color, Material material);
-        Object(int id, ObjectParams params);
+        Object(gfx::Transform transform, Color color, Color mixing_color, Material material);
+        Object(ObjectParams params);
         Object(const Object& object);
         Object(Object&& object);
 
@@ -69,12 +69,10 @@ namespace avion::core {
         Color GetMixingColor() const noexcept; 
 
         ObjectParams GetParams() const noexcept;
-        int GetId() const noexcept;
 
         void SetParams(ObjectParams params) noexcept;
 
     private:
-        int id_ = 0;
         gfx::Transform m_transform;
         Color color_;
         Color mixing_color_;

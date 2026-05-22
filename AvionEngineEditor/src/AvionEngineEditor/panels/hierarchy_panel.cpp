@@ -28,9 +28,10 @@ namespace avion::editor::panel
     if (node_objects.IsOpen()) 
     {
       RenderHierarchyScene();
-      TestSelectObject();
     }
   }
+
+
   
   void HierarchyPanel::RenderHierarchyScene() const noexcept
   {
@@ -47,8 +48,8 @@ namespace avion::editor::panel
         
         for (auto& object : scene_ctx.GetAllObjects())
         {
-          id = object.object.GetId();
-          text = std::move(core::detail::TypeObjectToString<core::ObjectType>(object.type));
+          id = object.id;
+          text = std::move(core::detail::TypeObjectToString(object.type));
           text += ", id: " + std::to_string(id);
 
           TreeNode node(text.c_str(), ImGuiTreeNodeFlags_Leaf | ui::utils::CheckSelectableTreeNode(selection_mask, selection_index));
@@ -79,7 +80,7 @@ namespace avion::editor::panel
         for (const auto& light : scene_ctx.GetAllSourceLights())
         {
           id = light.id;
-          text = std::move(core::detail::TypeObjectToString<core::LightType>(light.type_light));
+          text = std::move(core::detail::TypeObjectToString(light.type));
           text += ", id: " + std::to_string(id);
           
           TreeNode node(text.c_str(), ImGuiTreeNodeFlags_Leaf | ui::utils::CheckSelectableTreeNode(selection_mask, selection_index));
@@ -106,10 +107,10 @@ namespace avion::editor::panel
       if (tree_node.IsOpen())
       {
         std::string text;
-        for (const auto& [id, model] : scene_ctx.GetModels())
+        for (const auto& ptr_model : scene_ctx.GetModels())
         {
-          text = model.GetFileName();
-          text += ", id: " + std::to_string(id);
+          text = ptr_model->model.GetFileName();
+          text += ", id: " + std::to_string(ptr_model->id);
           TreeNode node(text.c_str(), ImGuiTreeNodeFlags_Leaf | ui::utils::CheckSelectableTreeNode(selection_mask, selection_index));
           if (node.IsOpen())
           {
@@ -117,7 +118,8 @@ namespace avion::editor::panel
             {
               selection_mask = selection_index;
               m_selection_ctx.model.is_select = true;
-              m_selection_ctx.model.filename = model.GetFileName();
+              m_selection_ctx.model.filename = ptr_model->model.GetFileName();
+              m_selection_ctx.model.id = ptr_model->id;
 
               // TODO: Clear m_selection_ctx in method
               m_selection_ctx.light = detail::SelectLight();
@@ -129,44 +131,5 @@ namespace avion::editor::panel
         selection_index = 0;
       }
     }
-  }
-
-
-  void HierarchyPanel::TestSelectObject() const noexcept
-  {
-    auto& scene = m_editor_ctx.engine.GetScene();
-    if (m_selection_ctx.primitive)
-    {
-      const auto& primitive = m_selection_ctx.primitive;
-      std::string msg;
-      msg += "Select is primitive";
-      
-      decltype(auto) p_primitive = scene.GetObject(primitive.id);
-
-      msg += " " + std::to_string(primitive.id);
-    }
-    
-    if (m_selection_ctx.light)
-    {
-      const auto& light = m_selection_ctx.light;
-      std::string msg;
-      msg += "Select is light";
-      
-      decltype(auto) p_light = scene.GetLight(light.id);
-
-      msg += " " + std::to_string(light.id);
-    }
-
-    if (m_selection_ctx.model)
-    {
-      const auto& model = m_selection_ctx.model;
-      std::string msg;
-      msg += "Select is model";
-      
-      decltype(auto) p_light = scene.GetModel(model.filename);
-
-      msg += " " + model.filename;
-    }
-
   }
 } // namespace avion::editor::panel

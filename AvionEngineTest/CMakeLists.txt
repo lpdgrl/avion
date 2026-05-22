@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 
 set(TEST_PROJECT_NAME AvionEngineTest)
 
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+
 add_executable(${TEST_PROJECT_NAME} 
 #    src/main.cpp
      src/editor.cpp

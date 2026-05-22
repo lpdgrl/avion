@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 #include <algorithm>
 #include <type_traits>
 
@@ -41,7 +42,9 @@ namespace avion::core {
   };
   
   struct SceneObject {
-    SceneObject(ObjectType type, int id, ObjectParams params);
+    SceneObject(std::uint16_t id, ObjectType type, ObjectParams params);
+
+    std::uint16_t id{};
     ObjectType type;
     Object object;
   };
@@ -49,15 +52,16 @@ namespace avion::core {
   struct SceneLight {
     std::unique_ptr<ILight> light;
     std::size_t id = 0;
-    LightType type_light;
+    LightType type;
     Color color;
     Size size;
   };
 
-  struct Model
+  struct ModelHandler
   {
-    Model() = delete;
-    Model(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman);
+    ModelHandler() = delete;
+    ModelHandler(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman);
+    ModelHandler(std::uint16_t id, const avion::gfx::Model& model);
 
     std::uint16_t id = 0;
     avion::gfx::Model model;
@@ -67,9 +71,10 @@ namespace avion::core {
   public:
     using Objects       = std::vector<SceneObject>;
     using SourceLight   = std::vector<SceneLight>;
-    using Models        = std::vector<Model>;
+    using Models        = std::vector<std::unique_ptr<ModelHandler>>;
     using ResManager    = resman::ResourceManager;
     using PipelineQueue = gfx::PipelineQueue;
+    using ModelCache    = std::unordered_map<std::string, ModelHandler*>;
 
     Scene() = default;
     explicit Scene(size_t number_object, ResManager& resman, PipelineQueue& pl_queue);
@@ -102,23 +107,30 @@ namespace avion::core {
 
     std::size_t GetAllNumberObjects() const noexcept;
 
-    Object*     GetObject(int id);
-    Object*     GetObject(ObjectType type);
-    SceneLight* GetLight(int id);
-    Model*      GetModel(const std::string& filename);        
+    Object*       GetObject(int id);
+    Object*       GetObject(ObjectType type);
+    SceneLight*   GetLight(int id);
+    ModelHandler* GetModel(std::uint16_t id) noexcept;
+    ModelHandler* GetModel(const std::string& filename);   
+    ModelHandler* GetModel(std::uint16_t id, const std::string& model_name) noexcept;   
 
-    const Object*     GetObject(int id) const noexcept;
-    const SceneLight* GetLight(int id) const noexcept;
-    const Model*      GetModel(const std::string& filename) const noexcept;
+    const Object*       GetObject(int id) const noexcept;
+    const SceneLight*   GetLight(int id) const noexcept;
+    const ModelHandler* GetModel(std::uint16_t id) const noexcept;
+    const ModelHandler* GetModel(const std::string& filename) const noexcept;
+    const ModelHandler* GetModel(std::uint16_t id, const std::string& model_name) const noexcept;
 
   private:
     void AddObject(ObjectType type, ObjectParams params);
     std::unique_ptr<ILight> MakeSourceLight(LightType type) const noexcept;
 
+    ModelHandler* GetModelFromCache(const std::string& filename_model) noexcept;
+
   private:
     Objects objects_on_scene_;
     SourceLight source_lights_on_scene_;
     Models m_models;
+    ModelCache m_cache_models;
     ResManager& m_resman;
     PipelineQueue& m_pl_queue;
   };

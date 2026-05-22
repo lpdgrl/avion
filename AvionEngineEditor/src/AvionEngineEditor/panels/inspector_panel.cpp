@@ -49,11 +49,15 @@ namespace avion::editor::panel
 
   void InspectorPanel::RenderTabModel() const noexcept 
   {
-    ImGui::Text("Model");
-
-    auto* model_obj = m_editor_ctx.engine.GetScene().GetModel(m_select_ctx.model.filename);
-    if (model_obj)
+    auto& select_ctx = m_select_ctx.model;
+    if (auto* model_obj = m_editor_ctx.engine.GetScene().GetModel(select_ctx.id, select_ctx.filename); model_obj != nullptr)
     {
+      std::string msg("Model:");
+      msg.append(m_select_ctx.model.filename);
+      msg.append(" id:");
+      msg.append(std::to_string(model_obj->id));
+      ImGui::Text(msg.c_str());
+
       auto& transform = model_obj->model.GetTransform();
       
       ImGui::Text("Position");
@@ -93,7 +97,7 @@ namespace avion::editor::panel
       ImGui::Text("Specular");
       ImGui::ColorEdit3("##specular_point_light", &specular.x);
       
-      switch (light_obj->type_light)
+      switch (light_obj->type)
       {
         case LightType::kPointLight:
         {
