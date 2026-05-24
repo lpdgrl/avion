@@ -5,10 +5,9 @@ namespace avion::editor::gui
 
   EditorGui::EditorGui(EditorContext context)
   : m_editor_context(context)
-  , m_selection_ctx{}
-  , m_inspector_panel(context, m_selection_ctx)
+  , m_inspector_panel(m_editor_context)
   , m_profiler_panel(ProfilerContex{.profiler = context.engine.GetProfiler()})
-  , m_hierarchy_panel(context, m_selection_ctx)
+  , m_hierarchy_panel(m_editor_context)
   , m_asset_panel(context)
   , m_scene_panel(m_editor_context)
   {

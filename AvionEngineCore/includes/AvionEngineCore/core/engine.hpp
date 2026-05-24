@@ -9,6 +9,12 @@
   #include "AvionEngineCore/renderer/pipeline_queue.hpp"
   #include "AvionEngineCore/renderer/renderer_command.hpp"
 
+  // Forward declaration
+  namespace avion::core
+  {
+    class Window;
+  }; // namespace avion::core
+
   namespace avion::core::engine
   {
 
@@ -21,6 +27,8 @@
         using PipelineQueue   = gfx::PipelineQueue;
         using Pipeline        = gfx::Pipeline;
         using FrameBuffer     = gfx::FrameBuffer;
+        
+        using Window          = core::Window;
 
         template <typename T>
         using UPtr = std::unique_ptr<T>;
@@ -30,10 +38,10 @@
         void Init(int width, int height);
         void Run();
         void Render();
+        void Loop(Window* p_window);
         void Shutdown();
 
         void CreateFrameBuffer(float width, float height);
-
 
         ResManager&   GetResourceManager();
         Pipeline&     GetPipeline();

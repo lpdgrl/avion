@@ -111,20 +111,9 @@ namespace avion::core {
     return GetNumberObjects() + GetNumberSourceLights() + GetNumberModels();
   }
 
-  ModelHandler* Scene::GetModel(const std::string& filename)
+  SceneObject* Scene::GetObject(int id) 
   {
-    return const_cast<ModelHandler*>(static_cast<const Scene*>(this)->GetModel(filename));
-  }
-
-
-  Object* Scene::GetObject(int id) 
-  {
-    return const_cast<Object*>(static_cast<const Scene*>(this)->GetObject(id));
-  }
-
-  SceneLight* Scene::GetLight(int id) 
-  {
-    return const_cast<SceneLight*>(static_cast<const Scene*>(this)->GetLight(id));
+    return const_cast<SceneObject*>(static_cast<const Scene*>(this)->GetObject(id));
   }
 
   Object* Scene::GetObject(ObjectType type) {
@@ -207,7 +196,7 @@ namespace avion::core {
     return m_models;
   }
 
-  const Object* Scene::GetObject(int id) const noexcept
+  const SceneObject* Scene::GetObject(int id) const noexcept
   {
     auto it_object = std::find_if(objects_on_scene_.begin(), objects_on_scene_.end(), [&](const SceneObject& obj_scene) 
     {
@@ -219,70 +208,7 @@ namespace avion::core {
     }
 
     // Return pointer to Object from iterator
-    return &it_object->object;
-  }
-
-  const SceneLight* Scene::GetLight(int id) const noexcept
-  {
-    auto it_light = std::find_if(source_lights_on_scene_.begin(), source_lights_on_scene_.end(), [&](const SceneLight& light) 
-    {
-      return light.id == id;
-    });
-    
-    if (it_light == source_lights_on_scene_.end()) {
-      return nullptr;
-    }
-
-    return &(*it_light);
-  }
-
-  const ModelHandler* Scene::GetModel(const std::string& filename) const noexcept
-  {
-    auto it_model = std::find_if(m_models.begin(), m_models.end(), [&](const std::unique_ptr<ModelHandler>& ptr) {
-        return ptr->model.GetFileName() == filename;
-    });
-
-    if (it_model == m_models.end()) {
-        return nullptr;
-    }
-
-    return it_model->get();
-  }
-
-  ModelHandler* Scene::GetModel(std::uint16_t id, const std::string& model_name) noexcept
-  {
-    return const_cast<ModelHandler*>(static_cast<const Scene*>(this)->GetModel(id, model_name));
-  }
-
-  const ModelHandler* Scene::GetModel(std::uint16_t id, const std::string& model_name) const noexcept
-  {
-    auto it_model = std::find_if(m_models.begin(), m_models.end(), [&](const std::unique_ptr<ModelHandler>& ptr) {
-     return ptr->id == id && ptr->model.GetFileName() == model_name;
-    });
-
-    if (it_model == m_models.end()) {
-        return nullptr;
-    }
-
-    return it_model->get();
-  }
-  
-  ModelHandler* Scene::GetModel(std::uint16_t id) noexcept
-  {
-    return const_cast<ModelHandler*>(static_cast<const Scene*>(this)->GetModel(id));
-  }
-
-  const ModelHandler* Scene::GetModel(std::uint16_t id) const noexcept
-  {
-    auto it_model = std::find_if(m_models.begin(), m_models.end(), [&](const std::unique_ptr<ModelHandler>& ptr) {
-     return ptr->id == id;
-    });
-
-    if (it_model == m_models.end()) {
-        return nullptr;
-    }
-
-    return it_model->get();
+    return &(*it_object);
   }
 
   ModelHandler::ModelHandler(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman)

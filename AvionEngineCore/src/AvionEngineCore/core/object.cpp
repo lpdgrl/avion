@@ -120,6 +120,8 @@ namespace avion::core {
       return material_;
     }
 
+
+
     // ObjectId::ObjectId(int id, Position position, Size size, Color color): id(id), object(position, size, color) {}
 
 } // namespace avion::core

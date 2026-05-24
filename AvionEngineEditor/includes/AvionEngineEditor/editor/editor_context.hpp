@@ -53,6 +53,7 @@ namespace avion::editor::detail
   {
     core::engine::Engine& engine;
     EditorState state;
+    SelectionContext selection_ctx;
   };
 
 

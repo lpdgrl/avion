@@ -72,11 +72,15 @@ namespace avion::core {
 
         void SetParams(ObjectParams params) noexcept;
 
+        bool IsSelected() const noexcept;
+        void SetSelectable() noexcept;
+
     private:
         gfx::Transform m_transform;
         Color color_;
         Color mixing_color_;
         Material material_;
+        bool m_is_selected = false;
     };
 
     // struct ObjectId {

@@ -3,9 +3,8 @@
 namespace avion::editor::panel
 {
 
-  InspectorPanel::InspectorPanel(InspectorPanel::EditorContext editor_ctx, SelectionContext& select_ctx)
+  InspectorPanel::InspectorPanel(InspectorPanel::EditorContext& editor_ctx)
   : m_editor_ctx(editor_ctx)
-  , m_select_ctx(select_ctx)
   {
 
   }
@@ -32,15 +31,15 @@ namespace avion::editor::panel
     TabItem item("Object");
     if (item.IsOpen())
     {
-      if (m_select_ctx.model)
+      if (m_editor_ctx.selection_ctx.model)
       { 
         RenderTabModel();
       }
-      else if (m_select_ctx.light)
+      else if (m_editor_ctx.selection_ctx.light)
       {
         RenderTabLight();
       }
-      else if (m_select_ctx.primitive)
+      else if (m_editor_ctx.selection_ctx.primitive)
       {
         RenderTabPrimitive();
       }
@@ -49,11 +48,11 @@ namespace avion::editor::panel
 
   void InspectorPanel::RenderTabModel() const noexcept 
   {
-    auto& select_ctx = m_select_ctx.model;
+    auto& select_ctx = m_editor_ctx.selection_ctx.model;
     if (auto* model_obj = m_editor_ctx.engine.GetScene().GetModel(select_ctx.id, select_ctx.filename); model_obj != nullptr)
     {
       std::string msg("Model:");
-      msg.append(m_select_ctx.model.filename);
+      msg.append(m_editor_ctx.selection_ctx.model.filename);
       msg.append(" id:");
       msg.append(std::to_string(model_obj->id));
       ImGui::Text(msg.c_str());
@@ -79,7 +78,7 @@ namespace avion::editor::panel
 
     ImGui::Text("Light");
 
-    auto* light_obj = m_editor_ctx.engine.GetScene().GetLight(m_select_ctx.light.id);
+    auto* light_obj = m_editor_ctx.engine.GetScene().GetLight(m_editor_ctx.selection_ctx.light.id);
     if (light_obj)
     {
       auto& position = light_obj->light->GetGeometry();
@@ -163,12 +162,12 @@ namespace avion::editor::panel
   {
     ImGui::Text("Primitive");
 
-    auto* primitive_obj = m_editor_ctx.engine.GetScene().GetObject(m_select_ctx.primitive.id);
+    auto* primitive_obj = m_editor_ctx.engine.GetScene().GetObject(m_editor_ctx.selection_ctx.primitive.id);
     if (primitive_obj)
     {
-      auto& transform = primitive_obj->GetTransform();
-      auto& color = primitive_obj->GetColor();
-      auto& material = primitive_obj->GetMaterial();
+      auto& transform = primitive_obj->object.GetTransform();
+      auto& color = primitive_obj->object.GetColor();
+      auto& material = primitive_obj->object.GetMaterial();
 
       ImGui::Text("Position");
       ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);

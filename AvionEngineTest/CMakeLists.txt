@@ -7,6 +7,7 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 add_executable(${TEST_PROJECT_NAME} 
 #    src/main.cpp
      src/editor.cpp
+#      src/sandbox.cpp
 )
 
 target_link_libraries(${TEST_PROJECT_NAME} AvionEngineEditor)

@@ -30,9 +30,15 @@ namespace avion::gfx {
     }
 
     void Renderer::Init() {
-        glEnable(GL_BLEND);
+        // glEnable(GL_BLEND);
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glEnable(GL_DEPTH_TEST);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthFunc(GL_LESS);
+
+        // glEnable(GL_STENCIL_TEST);
+        // glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        // glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
         // text_ = new TextRender(PATH_TO_FONT);
         // text_->Initialaztion();
@@ -368,7 +374,6 @@ namespace avion::gfx {
     void Renderer::SetPerspectiveProjection(float fov, unsigned int width, unsigned int height, float near, float far) {
         // We set the projection once?
         projection_ = glm::perspective(glm::radians(fov), static_cast<float>(width) / static_cast<float>(height), near, far);
-
 
         for (const auto& [_, shader] : m_storage_shaders.GetStorage()) {
           shader->PutData("projection", projection_);

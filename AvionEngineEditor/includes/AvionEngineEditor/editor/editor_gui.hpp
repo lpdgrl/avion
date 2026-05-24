@@ -33,7 +33,6 @@ namespace avion::editor::gui
 
     private:
       EditorContext     m_editor_context;
-      SelectionContext  m_selection_ctx;
       
       InspectorPanel    m_inspector_panel;
       ProfilerPanel     m_profiler_panel;

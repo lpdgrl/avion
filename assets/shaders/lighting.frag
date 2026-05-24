@@ -125,6 +125,16 @@ void main()
   }
 
   FragColor = vec4(result, 1.0);
+
+  // DEPTH TESTING EXPIREMENTS 
+  // float near = 0.1;
+  // float far = 100.0;
+  
+  // float z = gl_FragCoord.z * 2.0 - 1.0; // back to NDC
+  // float res_linear = (2.0 * near * far) / (far + near - z * (far - near));
+  // res_linear /= far;
+
+  // FragColor = vec4(vec3(res_linear), 1.0);
 }
 
 

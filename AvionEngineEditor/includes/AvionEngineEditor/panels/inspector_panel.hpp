@@ -20,7 +20,7 @@
       using SelectionContext  = detail::SelectionContext;
 
       public:
-        InspectorPanel(EditorContext context, SelectionContext& select_ctx);
+        InspectorPanel(EditorContext& context);
 
         void Render();
         
@@ -38,8 +38,7 @@
           core::Material& material) const noexcept;
 
       private:
-        EditorContext     m_editor_ctx;
-        SelectionContext&  m_select_ctx;
+        EditorContext&    m_editor_ctx;
     };
 
   } // namespace avion::editor::panel

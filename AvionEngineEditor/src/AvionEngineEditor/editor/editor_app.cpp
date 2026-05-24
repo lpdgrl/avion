@@ -5,7 +5,7 @@ namespace avion::editor::app
 
   EditorApp::EditorApp(const char* name_window, int width, int height)
   : m_gui_context(m_engine.GetResourceManager())
-  , m_editor_gui(detail::EditorContext{.engine = m_engine, .state{}})
+  , m_editor_gui(detail::EditorContext{.engine = m_engine, .state{}, .selection_ctx{}})
   {
     m_window = std::make_unique<Window>(name_window, width, height, m_engine.GetPipeline(), m_engine.GetProfiler());
     m_window->Init();
@@ -34,6 +34,7 @@ namespace avion::editor::app
   {
     auto& scene_fbo = m_engine.GetFrameBuffer();
     
+    m_window->GlEnable();
     while(!m_window->WindowShouldClose())
     {
       m_window->DeltaTimeUpdate();
@@ -48,12 +49,14 @@ namespace avion::editor::app
       }
 
       m_window->ClearColorGl(0.f, 0.f, 0.f);
-
       m_window->GlViewPort(scene_fbo.Width(), scene_fbo.Height());
       scene_fbo.Bind();
 
       m_window->ClearColorGl(0.2f, 0.2f, 0.2f);
+      
       m_engine.Render();
+
+      m_engine.GetPipeline().RenderOutline(m_editor_gui.GetContext().selection_ctx);
 
       scene_fbo.Unbind();
 

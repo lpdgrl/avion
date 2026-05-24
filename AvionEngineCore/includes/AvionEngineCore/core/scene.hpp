@@ -44,7 +44,7 @@ namespace avion::core {
   struct SceneObject {
     SceneObject(std::uint16_t id, ObjectType type, ObjectParams params);
 
-    std::uint16_t id{};
+    std::uint32_t id{};
     ObjectType type;
     Object object;
   };
@@ -107,32 +107,36 @@ namespace avion::core {
 
     std::size_t GetAllNumberObjects() const noexcept;
 
-    Object*       GetObject(int id);
+    SceneObject*       GetObject(int id);
     Object*       GetObject(ObjectType type);
-    SceneLight*   GetLight(int id);
-    ModelHandler* GetModel(std::uint16_t id) noexcept;
-    ModelHandler* GetModel(const std::string& filename);   
-    ModelHandler* GetModel(std::uint16_t id, const std::string& model_name) noexcept;   
 
-    const Object*       GetObject(int id) const noexcept;
-    const SceneLight*   GetLight(int id) const noexcept;
-    const ModelHandler* GetModel(std::uint16_t id) const noexcept;
-    const ModelHandler* GetModel(const std::string& filename) const noexcept;
-    const ModelHandler* GetModel(std::uint16_t id, const std::string& model_name) const noexcept;
+    const SceneObject*       GetObject(int id) const noexcept;
+
+    template<typename Self>
+    decltype(auto) GetLight(this Self& self, int id);
+
+    template <typename Self>
+    decltype(auto) GetModel(this Self& self, std::uint32_t id, const std::string& filename);
+    template <typename Self>
+    decltype(auto) GetModel(this Self& self, std::uint32_t id);
+    template <typename Self>
+    decltype(auto) GetModel(this Self& self, const std::string& filename);
 
   private:
-    void AddObject(ObjectType type, ObjectParams params);
+    void                    AddObject(ObjectType type, ObjectParams params);
     std::unique_ptr<ILight> MakeSourceLight(LightType type) const noexcept;
+    ModelHandler*           GetModelFromCache(const std::string& filename_model) noexcept;
 
-    ModelHandler* GetModelFromCache(const std::string& filename_model) noexcept;
+    template <typename Self, typename Pred>
+    decltype(auto) FindModel(this Self& self, Pred&& pred);
 
   private:
-    Objects objects_on_scene_;
-    SourceLight source_lights_on_scene_;
-    Models m_models;
-    ModelCache m_cache_models;
-    ResManager& m_resman;
-    PipelineQueue& m_pl_queue;
+    Objects         objects_on_scene_;
+    SourceLight     source_lights_on_scene_;
+    Models          m_models;
+    ModelCache      m_cache_models;
+    ResManager&     m_resman;
+    PipelineQueue&  m_pl_queue;
   };
 
   template <typename Params>
@@ -143,8 +147,65 @@ namespace avion::core {
         AddObject(type, params);
     } 
   }
-} // namespace avion::core
 
+  template<typename Self>
+  decltype(auto) Scene::GetLight(this Self& self, int id)
+  {
+    using ReturnType = std::conditional_t<
+      std::is_const_v<std::remove_reference_t<Self>>,
+      const SceneLight*,
+      SceneLight*
+    >;
+
+    auto it = std::find_if(self.source_lights_on_scene_.begin(), self.source_lights_on_scene_.end(), [id](const auto& handler)
+      { return handler.id == id; });
+
+    if (it == self.source_lights_on_scene_.end()) 
+    {
+      return ReturnType{nullptr};
+    }
+
+    return static_cast<ReturnType>(&(*it));
+  }
+  
+  template <typename Self>
+  decltype(auto) Scene::GetModel(this Self& self, std::uint32_t id, const std::string& filename)
+  {
+    return self.FindModel([id, &filename] (const auto& handler) { return handler->id == id && handler->model.GetFileName() == filename; });
+  }
+
+  template <typename Self>
+  decltype(auto) Scene::GetModel(this Self& self, std::uint32_t id)
+  {
+    return self.FindModel([id] (const auto& handler) { return handler->id == id; });
+  }
+
+  template <typename Self>
+  decltype(auto) Scene::GetModel(this Self& self, const std::string& filename)
+  {
+    return self.FindModel([&filename] (const auto& handler) { return handler->model.GetFileName() == filename; });
+  }
+
+  template <typename Self, typename Pred>
+  decltype(auto) Scene::FindModel(this Self& self, Pred&& pred)
+  {
+    using ReturnType = std::conditional_t<
+      std::is_const_v<std::remove_reference_t<Self>>,
+      const ModelHandler*,
+      ModelHandler*
+    >;
+
+    auto it = std::find_if(self.m_models.begin(), self.m_models.end(), std::forward<decltype(pred)>(pred));
+
+    if (it == self.m_models.end())
+    {
+      return ReturnType{nullptr};
+    }
+
+    return static_cast<ReturnType>(it->get());
+  }
+
+} // namespace avion::core
 
 namespace avion::core::detail
 {

@@ -1,4 +1,5 @@
 #include "AvionEngineCore/core/engine.hpp"
+#include "AvionEngineCore/core/window.hpp"
 
 namespace avion::core::engine
 {
@@ -94,4 +95,20 @@ namespace avion::core::engine
     return m_profiler;
   }
 
+  void Engine::Loop(Engine::Window* p_window)
+  {
+    p_window->GlEnable();
+    while(!p_window->WindowShouldClose())
+    {
+      p_window->DeltaTimeUpdate();
+      p_window->ProcessEvents();
+
+    
+      p_window->ClearColorGl(0.2f, 0.2f, 0.2f);
+      Render();
+
+      p_window->SwapBuffers();
+      p_window->PollEvents();
+    }
+  }
 } // namespace avion::core

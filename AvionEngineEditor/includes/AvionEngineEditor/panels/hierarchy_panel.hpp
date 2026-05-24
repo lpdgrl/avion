@@ -18,7 +18,7 @@
       using SelectionContext  = detail::SelectionContext;
       
       public:
-        HierarchyPanel(EditorContext editor_ctx, SelectionContext& select_ctx);
+        HierarchyPanel(EditorContext& editor_ctx);
 
         void Render();   
         ~HierarchyPanel() = default;
@@ -26,8 +26,7 @@
       private:
         void RenderHierarchyScene() const noexcept;
       private:
-        EditorContext     m_editor_ctx;
-        SelectionContext& m_selection_ctx;
+        EditorContext&    m_editor_ctx;
         std::uint16_t     m_number_objects{};
     };
     

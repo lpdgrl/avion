@@ -3,6 +3,13 @@
 #include "renderer.hpp"
 #include "AvionEngineCore/core/scene.hpp"
 
+// Forward declaration
+namespace avion::editor::detail
+{
+  struct SelectionContext;
+}
+
+// Forward declaration
 namespace avion::core
 {
   struct CameraState;
@@ -37,6 +44,7 @@ namespace avion::gfx {
     void ProcessMouseMovement(double xoffset, double yoffset) const noexcept;
 
     void TransferDataToFrameBuffer() noexcept;
+    void RenderOutline(editor::detail::SelectionContext& selection_ctx);
 
     glm::vec3 GetCameraPosition() const noexcept;
 

@@ -3,9 +3,8 @@
 namespace avion::editor::panel
 {
 
-  HierarchyPanel::HierarchyPanel(HierarchyPanel::EditorContext editor_ctx, HierarchyPanel::SelectionContext& select_ctx)
+  HierarchyPanel::HierarchyPanel(HierarchyPanel::EditorContext& editor_ctx)
   : m_editor_ctx(editor_ctx)
-  , m_selection_ctx(select_ctx)
   {
   }
 
@@ -58,12 +57,12 @@ namespace avion::editor::panel
             if (node.IsSelectable())
             {
               selection_mask = selection_index;
-              m_selection_ctx.primitive.is_select = true;
-              m_selection_ctx.primitive.id = id;
+              m_editor_ctx.selection_ctx.primitive.is_select = true;
+              m_editor_ctx.selection_ctx.primitive.id = id;
 
               // TODO: Clear m_selection_ctx in method
-              m_selection_ctx.model = detail::SelectModel();
-              m_selection_ctx.light = detail::SelectLight();
+              m_editor_ctx.selection_ctx.model = detail::SelectModel();
+              m_editor_ctx.selection_ctx.light = detail::SelectLight();
             }
           }
           selection_index++;
@@ -89,12 +88,12 @@ namespace avion::editor::panel
             if (node.IsSelectable())
             {
               selection_mask = selection_index;
-              m_selection_ctx.light.is_select = true;
-              m_selection_ctx.light.id = id;
+              m_editor_ctx.selection_ctx.light.is_select = true;
+              m_editor_ctx.selection_ctx.light.id = id;
 
               // TODO: Clear m_selection_ctx in method
-              m_selection_ctx.model = detail::SelectModel();
-              m_selection_ctx.primitive = detail::SelectPrimitive();
+              m_editor_ctx.selection_ctx.model = detail::SelectModel();
+              m_editor_ctx.selection_ctx.primitive = detail::SelectPrimitive();
             }
           }
           selection_index++;
@@ -117,13 +116,13 @@ namespace avion::editor::panel
             if (node.IsSelectable())
             {
               selection_mask = selection_index;
-              m_selection_ctx.model.is_select = true;
-              m_selection_ctx.model.filename = ptr_model->model.GetFileName();
-              m_selection_ctx.model.id = ptr_model->id;
+              m_editor_ctx.selection_ctx.model.is_select = true;
+              m_editor_ctx.selection_ctx.model.filename = ptr_model->model.GetFileName();
+              m_editor_ctx.selection_ctx.model.id = ptr_model->id;
 
               // TODO: Clear m_selection_ctx in method
-              m_selection_ctx.light = detail::SelectLight();
-              m_selection_ctx.primitive = detail::SelectPrimitive();
+              m_editor_ctx.selection_ctx.light = detail::SelectLight();
+              m_editor_ctx.selection_ctx.primitive = detail::SelectPrimitive();
             }
           }
           selection_index++;
