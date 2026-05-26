@@ -52,7 +52,7 @@ namespace avion::core::engine
   }
   void Engine::Render()
   {
-    m_pipeline->TransferDataToFrameBuffer();
+    m_pipeline->DrawObjects();
   }
 
   void Engine::Run()

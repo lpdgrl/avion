@@ -24,7 +24,11 @@ namespace avion::gfx {
 
   class Pipeline {
   public:
-    using RenderState = core::RenderState;
+    using RenderState         = core::RenderState;
+    using SceneLight          = core::SceneLight;
+    using SceneObject         = core::SceneObject;
+    using ModelHandler        = core::ModelHandler;
+    using SelectionContext    = editor::detail::SelectionContext;
 
     Pipeline() = delete;
     Pipeline(core::Scene& scene, core::resman::ResourceManager& resman, PipelineQueue& pl_queue, RenderState& render_state);
@@ -34,7 +38,6 @@ namespace avion::gfx {
 
     Pipeline& operator=(const Pipeline& other) = delete;
     Pipeline& operator=(Pipeline&& other) = delete;
-
     
     ~Pipeline();
 
@@ -43,8 +46,8 @@ namespace avion::gfx {
     void ChangeCameraPosition(CameraMovement direction, GLfloat delta_time) const noexcept;
     void ProcessMouseMovement(double xoffset, double yoffset) const noexcept;
 
-    void TransferDataToFrameBuffer() noexcept;
-    void RenderOutline(editor::detail::SelectionContext& selection_ctx);
+    void DrawObjects() noexcept;
+    void DrawSelectableObjects(SelectionContext& selection_ctx) noexcept;
 
     glm::vec3 GetCameraPosition() const noexcept;
 

@@ -40,13 +40,18 @@ namespace avion::core {
   {
 
   };
+
+
   
+
   struct SceneObject {
     SceneObject(std::uint16_t id, ObjectType type, ObjectParams params);
 
     std::uint32_t id{};
     ObjectType type;
     Object object;
+
+    bool is_selectable = false;
   };
   
   struct SceneLight {
@@ -55,6 +60,8 @@ namespace avion::core {
     LightType type;
     Color color;
     Size size;
+
+    bool is_selectable = false;
   };
 
   struct ModelHandler
@@ -65,6 +72,8 @@ namespace avion::core {
 
     std::uint16_t id = 0;
     avion::gfx::Model model;
+
+    bool is_selectable = false;
   };
 
   class Scene {

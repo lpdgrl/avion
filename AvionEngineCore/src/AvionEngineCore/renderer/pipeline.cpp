@@ -24,6 +24,7 @@ namespace avion::gfx {
 
     void Pipeline::Init(int width, int height) {
       using resman = core::resman::ResourceManager;
+
       m_resman.RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
       m_resman.RegisterResource(core::resman::ResourceType::kShader,  "assets/shaders");
       m_resman.RegisterResource(core::resman::ResourceType::kModel,   "assets/models");
@@ -34,7 +35,14 @@ namespace avion::gfx {
       std::string shader_model_light_source("shader_model_light_source");
       std::string frag_model("model");
       std::string select_single_object("single_object");
-      
+      std::string select_single_model("single_model");
+
+      m_shaders_storage.RegisterShader(
+        select_single_model,
+        m_resman.GetResource<resman::FsPath>("select_single_model.vert")->c_str(),
+        m_resman.GetResource<resman::FsPath>("select_single_model.frag")->c_str()
+      );
+
       m_shaders_storage.RegisterShader(
         select_single_object,
         m_resman.GetResource<resman::FsPath>("select_single_color.vert")->c_str(),
@@ -86,15 +94,18 @@ namespace avion::gfx {
         renderer_->ProcessMouseMovement(xoffset, yoffset);
     }
 
-    void Pipeline::TransferDataToFrameBuffer() noexcept 
+    void Pipeline::DrawObjects() noexcept 
     {
       const auto& objects_scene = scene_.GetAllObjects();
       const auto& lights_scene = scene_.GetAllSourceLights();
       
       ShaderType_t type_shader_t;
 
+      glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+
       // TODO: It is strange deal
-      for (const auto& [curr_light, id, type_light,  light_color, light_size] : lights_scene) {  
+      for (const auto& [curr_light, id, type_light,  light_color, light_size, is_selectable] : lights_scene) {  
 
         type_shader_t.name = "shader_model_light_source";
         // AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader of light " + type_shader_t.name);
@@ -103,9 +114,9 @@ namespace avion::gfx {
 
         Transform transform {
           .position = curr_light->GetGeometry(),
-          .rotation{1.f},
+          .rotation{0.f},
           .size = light_size.size,
-          .value_rotate{},
+          .value_rotate{0.f},
           .axis = AxisRotate::NONE,
         };
 
@@ -116,13 +127,22 @@ namespace avion::gfx {
             .key         = VertexObjectType::kLight
         };
 
+        if (is_selectable)
+        { 
+          glStencilMask(0xFF);
+        } 
+        else 
+        {
+          glStencilMask(0x00);
+        }
+
         renderer_->Draw(render_context);
       } 
       
-      for (const auto& [id, type, object] : objects_scene) {
-        auto [_, color, mixing_color, material] = object.GetParams();
+      for (auto& obj_scn : objects_scene) {
+        auto [_, color, mixing_color, material] = obj_scn.object.GetParams();
 
-        auto& transform = object.GetTransform();
+        auto& transform = obj_scn.object.GetTransform();
 
         type_shader_t.name = "lighting";
 
@@ -164,8 +184,17 @@ namespace avion::gfx {
           .name_shader = type_shader_t.name,
           .transform   = transform,
           .mat_tex     = mat_tex,
-          .key = static_cast<VertexObjectType>(type)
+          .key = static_cast<VertexObjectType>(obj_scn.type)
         };
+
+        if (obj_scn.is_selectable)
+        { 
+          glStencilMask(0xFF);
+        } 
+        else 
+        {
+          glStencilMask(0x00);
+        }
 
         renderer_->Draw(render_context);
       }
@@ -175,7 +204,6 @@ namespace avion::gfx {
 
     void Pipeline::ProcessMesh() noexcept
     {
-      
       while (!m_pl_queue.IsEmpty()) 
       {
         Mesh *mesh = m_pl_queue.Dequeue();
@@ -220,6 +248,16 @@ namespace avion::gfx {
         render_context.transform = ptr_model->model.GetTransform();
         renderer_->SetRenderContext(render_context);
         auto& meshs = ptr_model->model.GetMeshs();
+
+        if (ptr_model->is_selectable)
+        {
+          glStencilMask(0xFF);
+        }
+        else 
+        {
+          glStencilMask(0x00);
+        }
+
         for (auto& mesh : meshs)
         {
           renderer_->Draw(mesh, type_shader_t.name);
@@ -310,124 +348,55 @@ namespace avion::gfx {
     m_shaders_storage.PutData(name_shader, "number_spot_lights", static_cast<int>(count_spot_light)); 
   }
 
-  void Pipeline::RenderOutline(editor::detail::SelectionContext& selection_ctx)
+  void Pipeline::DrawSelectableObjects(SelectionContext& selection_ctx) noexcept
   {
     ShaderType_t type_shader_t;
     type_shader_t.name = "lighting";
 
-    static constexpr float scale = 1.05f;
+    RenderContext render_ctx{
+      .type_shader = type_shader_t.type,
+      .name_shader = type_shader_t.name,
+      .transform{},
+      .mat_tex{},
+      .key{}
+    };
 
     if (selection_ctx.primitive.is_select)
     {
-      if (decltype(auto) p_object = scene_.GetObject(selection_ctx.primitive.id); p_object != nullptr)
+      if (auto p_object = scene_.GetObject(selection_ctx.primitive.id); p_object != nullptr)
       { 
-        Transform transform = p_object->object.GetTransform();
-
-        RenderContext render_context{
-            .type_shader = type_shader_t.type,
-            .name_shader = type_shader_t.name,
-            .transform   = transform,
-            .mat_tex{},
-            .key = static_cast<VertexObjectType>(p_object->type)
-          };
-        
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-
-        glEnable(GL_STENCIL_TEST);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        glDepthMask(GL_FALSE);
-
-        renderer_->Draw(render_context);
-
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        glDepthMask(GL_FALSE);
-        glDisable(GL_DEPTH_TEST);
-
-        render_context.name_shader = "single_object";
-        render_context.transform.size.x *= scale;
-        render_context.transform.size.y *= scale;
-        render_context.transform.size.z *= scale;
-
-        renderer_->Draw(render_context);
-
-        glDepthMask(GL_TRUE);
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
-        glStencilMask(0xFF);
-        glDisable(GL_STENCIL_TEST);
+        render_ctx.transform = p_object->object.GetTransform();
+        render_ctx.key = static_cast<VertexObjectType>(p_object->type);
+        renderer_->DrawOutline(render_ctx);
       }
     }
     else if (selection_ctx.light.is_select)
     {
-      if (decltype(auto) p_object = scene_.GetLight(selection_ctx.light.id); p_object != nullptr)
+      if (auto p_object = scene_.GetLight(selection_ctx.light.id); p_object != nullptr)
       {
         Transform transform {
           .position = p_object->light->GetGeometry(),
           .rotation{0.f},
-          .size = p_object->size.size
+          .size = p_object->size.size,
+          .value_rotate{0.f},
+          .axis = AxisRotate::NONE
         };
 
-        RenderContext render_context{
-            .type_shader = type_shader_t.type,
-            .name_shader = type_shader_t.name,
-            .transform   = transform,
-            .mat_tex{},
-            .key = static_cast<VertexObjectType>(core::ObjectType::kCube)
-          };
-        
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
+        render_ctx.name_shader = "shader_model_light_source";
+        render_ctx.transform = transform;
+        render_ctx.key = VertexObjectType::kLight;
 
-        glEnable(GL_STENCIL_TEST);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        glDepthMask(GL_FALSE);
-
-        renderer_->Draw(render_context);
-
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        glDepthMask(GL_FALSE);
-        glDisable(GL_DEPTH_TEST);
-
-        render_context.name_shader = "single_object";
-        render_context.transform.size.x *= scale;
-        render_context.transform.size.y *= scale;
-        render_context.transform.size.z *= scale;
-
-        renderer_->Draw(render_context);
-
-        glDepthMask(GL_TRUE);
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
-        glStencilMask(0xFF);
-        glDisable(GL_STENCIL_TEST);
+        renderer_->DrawOutline(render_ctx);
       }
     }
     else if (selection_ctx.model)
     {
       if (decltype(auto) p_object = scene_.GetModel(selection_ctx.model.id); p_object != nullptr)
       {
-   
+        renderer_->DrawOutlineModel(p_object->model);
       }
     }
   }
-
 
   glm::vec3 Pipeline::GetCameraPosition() const noexcept
   {

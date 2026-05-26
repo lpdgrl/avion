@@ -1,5 +1,10 @@
 ## DevLog
 
+**2026-05-26**
+- Отрефакторил метод DrawOutline в классе Renderer.
+- Добавил поле is_selectable в SceneLight, SceneObject, ModelHandler для понимания, выбран ли объект или нет.
+- Добавил метод ClearOldSelectableObject в HierarchyPanel для очистки предыдущего выделения. 
+
 **2026-05-24**
 - Добавил простой outline к объекту на сцене, который выбран. 
 

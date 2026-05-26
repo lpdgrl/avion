@@ -1,5 +1,6 @@
 #include "AvionEngineCore/renderer/renderer.hpp"
 #include "AvionEngineCore/renderer/mesh.hpp"
+#include "AvionEngineCore/renderer/model.hpp"
 
 #include "AvionEngineCore/core/resource_manager.hpp"
 #include "AvionEngineCore/core/texture.hpp"
@@ -30,22 +31,20 @@ namespace avion::gfx {
     }
 
     void Renderer::Init() {
-        // glEnable(GL_BLEND);
-        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      glEnable(GL_DEPTH_TEST);
+      glDepthFunc(GL_LESS);
 
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
+      glEnable(GL_STENCIL_TEST);
+      glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+      glStencilMask(0x00);
 
-        // glEnable(GL_STENCIL_TEST);
-        // glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        // glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+      // text_ = new TextRender(PATH_TO_FONT);
+      // text_->Initialaztion();
 
-        // text_ = new TextRender(PATH_TO_FONT);
-        // text_->Initialaztion();
-
-        InitRenderer();
-        InitRendererText();
-        InitCamera();
+      InitRenderer();
+      InitRendererText();
+      InitCamera();
     }
 
     void Renderer::InitCamera() {
@@ -683,5 +682,61 @@ namespace avion::gfx {
     glm::vec3 Renderer::GetCameraPosition() const noexcept
     {
       return camera_->GetPosition();
+    }
+
+    void Renderer::DrawOutline(RenderContext& render_ctx) noexcept
+    { 
+      static constexpr float scale = 1.05f;
+
+      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+      glStencilMask(0x00);
+      glDisable(GL_DEPTH_TEST);
+
+      render_ctx.name_shader = "single_object";
+      render_ctx.transform.size.x *= scale;
+      render_ctx.transform.size.y *= scale;
+      render_ctx.transform.size.z *= scale;
+
+      Draw(render_ctx);
+
+      glEnable(GL_DEPTH_TEST);
+      glStencilMask(0xFF);
+      glDisable(GL_STENCIL_TEST);
+    }
+
+    void Renderer::DrawOutlineModel(Model& model) noexcept
+    {
+      static constexpr float scale = 1.01f;
+
+      RenderContext render_context{
+        .type_shader{},
+        .name_shader = "model",
+        .transform   = {},
+        .mat_tex     = {},
+        .key         = VertexObjectType::kModel
+      };
+
+      render_context.transform = model.GetTransform();
+      auto& arr_mesh = model.GetMeshs();
+
+      render_context.name_shader = "single_model";
+      render_context.transform.size.x *= scale;
+      render_context.transform.size.y *= scale;
+      render_context.transform.size.z *= scale;
+
+      SetRenderContext(render_context);
+
+      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+      glStencilMask(0x00);
+      glDisable(GL_DEPTH_TEST);
+      
+      for (auto& mesh : arr_mesh)
+      {
+        Draw(mesh, render_context.name_shader);
+      }
+
+      glEnable(GL_DEPTH_TEST);
+      glStencilMask(0xFF);
+      glDisable(GL_STENCIL_TEST);
     }
 } // namespace avion::gfx

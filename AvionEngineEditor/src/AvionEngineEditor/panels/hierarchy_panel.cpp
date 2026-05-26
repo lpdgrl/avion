@@ -30,14 +30,42 @@ namespace avion::editor::panel
     }
   }
 
+  void HierarchyPanel::ClearOldSelectedObject() const noexcept
+  {
+    auto& scene_ctx = m_editor_ctx.engine.GetScene();
 
-  
+    if (m_editor_ctx.selection_ctx.primitive.is_select)
+    {
+      if (auto* p = scene_ctx.GetObject(m_editor_ctx.selection_ctx.primitive.id); p != nullptr)
+      {
+        m_editor_ctx.selection_ctx.primitive = detail::SelectPrimitive();
+        p->is_selectable = false;
+      }
+    } 
+    else if (m_editor_ctx.selection_ctx.light.is_select)
+    {
+      if (auto* p = scene_ctx.GetLight(m_editor_ctx.selection_ctx.light.id); p != nullptr)
+      {
+        m_editor_ctx.selection_ctx.light = detail::SelectLight();
+        p->is_selectable = false;
+      }
+    }
+    else if (m_editor_ctx.selection_ctx.model.is_select)
+    {
+      if (auto* p = scene_ctx.GetModel(m_editor_ctx.selection_ctx.model.id); p != nullptr)
+      {
+        m_editor_ctx.selection_ctx.model = detail::SelectModel();
+        p->is_selectable = false;
+      }
+    }
+  }
+
   void HierarchyPanel::RenderHierarchyScene() const noexcept
   {
     static int selection_mask  = -1;
     static int selection_index = 0;
 
-    const auto& scene_ctx = m_editor_ctx.engine.GetScene();
+    auto& scene_ctx = m_editor_ctx.engine.GetScene();
     {   
       TreeNode tree_node("Primitives", ImGuiTreeNodeFlags_DefaultOpen);
       if (tree_node.IsOpen())
@@ -56,13 +84,11 @@ namespace avion::editor::panel
           {
             if (node.IsSelectable())
             {
+              ClearOldSelectedObject();
               selection_mask = selection_index;
               m_editor_ctx.selection_ctx.primitive.is_select = true;
               m_editor_ctx.selection_ctx.primitive.id = id;
-
-              // TODO: Clear m_selection_ctx in method
-              m_editor_ctx.selection_ctx.model = detail::SelectModel();
-              m_editor_ctx.selection_ctx.light = detail::SelectLight();
+              object.is_selectable = true;
             }
           }
           selection_index++;
@@ -76,7 +102,7 @@ namespace avion::editor::panel
       {
         std::string text;
         int id = -1;
-        for (const auto& light : scene_ctx.GetAllSourceLights())
+        for (auto& light : scene_ctx.GetAllSourceLights())
         {
           id = light.id;
           text = std::move(core::detail::TypeObjectToString(light.type));
@@ -87,13 +113,11 @@ namespace avion::editor::panel
           {
             if (node.IsSelectable())
             {
+              ClearOldSelectedObject();
               selection_mask = selection_index;
               m_editor_ctx.selection_ctx.light.is_select = true;
               m_editor_ctx.selection_ctx.light.id = id;
-
-              // TODO: Clear m_selection_ctx in method
-              m_editor_ctx.selection_ctx.model = detail::SelectModel();
-              m_editor_ctx.selection_ctx.primitive = detail::SelectPrimitive();
+              light.is_selectable = true;
             }
           }
           selection_index++;
@@ -106,7 +130,7 @@ namespace avion::editor::panel
       if (tree_node.IsOpen())
       {
         std::string text;
-        for (const auto& ptr_model : scene_ctx.GetModels())
+        for (auto& ptr_model : scene_ctx.GetModels())
         {
           text = ptr_model->model.GetFileName();
           text += ", id: " + std::to_string(ptr_model->id);
@@ -115,14 +139,12 @@ namespace avion::editor::panel
           {
             if (node.IsSelectable())
             {
+              ClearOldSelectedObject();
               selection_mask = selection_index;
               m_editor_ctx.selection_ctx.model.is_select = true;
               m_editor_ctx.selection_ctx.model.filename = ptr_model->model.GetFileName();
               m_editor_ctx.selection_ctx.model.id = ptr_model->id;
-
-              // TODO: Clear m_selection_ctx in method
-              m_editor_ctx.selection_ctx.light = detail::SelectLight();
-              m_editor_ctx.selection_ctx.primitive = detail::SelectPrimitive();
+              ptr_model->is_selectable = true;
             }
           }
           selection_index++;

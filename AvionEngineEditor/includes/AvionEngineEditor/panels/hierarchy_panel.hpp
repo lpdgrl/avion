@@ -25,6 +25,7 @@
       
       private:
         void RenderHierarchyScene() const noexcept;
+        void ClearOldSelectedObject() const noexcept;
       private:
         EditorContext&    m_editor_ctx;
         std::uint16_t     m_number_objects{};

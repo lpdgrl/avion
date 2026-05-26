@@ -208,7 +208,7 @@ namespace avion::core {
           //     bool changed_light = widget_->w_LightProperties(params);
           // }
 
-          m_pipeline.TransferDataToFrameBuffer();
+          // m_pipeline.TransferDataToFrameBuffer();
 
           // widget_->Render();
 

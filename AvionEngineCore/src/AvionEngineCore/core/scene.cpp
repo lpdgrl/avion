@@ -79,7 +79,7 @@ namespace avion::core {
       MakeSourceLight(type),
       n,
       type,
-      glm::vec3(1.f),
+      glm::vec3(0.471f),
       glm::vec3(0.25f));
   }
 

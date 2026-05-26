@@ -26,6 +26,7 @@ namespace avion::core
 namespace avion::gfx {
 
   class Mesh;
+  class Model;
 
   enum class OpenglObjectType {
       kUnknown = -1,
@@ -111,8 +112,10 @@ namespace avion::gfx {
     void LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const;
     void LoadTexture2D(core::Texture* ptr_texture) const;
 
-
     glm::vec3 GetCameraPosition() const noexcept;
+
+    void DrawOutline(RenderContext& render_ctx) noexcept;
+    void DrawOutlineModel(Model& model) noexcept;
 
   private:
     void InitCamera();
@@ -158,5 +161,4 @@ namespace avion::gfx {
 
     glm::mat4 projection_;
   };
-
 } // namespace avion::gfx

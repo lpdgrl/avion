@@ -49,15 +49,18 @@ namespace avion::editor::app
       }
 
       m_window->ClearColorGl(0.f, 0.f, 0.f);
+
       m_window->GlViewPort(scene_fbo.Width(), scene_fbo.Height());
       scene_fbo.Bind();
+      
+      glEnable(GL_DEPTH_TEST);
+      glEnable(GL_STENCIL_TEST);
 
-      m_window->ClearColorGl(0.2f, 0.2f, 0.2f);
+      m_window->ClearColorGl(0.0f, 0.0f, 0.0f);
       
       m_engine.Render();
-
-      m_engine.GetPipeline().RenderOutline(m_editor_gui.GetContext().selection_ctx);
-
+      m_engine.GetPipeline().DrawSelectableObjects(m_editor_gui.GetContext().selection_ctx);
+      
       scene_fbo.Unbind();
 
       m_window->GlViewPort(m_window->GetWidth(), m_window->GetHeight());
