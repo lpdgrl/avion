@@ -12,16 +12,31 @@ struct Material {
   float fl_shininess;
 };
 
-out vec4 FragColor;
-uniform Material material;
+struct MaterialType {
+  bool is_texture;
+  bool is_prefab_material;
+};
 
 in vec2 TexCoords;
+out vec4 FragColor;
 
+uniform Material material;
+uniform MaterialType material_type;
+ 
 
 void main()
-{             
-    vec4 texColor = texture(material.s2d_diffuse, TexCoords);
-    if(texColor.a < 0.1)
-        discard;
-    FragColor = texColor;
+{   
+    vec4 result;
+    if (material_type.is_prefab_material)
+    {
+      result = vec4(material.v3_diffuse, 1.0);
+    }
+    else
+    {
+      result = texture(material.s2d_diffuse, TexCoords);
+      if(result.a < 0.1)
+          discard;
+    }
+
+    FragColor = result;
 }

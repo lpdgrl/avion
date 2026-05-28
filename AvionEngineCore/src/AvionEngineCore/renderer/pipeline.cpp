@@ -168,6 +168,7 @@ namespace avion::gfx {
         if (material.is_texture) 
         {
           m_shaders_storage.PutData(type_shader_t.name, "material_type.is_texture", true);
+          m_shaders_storage.PutData(type_shader_t.name, "material_type.is_prefab_material", false);
         }
         else 
         {

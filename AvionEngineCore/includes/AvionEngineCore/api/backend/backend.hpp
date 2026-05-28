@@ -2,6 +2,7 @@
 #define AVION_API_BACKEND_H
 
   #include "AvionEngineCore/api/opengl/opengl_renderer.hpp"
+  #include "AvionEngineCore/api/backend/renderstate.hpp"
 
   namespace avion::api::backend
   {
@@ -16,7 +17,8 @@
     class Backend final 
     {
       public:
-        using OpenglRenderer = backend::opengl::OpenglRenderer;
+        using RenderState    = detail::RenderState;
+        using OpenglRenderer = opengl::OpenglRenderer;
 
         Backend() = delete;
         explicit Backend(Api api);
@@ -32,8 +34,9 @@
       protected:
 
       private:
-        OpenglRenderer m_ogl_renderer;
-        Api m_api;
+        RenderState     m_render_state;
+        OpenglRenderer  m_ogl_renderer;
+        Api             m_api;
     };
   }
 
