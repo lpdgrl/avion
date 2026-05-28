@@ -41,7 +41,7 @@ namespace avion::gfx
       return *this;
     }
 
-    assert(&m_resman == &other.m_resman);
+    assert(&m_resman == &other.m_resman && "Copy assignment between models with different ResourceManager");
 
     Model t_model(other);
     Swap(t_model);

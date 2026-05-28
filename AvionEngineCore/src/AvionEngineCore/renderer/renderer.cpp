@@ -59,6 +59,7 @@ namespace avion::gfx {
         LoadVerticesCube();
         LoadVerticesPyramid();
         LoadVerticesSourceLigth();
+        LoadVerticesGrass();
     }
 
     void Renderer::InitTexture() 
@@ -263,6 +264,46 @@ namespace avion::gfx {
         BindVertexArray(0);
     }
 
+    void Renderer::LoadVerticesGrass()
+    {
+           float grass[] = {
+            // positions          // normals           // texture coords
+           -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+           -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+           -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+        };
+
+        //Buffers for objects
+        GenerateBuffer(1, OpenglObjectType::kVAO, VertexObjectType::kGrass);
+        GenerateBuffer(1, OpenglObjectType::kVBO, VertexObjectType::kGrass);
+
+        BindVertexArray(GetVAO(VertexObjectType::kGrass));
+
+        BindBuffer(GL_ARRAY_BUFFER, GetVBO(VertexObjectType::kGrass));
+        BufferData(GL_ARRAY_BUFFER, sizeof(grass), grass, GL_STATIC_DRAW);
+
+        // BindBuffer(GL_ELEMENT_ARRAY_BUFFER, GetEBO(MapKey::OBJECTS));
+        // BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_objects), indices_objects, GL_DYNAMIC_DRAW);
+
+        // Position attribute 
+        SetVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
+        EnableVertexAttribArray(0);
+
+        // Normal attribute
+        SetVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,  8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        EnableVertexAttribArray(1);
+        
+        // Texture attribute
+        SetVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+        EnableVertexAttribArray(2);
+
+        BindVertexArray(0);
+        BindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
     void Renderer::InitRendererText() {
         GenerateBuffer(1, OpenglObjectType::kVAO, VertexObjectType::kText);
         GenerateBuffer(1, OpenglObjectType::kVBO, VertexObjectType::kText);
@@ -405,15 +446,17 @@ namespace avion::gfx {
     void Renderer::LoadTexture2D(std::uint32_t& index_texture, std::uint16_t width, std::uint16_t height, unsigned char* buffer, GLenum format) const 
     {
       glGenTextures(1, &index_texture);
-      std::cout << "index texture: " << index_texture << '\n';
       AV_LOG_DEBUG("Renderer::LoadTexture2D(many args): id texture is assign " + std::to_string(index_texture));
       glBindTexture(GL_TEXTURE_2D, index_texture);
       
+      AV_LOG_DEBUG("format == GL_RGBA " + std::to_string(format == GL_RGBA));
       glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, buffer);
       glGenerateMipmap(GL_TEXTURE_2D);
 
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, 
+          format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, 
+          format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }

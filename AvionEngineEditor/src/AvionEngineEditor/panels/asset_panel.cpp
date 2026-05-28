@@ -64,10 +64,11 @@ namespace avion::editor::panel
     if (tab_item.IsOpen())
     {
       auto& scene = m_context.engine.GetScene();
-      static std::array<bool, 2> selection;
+      static std::array<bool, 3> selection;
 
       ImGui::Selectable("Cube", &selection[0]);
       ImGui::Selectable("Pyramid", &selection[1]);
+      ImGui::Selectable("Grass", &selection[2]);
 
       core::ObjectParams params {
         .transform{
@@ -88,6 +89,11 @@ namespace avion::editor::panel
       else if (selection[1])
       {
         scene.AddObjectToScene(core::ObjectType::kPyramid, params);
+      }
+      // Add grass to scene
+      else if (selection[2])
+      {
+        scene.AddObjectToScene(core::ObjectType::kGrass, params);
       }
 
       std::ranges::fill(selection, false);

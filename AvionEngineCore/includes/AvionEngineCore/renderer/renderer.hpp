@@ -50,6 +50,7 @@ namespace avion::gfx {
       kCube     =  3,
       kPyramid  =  4,
       kModel    =  5,
+      kGrass    =  6,
   };
 
 
@@ -134,6 +135,7 @@ namespace avion::gfx {
     void LoadVerticesCube();
     void LoadVerticesPyramid();
     void LoadVerticesSourceLigth();
+    void LoadVerticesGrass(); 
 
     glm::mat4 RotateMatrix(glm::mat4& model, AxisRotate axis, GLfloat rotate);
     glm::mat4 RotateMatrix(glm::mat4& model, AxisRotate axis, glm::vec3& rotate, GLfloat val_rotate);

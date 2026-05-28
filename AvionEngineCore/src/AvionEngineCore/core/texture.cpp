@@ -77,7 +77,7 @@ namespace avion::core {
       m_width = width;
       m_height = height;
       m_num_color_channels = num_color_channels;
-
+      
       m_is_uploaded = true; 
 
       return m_is_uploaded;

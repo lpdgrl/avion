@@ -35,6 +35,10 @@ namespace avion::editor::app
     auto& scene_fbo = m_engine.GetFrameBuffer();
     
     m_window->GlEnable();
+    
+    // Enable wireframe mode
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     while(!m_window->WindowShouldClose())
     {
       m_window->DeltaTimeUpdate();
@@ -62,6 +66,7 @@ namespace avion::editor::app
       m_engine.GetPipeline().DrawSelectableObjects(m_editor_gui.GetContext().selection_ctx);
       
       scene_fbo.Unbind();
+      
 
       m_window->GlViewPort(m_window->GetWidth(), m_window->GetHeight());
 

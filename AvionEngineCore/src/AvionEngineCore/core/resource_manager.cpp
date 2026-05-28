@@ -56,7 +56,7 @@ namespace avion::core::resman
     std::string msg; 
     msg = (result) ? ("Texture is loading success " + path_str) : "Texture isn't loading success";
     AV_LOG_INFO("ResourceManager: " + msg);
-
+    
     return &holder_observer->data;
   }
 

@@ -19,7 +19,7 @@ namespace avion::core::engine
     m_scene.AddObjectToScene(ObjectType::kCube, ObjectParams{
       .transform{
         .position{0.f, -1.f, 0.f},
-        .size{20.f, 0.05f, 20.f},
+        .size{20.f, 0.5f, 20.f},
       },
       .color{0.5f, 0.f, 0.f},
       .mixing_color{0.f, 0.f, 0.f},

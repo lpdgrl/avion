@@ -6,8 +6,6 @@
 
 #include "AvionEngineCore/controller/controller.hpp"
 
-#include "AvionEngineCore/renderer/framebuffer.hpp"
-
 #include "profiler.hpp"
 #include "resource_manager.hpp"
 
@@ -66,12 +64,6 @@ namespace avion::core {
         void ClearColorGl(float r, float g, float b) noexcept;
         void GlViewPort(float width, float height) noexcept;
 
-
-        inline void SetFrameBuffer(gfx::FrameBuffer* buffer)
-        {
-          m_framebuffer = buffer;
-        }
-
     private:
         void CreateWindow();
         void Render();
@@ -87,8 +79,6 @@ namespace avion::core {
         GLFWwindow* window_ = nullptr;
         Pipeline& m_pipeline;
         Profiler& m_profiler;
-
-        gfx::FrameBuffer* m_framebuffer = nullptr;
 
         // TODO: Understand how to works it (calculate delay and fps)
         GLfloat delta_time_ = 0.f;

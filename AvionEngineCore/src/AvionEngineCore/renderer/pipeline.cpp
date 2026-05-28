@@ -36,6 +36,13 @@ namespace avion::gfx {
       std::string frag_model("model");
       std::string select_single_object("single_object");
       std::string select_single_model("single_model");
+      std::string grass("grass");
+      
+      m_shaders_storage.RegisterShader(
+        grass,
+        m_resman.GetResource<resman::FsPath>("grass.vert")->c_str(),
+        m_resman.GetResource<resman::FsPath>("grass.frag")->c_str()
+      );
 
       m_shaders_storage.RegisterShader(
         select_single_model,
@@ -143,8 +150,8 @@ namespace avion::gfx {
         auto [_, color, mixing_color, material] = obj_scn.object.GetParams();
 
         auto& transform = obj_scn.object.GetTransform();
-
-        type_shader_t.name = "lighting";
+        
+        type_shader_t.name = (obj_scn.type == core::ObjectType::kGrass ? "grass" : "lighting");
 
         // AV_LOG_DEBUG("Pipeline::TransferDataToFrameBuffer: type shader: " + type_shader_t.name);
         

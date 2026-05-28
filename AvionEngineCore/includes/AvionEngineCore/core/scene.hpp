@@ -34,15 +34,13 @@ namespace avion::core {
   enum class ObjectType {
       kCube = 3,
       kPyramid = 4,
+      kGrass = 6,
   };
 
   enum class ModelType
   {
 
   };
-
-
-  
 
   struct SceneObject {
     SceneObject(std::uint16_t id, ObjectType type, ObjectParams params);
@@ -116,10 +114,10 @@ namespace avion::core {
 
     std::size_t GetAllNumberObjects() const noexcept;
 
-    SceneObject*       GetObject(int id);
+    SceneObject*  GetObject(int id);
     Object*       GetObject(ObjectType type);
 
-    const SceneObject*       GetObject(int id) const noexcept;
+    const SceneObject* GetObject(int id) const noexcept;
 
     template<typename Self>
     decltype(auto) GetLight(this Self& self, int id);
@@ -204,7 +202,7 @@ namespace avion::core {
       ModelHandler*
     >;
 
-    auto it = std::find_if(self.m_models.begin(), self.m_models.end(), std::forward<decltype(pred)>(pred));
+    auto it = std::find_if(self.m_models.begin(), self.m_models.end(), std::forward<Pred>(pred));
 
     if (it == self.m_models.end())
     {
@@ -237,6 +235,11 @@ namespace avion::core::detail
         case ObjectType::kPyramid:
         {
           result = "Pyramid";
+          break;
+        }
+        case ObjectType::kGrass:
+        {
+          result = "Grass";
           break;
         }
       }

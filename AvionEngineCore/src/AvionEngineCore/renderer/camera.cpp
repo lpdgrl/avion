@@ -67,8 +67,6 @@ namespace avion::gfx {
         x_offset *= mouse_senstivity_;
         y_offset *= mouse_senstivity_;
 
-       
-
         angle_yaw_   += x_offset;
         angle_pitch_ += y_offset;
         

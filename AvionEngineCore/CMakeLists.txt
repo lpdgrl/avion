@@ -30,28 +30,30 @@ SET(ASSIMP_BUILD_ZLIB ON)
 add_subdirectory(${ASSIMP_DIR})
 
 add_library(${ENGINE_PROJECT_NAME} SHARED
-    src/AvionEngineCore/logger/logger.cpp
-    src/AvionEngineCore/renderer/renderer.cpp
-    # src/AvionEngineCore/renderer/text_rendering.cpp
-    src/AvionEngineCore/renderer/pipeline.cpp
-    src/AvionEngineCore/renderer/shader.cpp
-    src/AvionEngineCore/renderer/camera.cpp
-    src/AvionEngineCore/renderer/model.cpp
-    src/AvionEngineCore/renderer/mesh.cpp
-    src/AvionEngineCore/renderer/pipeline_queue.cpp
-    src/AvionEngineCore/renderer/framebuffer.cpp
-    src/AvionEngineCore/renderer/renderer_command.cpp
-    src/AvionEngineCore/core/engine.cpp
-    src/AvionEngineCore/core/scene.cpp
-    src/AvionEngineCore/core/object.cpp
-    src/AvionEngineCore/core/texture.cpp
-    src/AvionEngineCore/core/window.cpp
-    src/AvionEngineCore/core/light.cpp
-    src/AvionEngineCore/core/material.cpp
-    src/AvionEngineCore/core/resource_manager.cpp
-    src/AvionEngineCore/controller/controller.cpp
-    src/AvionEngineCore/external/glad.c
-    src/AvionEngineCore/external/stb.c
+  src/AvionEngineCore/api/backend/backend.cpp
+  src/AvionEngineCore/api/opengl/opengl_renderer.cpp
+  src/AvionEngineCore/logger/logger.cpp
+  src/AvionEngineCore/renderer/renderer.cpp
+  # src/AvionEngineCore/renderer/text_rendering.cpp
+  src/AvionEngineCore/renderer/pipeline.cpp
+  src/AvionEngineCore/renderer/shader.cpp
+  src/AvionEngineCore/renderer/camera.cpp
+  src/AvionEngineCore/renderer/model.cpp
+  src/AvionEngineCore/renderer/mesh.cpp
+  src/AvionEngineCore/renderer/pipeline_queue.cpp
+  src/AvionEngineCore/renderer/framebuffer.cpp
+  src/AvionEngineCore/renderer/renderer_command.cpp
+  src/AvionEngineCore/core/engine.cpp
+  src/AvionEngineCore/core/scene.cpp
+  src/AvionEngineCore/core/object.cpp
+  src/AvionEngineCore/core/texture.cpp
+  src/AvionEngineCore/core/window.cpp
+  src/AvionEngineCore/core/light.cpp
+  src/AvionEngineCore/core/material.cpp
+  src/AvionEngineCore/core/resource_manager.cpp
+  src/AvionEngineCore/controller/controller.cpp
+  src/AvionEngineCore/external/glad.c
+  src/AvionEngineCore/external/stb.c
 )
 
 target_include_directories(${ENGINE_PROJECT_NAME} 
