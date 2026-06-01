@@ -6,11 +6,11 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 add_executable(${TEST_PROJECT_NAME} 
 #    src/main.cpp
-     src/editor.cpp
-#      src/sandbox.cpp
+     # src/editor.cpp
+     src/sandbox.cpp
 )
 
-target_link_libraries(${TEST_PROJECT_NAME} AvionEngineEditor)
-target_compile_features(${TEST_PROJECT_NAME} PUBLIC cxx_std_23)
+target_link_libraries(${TEST_PROJECT_NAME} AvionEngineCore)
+target_compile_features(${TEST_PROJECT_NAME} PUBLIC cxx_std_26)
 
 set_target_properties(${TEST_PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)

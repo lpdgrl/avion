@@ -32,8 +32,10 @@ add_subdirectory(${ASSIMP_DIR})
 add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/api/backend/backend.cpp
   src/AvionEngineCore/api/opengl/opengl_renderer.cpp
+  src/AvionEngineCore/api/opengl/types/opengl_mesh.cpp
   src/AvionEngineCore/logger/logger.cpp
   src/AvionEngineCore/renderer/renderer.cpp
+  src/AvionEngineCore/renderer/renderer_new.cpp
   # src/AvionEngineCore/renderer/text_rendering.cpp
   src/AvionEngineCore/renderer/pipeline.cpp
   src/AvionEngineCore/renderer/shader.cpp
@@ -68,7 +70,7 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
         assimp
 )
 
-target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_23)
+target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_26)
 # target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 # target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -O3)
 

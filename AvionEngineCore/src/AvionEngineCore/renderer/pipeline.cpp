@@ -3,7 +3,7 @@
 
 #include "AvionEngineCore/core/resource_manager.hpp"
 
-// TODO: THIS IS WRONG!!! VERY WRONGG. THE LEAK ABSTRACTION FROM EDITOR
+// TODO: THIS IS WRONG!!! VERY WRONGG. THE ABSTRACTION LEAKING FROM EDITOR CONTEXT
 #include "../../../../AvionEngineEditor/includes/AvionEngineEditor/editor/editor_context.hpp"
 
 namespace avion::gfx {

@@ -9,6 +9,8 @@
   #include "AvionEngineCore/renderer/pipeline_queue.hpp"
   #include "AvionEngineCore/renderer/renderer_command.hpp"
 
+  #include "AvionEngineCore/api/backend/backend.hpp"
+
   // Forward declaration
   namespace avion::core
   {
@@ -21,6 +23,8 @@
     class Engine 
     {
       public:
+        using Backend         = api::backend::Backend;
+
         using ResManager      = resman::ResourceManager;
 
         using RendererCommand = gfx::RendererCommand; 
@@ -52,6 +56,7 @@
       private:
         static constexpr int kObjectsCreate = 1000;
         
+        UPtr<Backend>       m_backend;
         UPtr<ResManager>    m_resman;
         UPtr<PipelineQueue> m_pl_queue;
         Scene               m_scene;
@@ -59,7 +64,7 @@
         Profiler            m_profiler;
         RendererCommand     m_render_cmd;
         FrameBuffer         m_frame_buffer;
-
+        
         std::string         m_version_engine = "0.0.1";
         bool                m_is_running = false;
     };

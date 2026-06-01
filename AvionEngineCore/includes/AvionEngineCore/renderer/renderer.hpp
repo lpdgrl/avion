@@ -51,6 +51,29 @@ namespace avion::gfx {
       kPyramid  =  4,
       kModel    =  5,
       kGrass    =  6,
+};
+
+  // TODO: Plug
+  struct Material
+  {
+
+  };
+
+  struct BufferIndexes
+  {
+    std::uint32_t idx_vao{};
+    std::uint32_t idx_vbo{};
+    std::uint32_t idx_ebo{};
+  };
+
+  // TODO: 
+  struct RenderItem
+  {
+    // TODO: is that really necessary?
+    std::string name_shader;
+    Transform transform;
+    Material material;
+    BufferIndexes buffer_indexes;
   };
 
 
@@ -73,7 +96,7 @@ namespace avion::gfx {
   public:
     using ResManager  = core::resman::ResourceManager;
     using RenderState = core::RenderState;
-     
+
     Renderer(ShaderStorage& storage, RenderState& render_state);
 
     Renderer(const Renderer&) = delete;
@@ -83,6 +106,11 @@ namespace avion::gfx {
     Renderer& operator=(Renderer&&) = delete;
 
     ~Renderer();
+
+    // TODO: new api 
+    void BeginFrame();
+    void EndFrame();
+    void ApplyRenderItem(RenderItem& render_item);
 
     inline GLuint GetVBO(VertexObjectType key) const { return vbo_.at(key); }
     inline GLuint GetVAO(VertexObjectType key) const { return vao_.at(key); }
@@ -154,7 +182,8 @@ namespace avion::gfx {
     std::map<VertexObjectType, GLuint> vbo_;
     std::map<VertexObjectType, GLuint> ebo_;
     
-    ShaderStorage& m_storage_shaders;
+    std::vector<RenderItem> m_render_items;
+    ShaderStorage&          m_storage_shaders;
 
     bool cursor_state_ = false;
     //

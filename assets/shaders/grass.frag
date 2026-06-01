@@ -33,9 +33,10 @@ void main()
     }
     else
     {
+      // result = texture(material.s2d_diffuse, TexCoords);
+      // if(result.a < 0.1)
+      //     discard;
       result = texture(material.s2d_diffuse, TexCoords);
-      if(result.a < 0.1)
-          discard;
     }
 
     FragColor = result;

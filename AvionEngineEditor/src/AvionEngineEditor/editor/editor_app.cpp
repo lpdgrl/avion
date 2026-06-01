@@ -59,6 +59,8 @@ namespace avion::editor::app
       
       glEnable(GL_DEPTH_TEST);
       glEnable(GL_STENCIL_TEST);
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
       m_window->ClearColorGl(0.0f, 0.0f, 0.0f);
       
@@ -67,7 +69,6 @@ namespace avion::editor::app
       
       scene_fbo.Unbind();
       
-
       m_window->GlViewPort(m_window->GetWidth(), m_window->GetHeight());
 
       m_editor_gui.GetContext().state.texture_id_fbo = scene_fbo.GetFrameTextures();

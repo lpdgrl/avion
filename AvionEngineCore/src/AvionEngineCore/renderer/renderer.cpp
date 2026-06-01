@@ -31,6 +31,7 @@ namespace avion::gfx {
     }
 
     void Renderer::Init() {
+      
       glEnable(GL_DEPTH_TEST);
       glDepthFunc(GL_LESS);
 
@@ -46,6 +47,22 @@ namespace avion::gfx {
       InitRendererText();
       InitCamera();
     }
+
+    void Renderer::BeginFrame()
+    {
+
+    }
+
+    void Renderer::EndFrame()
+    {
+
+    }
+
+    void Renderer::ApplyRenderItem(RenderItem& render_item)
+    {
+
+    }
+
 
     void Renderer::InitCamera() {
         glm::vec3 camera_pos    = glm::vec3(0.0f, 0.0f, 10.0f);
