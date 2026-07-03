@@ -96,7 +96,7 @@ namespace avion::gfx {
 
   Shader::~Shader() {
     // TODO: Delete shader from GPU memory
-    AV_LOG_DEBUG("Shader is destroyed");
+    AV_LOG_INFO("Shader::~Shader(): shader is destroyed");
   }
 
   void Shader::Use() 

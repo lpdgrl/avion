@@ -7,78 +7,51 @@ namespace avion::editor::app
   : m_gui_context(m_engine.GetResourceManager())
   , m_editor_gui(detail::EditorContext{.engine = m_engine, .state{}, .selection_ctx{}})
   {
-    m_window = std::make_unique<Window>(name_window, width, height, m_engine.GetPipeline(), m_engine.GetProfiler());
-    m_window->Init();
-    m_engine.Init(width, height);
+    
   }
 
   bool EditorApp::Init()
   {
-    m_gui_context.Init(m_window->GetPointer());
+    m_engine.Init();
+    m_gui_context.Init(m_engine.GetWindow().GetPointer());
+    m_engine.AddRenderApp(std::make_unique<RenderEditorApp>(*this));
+
+    // m_engine.AddBackendComand("FrameBuffer", "scene"); 
+    m_engine.GetBackend().CreateFrameBuffer("scene", 1020, 700);
 
     return true;
   }
 
   void EditorApp::Run()
   {
-    m_engine.CreateFrameBuffer(1020, 700);
-    RenderLoop();
+    m_engine.Run();
   }
 
   void EditorApp::Exit()
   {
-
+    AV_LOG_TODO("EditorApp::Exit(): TO DO NOTHIG");
   }
 
   void EditorApp::RenderLoop()
   {
-    auto& scene_fbo = m_engine.GetFrameBuffer();
+    auto& backend = m_engine.GetBackend(); 
+    auto& scene_renderer = m_engine.GetSceneRenderer();
+
+    auto& fb_scene = backend.GetFrameBuffer("scene");
+    fb_scene.Bind();
+    backend.SetViewportState({0, 0,  fb_scene.GetWidth(),  fb_scene.GetHeight()});
+    backend.SetColorState({0.1f, 0.1f, 0.5f, 1.f});
+    backend.BeginFrame();
+
+    scene_renderer.Draw();
+
+    backend.EndFrame();    
     
-    m_window->GlEnable();
-    
-    // Enable wireframe mode
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    fb_scene.Unbind();
+    backend.ApplyDefaultRenderState();
 
-    while(!m_window->WindowShouldClose())
-    {
-      m_window->DeltaTimeUpdate();
-      m_window->ProcessEvents();
-
-      unsigned int w = m_editor_gui.GetContext().state.viewport_width;
-      unsigned int h = m_editor_gui.GetContext().state.viewport_height;
-
-      if (w > 0 && h > 0 && (scene_fbo.Width() != w || scene_fbo.Height() != h))
-      {
-          scene_fbo.RescaleFrameBuffer(w, h);
-      }
-
-      m_window->ClearColorGl(0.f, 0.f, 0.f);
-
-      m_window->GlViewPort(scene_fbo.Width(), scene_fbo.Height());
-      scene_fbo.Bind();
-      
-      glEnable(GL_DEPTH_TEST);
-      glEnable(GL_STENCIL_TEST);
-      glEnable(GL_BLEND);
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-      m_window->ClearColorGl(0.0f, 0.0f, 0.0f);
-      
-      m_engine.Render();
-      m_engine.GetPipeline().DrawSelectableObjects(m_editor_gui.GetContext().selection_ctx);
-      
-      scene_fbo.Unbind();
-      
-      m_window->GlViewPort(m_window->GetWidth(), m_window->GetHeight());
-
-      m_editor_gui.GetContext().state.texture_id_fbo = scene_fbo.GetFrameTextures();
-      
-      RunFrame();
-      
-      m_window->SwapBuffers();
-      m_window->PollEvents();
-      m_window->FramePerSecond();
-    }
+    m_editor_gui.GetContext().state.texture_id_fbo = fb_scene.GetTexture();
+    RunFrame();
   }
 
   bool EditorApp::RunFrame()
@@ -98,6 +71,17 @@ namespace avion::editor::app
     m_engine.Shutdown();
   
     return true;
+  }
+
+  RenderEditorApp::RenderEditorApp(EditorApp& app)
+  : m_app(app) 
+  {
+
+  }
+
+  void RenderEditorApp::Render() 
+  {
+    m_app.RenderLoop();
   }
 
 } // namespace avion::editor::app

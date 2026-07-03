@@ -5,10 +5,10 @@
 #include <type_traits>
 #include <memory>
 
-#include "shader.hpp"
-#include "transform.hpp"
+#include "AvionEngineCore/renderer/shader.hpp"
+#include "AvionEngineCore/renderer/transform.hpp"
 // #include "text_rendering.hpp"
-#include "camera.hpp"
+#include "AvionEngineCore/renderer/camera.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 

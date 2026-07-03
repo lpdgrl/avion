@@ -8,7 +8,7 @@ namespace avion::controller {
     }
 
     Controller::~Controller() {
-        AV_LOG_DEBUG("Controller is destroyed");
+        AV_LOG_INFO("Controller::~Controller(): controller is destroyed");
     }
 
     void Controller::MouseCallback(GLFWwindow* window, double xpos, double ypos) {

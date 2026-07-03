@@ -2,7 +2,7 @@
 #define AVION_CORE_MATERIAL_H
 
     #include "glm/glm.hpp"
-    #include "texture.hpp"
+    #include "AvionEngineCore/core/texture.hpp"
 
     #include <vector>
 

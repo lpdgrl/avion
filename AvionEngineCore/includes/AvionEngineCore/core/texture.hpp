@@ -5,7 +5,7 @@
     
     #include "../../stb/stb_image.h"
 
-    #include "../macro.h"
+    #include "AvionEngineCore/macro.h"
 
     #include <string>
     #include <cstdint>  
@@ -37,7 +37,9 @@
             std::uint16_t         GetWidth()          const noexcept;
             std::uint16_t         GetHeight()         const noexcept;
             GLenum                GetColorChannels()  const noexcept;
-            unsigned char*        GetBuffer()         noexcept;
+            std::uint8_t*         GetBuffer()         noexcept;
+            const std::uint8_t*   GetBuffer()         const noexcept { return m_buffer; }
+            std::uint64_t         GetSize()           const noexcept { return m_buffer_size; }
             std::string           GetPath()           const noexcept;
 
             bool IsUploaded() const noexcept;
@@ -47,6 +49,7 @@
 
         private:
             std::string m_path;
+            std::uint64_t m_buffer_size;
             std::uint32_t m_index{};
             std::uint32_t m_num_color_channels{};
             std::uint16_t m_width{};

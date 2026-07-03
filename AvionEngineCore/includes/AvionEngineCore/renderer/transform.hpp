@@ -14,6 +14,8 @@
     };
 
     struct Transform {
+      static constexpr float pi = 3.14159265f;
+
       glm::vec3 position{0.f}; 
       glm::vec3 rotation{0.f};
       glm::vec3 size{1.f};
@@ -27,7 +29,7 @@
         glm::mat4 matrix{1.f};
 
         matrix = glm::translate(matrix, position);
-        float pi = 3.14159265f;
+        
         matrix = glm::rotate(matrix, glm::radians(rotation.x * pi), glm::vec3(0.f, 1.f, 0.f));
         matrix = glm::rotate(matrix, glm::radians(rotation.y * pi), glm::vec3(1.f, 0.f, 0.f));
         matrix = glm::rotate(matrix, glm::radians(rotation.z * pi), glm::vec3(0.f, 0.f, 1.f));

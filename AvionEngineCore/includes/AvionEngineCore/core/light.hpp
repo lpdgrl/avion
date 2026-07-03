@@ -2,7 +2,7 @@
 #define AVION_CORE_LIGHT_H 
 
   #include "../../glm/glm.hpp"
-  #include "object.hpp"
+  #include "AvionEngineCore/core/object.hpp"
 
   #include <memory>
 
@@ -34,7 +34,6 @@
           
           ILight(ILight&& other) = delete;
           ILight& operator=(ILight&& other) = delete;
-
 
           glm::vec3 GetAmbient() const;
           glm::vec3 GetDiffuse() const;

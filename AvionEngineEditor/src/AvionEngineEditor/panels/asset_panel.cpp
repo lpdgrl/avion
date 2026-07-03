@@ -68,32 +68,24 @@ namespace avion::editor::panel
 
       ImGui::Selectable("Cube", &selection[0]);
       ImGui::Selectable("Pyramid", &selection[1]);
-      ImGui::Selectable("Grass", &selection[2]);
+      // ImGui::Selectable("Grass", &selection[2]);
+      ImGui::Selectable("Plane", &selection[2]);
 
-      core::ObjectParams params {
-        .transform{
-          .position{0.f, 0.f, 0.f},
-          .size{1.f, 1.f, 1.f},
-        },
-        .color{0.f, 1.f, 0.f},
-        .mixing_color{},
-        .material{.ambient{0.f, 0.5f, 0.f}, .diffuse{0.f, 1.f, 0.f}, .specular{}, .shininess{}}
-      };
 
       // Add cube to scene
       if (selection[0])
       {
-        scene.AddObjectToScene(core::ObjectType::kCube, params);
+        scene.AddPrimitive(core::Scene::PrimitiveType::kCube);
       }
       // Add pyramid to scene
       else if (selection[1])
       {
-        scene.AddObjectToScene(core::ObjectType::kPyramid, params);
+        scene.AddPrimitive(core::Scene::PrimitiveType::kPyramid);
       }
-      // Add grass to scene
+      // Add plane to scene
       else if (selection[2])
       {
-        scene.AddObjectToScene(core::ObjectType::kGrass, params);
+        scene.AddPrimitive(core::Scene::PrimitiveType::kPlane);
       }
 
       std::ranges::fill(selection, false);

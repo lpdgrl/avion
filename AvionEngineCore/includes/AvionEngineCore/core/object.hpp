@@ -42,7 +42,6 @@ namespace avion::core {
 
 
     std::ostream& operator<<(std::ostream& out, Size size);
-
     std::ostream& operator<<(std::ostream& out, Position pos);
 
     class Object {
@@ -82,11 +81,5 @@ namespace avion::core {
         Material material_;
         bool m_is_selected = false;
     };
-
-    // struct ObjectId {
-    //     ObjectId(int id, Position position, Size size, Color color);
-    //     int id = 0;
-    //     Object object;
-    // };
 
 } // namespace avion::core

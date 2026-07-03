@@ -6,26 +6,34 @@
 
 #include "AvionEngineCore/controller/controller.hpp"
 
-#include "profiler.hpp"
-#include "resource_manager.hpp"
+#include "AvionEngineCore/core/profiler.hpp"
+#include "AvionEngineCore/core/resource_manager.hpp"
 
-namespace avion::gfx
+#include "AvionEngineCore/core/Common/CameraProxy.hpp"
+
+namespace avion::core::detail
 {
-  class Pipeline;
-}
+  struct WindowSize
+  {
+    int width{};
+    int height{};
+  };
+} // namespace avion::core::detail
 
 namespace avion::core {
+    
     class Window {
     public:
-
         using PressedKeys       = std::array<bool, controller::SIZE_ARRAY_KEYS>;
         using CoordinateOffset  = controller::CoordOffset;
         using ResManager        = resman::ResourceManager;
-        using Pipeline          = gfx::Pipeline;
+        using WindowSize        = core::detail::WindowSize;
+
+        using CameraProxy = core::common::CameraProxy;
 
         Window() = delete;
-        Window(const std::string& window_name, int width, int height, Pipeline& pipeline, Profiler& profiler);
-        Window(const char* window_name, int width, int height, Pipeline& pipeline, Profiler& profiler);
+        Window(const std::string& window_name, int width, int height, Profiler& profiler, CameraProxy& camera_proxy);
+        Window(const char* window_name, int width, int height, Profiler& profiler, CameraProxy& camera_proxy);
 
         Window(const Window& other_window) = delete;
         Window(Window&& other_window) = delete;
@@ -38,8 +46,7 @@ namespace avion::core {
 
         void Init();
         void ProcessEvents();
-        void Update();
-
+        
         bool WindowShouldClose();
         void PollEvents();
         void SwapBuffers();
@@ -48,6 +55,7 @@ namespace avion::core {
         static void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
 
         GLFWwindow*      GetPointer()            const;
+        WindowSize       GetSize()               const noexcept;
         int              GetWidth()              const noexcept;
         int              GetHeight()             const noexcept;
         GLfloat          GetDeltaTime()          const noexcept;
@@ -59,17 +67,20 @@ namespace avion::core {
         void DeltaTimeUpdate() noexcept;
         void FramePerSecond() noexcept;
 
-        // TODO: OpenGL funct is dirty arch
-        void GlEnable() const noexcept;
-        void ClearColorGl(float r, float g, float b) noexcept;
-        void GlViewPort(float width, float height) noexcept;
-
     private:
         void CreateWindow();
         void Render();
         void GetLastPosCursor() noexcept;
 
     private:
+        enum class MovementKey : int
+        {
+          kForward = 0,
+          kBackward,
+          kLeft,
+          kRight
+        };
+
         std::string window_name_;
         int width_window_ = 0;
         int height_window_ = 0;
@@ -77,8 +88,8 @@ namespace avion::core {
         controller::Controller controller_;
     
         GLFWwindow* window_ = nullptr;
-        Pipeline& m_pipeline;
         Profiler& m_profiler;
+        CameraProxy& m_camera_proxy;
 
         // TODO: Understand how to works it (calculate delay and fps)
         GLfloat delta_time_ = 0.f;

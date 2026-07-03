@@ -4,7 +4,7 @@
   #include <map>
   #include <string>
 
-  #include "framebuffer.hpp"
+  #include "AvionEngineCore/renderer/framebuffer.hpp"
 
   namespace avion::gfx
   {

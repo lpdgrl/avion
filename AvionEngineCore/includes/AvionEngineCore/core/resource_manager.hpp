@@ -9,7 +9,7 @@
   #include <type_traits>
   #include <vector>
 
-  #include "../macro.h"
+  #include "AvionEngineCore/macro.h"
 
   namespace avion::core
   {
@@ -39,7 +39,8 @@
       kTexture =  1,
       kShader  =  2,
       kModel   =  3,
-      kConfig =  4,
+      kConfig  =  4,
+      kSprites =  5,
     };
 
     class ResourceManager {
@@ -53,7 +54,7 @@
       ~ResourceManager() = default;
 
       bool      RegisterResource(ResourceType resource, std::string_view path_to_resource); 
-      Texture*  RegisterTexture(std::string_view path_to_resource);
+      Texture*  RegisterTexture(const FsPath& path_to_resource);
       
       template <typename T>
       T* GetResource(std::string_view resource) const;
@@ -62,7 +63,7 @@
       const ModelList&   GetModelLoadedList() const noexcept;
 
     private:
-      std::optional<Texture*> CreateAndLoadTexture(const std::string& filename, FsPath& path);
+      std::optional<Texture*> CreateAndLoadTexture(const std::string& filename, const FsPath& path);
       void LoadShader(const std::string& path, bool result);
       void LoadConfig(const std::string& path, bool result);
       void LoadModel(const std::string& path, bool result);
@@ -100,13 +101,15 @@
         return nullptr;
       }
 
-      auto it_res = m_resources.find(resource.data());
+      std::string key(resource.data());
+      auto it_res = m_resources.find(key);
+
       if (it_res == m_resources.end()) {
         std::string err(resource);
         AV_LOG_ERROR("ResourceManager::GetResource: The resource " + err + " isn't loaded.");
         return nullptr;
       }
-
+      
       ResourceHolder<T>* holder_observer = static_cast<ResourceHolder<T>*>(it_res->second.get());
       return &holder_observer->data;
     }

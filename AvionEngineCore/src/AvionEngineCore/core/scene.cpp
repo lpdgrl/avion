@@ -1,25 +1,18 @@
 #include "AvionEngineCore/core/scene.hpp"
-#include "AvionEngineCore/core/resource_manager.hpp"
 #include "AvionEngineCore/renderer/pipeline_queue.hpp"
 
 namespace avion::core {  
-  Scene::Scene(size_t number_objects, ResManager& resman, PipelineQueue& pl_queue) 
-  : m_resman(resman)
-  , m_pl_queue(pl_queue)
+  Scene::Scene(size_t number_objects, ModelManager& model_manager) 
+  : m_model_manager(model_manager)
+  , m_camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f))
   {
-      objects_on_scene_.reserve(number_objects);
-      source_lights_on_scene_.reserve(number_objects);
-      m_models.reserve(number_objects);
+    source_lights_on_scene_.reserve(number_objects);
+    // m_models.reserve(number_objects);
   }
 
   Scene::~Scene() 
   {
-  AV_LOG_DEBUG("Scene is destroyed");
-  }
-
-  void Scene::AddObject(ObjectType type, ObjectParams params) {
-      size_t n = objects_on_scene_.size() + 1;
-      objects_on_scene_.emplace_back(n, type, params);
+  AV_LOG_INFO("Scene::~Scene(): scene is destroyed");
   }
 
   std::unique_ptr<ILight> Scene::MakeSourceLight(LightType type) const noexcept
@@ -73,14 +66,15 @@ namespace avion::core {
 
   void Scene::AddSourceLight(LightType type) 
   {
-    std::size_t n = source_lights_on_scene_.size() + 1;
+    std::size_t n = ++m_last_scene_item_id;
 
     source_lights_on_scene_.emplace_back( 
       MakeSourceLight(type),
       n,
-      type,
-      glm::vec3(0.471f),
-      glm::vec3(0.25f));
+      type
+      // glm::vec3(0.471f),
+      // glm::vec3(0.25f)
+    );
   }
 
   Scene::SourceLight& Scene::GetAllSourceLights()
@@ -88,97 +82,99 @@ namespace avion::core {
       return source_lights_on_scene_;
   }
 
-  Scene::Objects& Scene::GetAllObjects() {
-      return objects_on_scene_;
-  }
-
-  std::size_t Scene::GetNumberObjects() const noexcept {
-      return objects_on_scene_.size();
-  }
-
   std::size_t Scene::GetNumberSourceLights() const noexcept
   {
       return source_lights_on_scene_.size();
   }
 
-  std::size_t Scene::GetNumberModels() const noexcept
-  {
-    return m_models.size();
-  }
-
-  std::size_t Scene::GetAllNumberObjects() const noexcept
-  {
-    return GetNumberObjects() + GetNumberSourceLights() + GetNumberModels();
-  }
-
-  SceneObject* Scene::GetObject(int id) 
-  {
-    return const_cast<SceneObject*>(static_cast<const Scene*>(this)->GetObject(id));
-  }
-
-  Object* Scene::GetObject(ObjectType type) {
-      auto it_object = std::find_if(objects_on_scene_.begin(), objects_on_scene_.end(), [&](SceneObject& obj_scene) {
-          return obj_scene.type == type;
-      });
-
-      if (it_object == objects_on_scene_.end()) {
-          return nullptr;
-      }
-
-      return
-       &it_object->object;
-  }
-
-  SceneObject::SceneObject(std::uint16_t id, ObjectType type, ObjectParams params)
-      : id(id)
-      , type(type)
-      , object(params)
-  {}
+  // std::size_t Scene::GetNumberModels() const noexcept
+  // {
+  //   return m_models.size();
+  // }
 
   bool Scene::AddModel(const std::string& model_name) 
   {
-    auto* p_res = m_resman.GetResource<resman::ResourceManager::FsPath>(model_name);
-    if (p_res == nullptr)
+    // auto* p_res = m_resman.GetResource<resman::ResourceManager::FsPath>(model_name);
+    // if (p_res == nullptr)
+    // {
+    //   AV_LOG_ERROR("Scene::AddModel: model not found.");
+    //   return false;
+    // }
+
+    // std::uint16_t id = static_cast<std::uint16_t>(m_models.size() + 1);
+
+    //  // Если модель есть в кэше, то возвращаем на неё указатель
+    // if (auto *ptr = GetModelFromCache(model_name); ptr != nullptr)
+    // {
+    //   m_models.emplace_back(std::make_unique<ModelHandler>(id, ptr->model));
+    //   return true;
+    // }
+
+    auto&& model_load_result = m_model_manager.Load(model_name);
+    if (!model_load_result.has_value())
     {
-      AV_LOG_ERROR("Scene::AddModel");
+      return false;
+    }
+    auto&& model_item = model_load_result.value();
+
+    m_storage_items.emplace_back(++m_last_scene_item_id, std::move(model_item.model_handler), std::move(model_item.model));
+    auto& ref_last_item = m_storage_items.back();
+    m_cache_items.emplace(ref_last_item.id, ref_last_item);
+    
+    // Если в кеше нет модели, то грузим файл модели в импортер и кладём указатель в кэш
+    // Good way :)d
+    // auto& ptr = m_models.emplace_back(std::make_unique<ModelHandler>(id, p_res->parent_path(), p_res->filename(), m_resman));
+    // auto result = ptr->model.LoadModel();
+
+    // m_cache_models.emplace(model_name, ptr.get());
+  
+    // // PIPELINE QUEUE????
+    // // m_pl_queue.Enqueue(ptr->model.GetMeshs());
+
+    // return result;
+    return true;
+  }
+
+  bool Scene::AddPrimitive(PrimitiveType type)
+  {
+    auto&& primitive_model_load_result = m_model_manager.Load(type);
+    if (!primitive_model_load_result.has_value())
+    {
       return false;
     }
 
-    std::uint16_t id = static_cast<std::uint16_t>(m_models.size() + 1);
-
-     // Если модель есть в кэше, то возвращаем на неё указатель
-    if (auto *ptr = GetModelFromCache(model_name); ptr != nullptr)
-    {
-      m_models.emplace_back(std::make_unique<ModelHandler>(id, ptr->model));
-      return true;
-    }
-    
-    // Если в кеше нет модели, то грузим и ложим указатель в кэш
-    // Good way :)
-    auto& ptr = m_models.emplace_back(std::make_unique<ModelHandler>(id, p_res->parent_path(), p_res->filename(), m_resman));
-    auto result = ptr->model.LoadModel();
-
-    m_cache_models.emplace(model_name, ptr.get());
-
-    // PIPELINE QUEUE????
-    m_pl_queue.Enqueue(ptr->model.GetMeshs());
-
-    return result;
+    auto&& model_item = primitive_model_load_result.value();
+    m_storage_items.emplace_back(++m_last_scene_item_id, std::move(model_item.model_handler), std::move(model_item.model));
+    auto& ref_last_item = m_storage_items.back();
+    m_cache_items.emplace(ref_last_item.id, ref_last_item);
+    return true;
   }
 
-  ModelHandler* Scene::GetModelFromCache(const std::string& filename_model) noexcept
+  // ModelHandler* Scene::GetModelFromCache(const std::string& filename_model) noexcept
+  // {
+  //   if (auto it_model = m_cache_models.find(filename_model); it_model != m_cache_models.cend())
+  //   {
+  //     return it_model->second;
+  //   }
+
+  //   return nullptr;
+  // }
+
+  Scene::SceneItem& Scene::GetItem(std::uint32_t id) noexcept
   {
-    if (auto it_model = m_cache_models.find(filename_model); it_model != m_cache_models.cend())
+    auto it = m_cache_items.find(id);
+    if (it == m_cache_items.end())
     {
-      return it_model->second;
+      AV_LOG_ERROR("Scene::GetItem(std::uint32_t id): id isn't exist!");
+      std::terminate();
     }
 
-    return nullptr;
+    return it->second;
   }
 
-  Scene::Models& Scene::GetModels()
+  Scene::SceneItems& Scene::GetSceneItems()
   {
-    return m_models;
+    return m_storage_items;
   }
 
   const Scene::SourceLight& Scene::GetAllSourceLights() const noexcept
@@ -186,42 +182,19 @@ namespace avion::core {
     return source_lights_on_scene_;
   }
 
-  const Scene::Objects& Scene::GetAllObjects() const noexcept
+  const Scene::SceneItems& Scene::GetSceneItems() const noexcept
   {
-    return objects_on_scene_;
+    return m_storage_items;
   }
 
-  const Scene::Models& Scene::GetModels() const noexcept
+  Scene::CameraData Scene::GetCameraData() const noexcept
   {
-    return m_models;
-  }
-
-  const SceneObject* Scene::GetObject(int id) const noexcept
-  {
-    auto it_object = std::find_if(objects_on_scene_.begin(), objects_on_scene_.end(), [&](const SceneObject& obj_scene) 
+    CameraData data
     {
-        return obj_scene.id == id;
-    });
-
-    if (it_object == objects_on_scene_.end()) {
-        return nullptr;
-    }
-
-    // Return pointer to Object from iterator
-    return &(*it_object);
+      .view_matrix = m_camera.GetViewMatrix(),
+      .position = m_camera.GetPosition()
+    };
+    return data;
   }
 
-  ModelHandler::ModelHandler(std::uint16_t id, const std::string& path, const std::string& filename, resman::ResourceManager& resman)
-  : id(id)
-  , model(path, filename, resman)
-  {
-
-  }
-
-  ModelHandler::ModelHandler(std::uint16_t id, const avion::gfx::Model& model)
-  : id(id)
-  , model(model)
-  {
-
-  }
 } // namespace avion::core

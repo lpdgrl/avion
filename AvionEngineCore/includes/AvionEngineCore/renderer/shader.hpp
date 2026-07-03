@@ -2,7 +2,7 @@
 
 #include "glad/glad.h"
 #include "../../glm/gtc/type_ptr.hpp"
-#include "../macro.h"
+#include "AvionEngineCore/macro.h"
 
 #include <string>
 #include <vector>
@@ -93,7 +93,7 @@ namespace avion::gfx {
     void UseShader(const std::string& key);
     void ExecuteAfterUse(const std::string& name_shader);
     
-    template <typename  T>
+    template <typename T>
     void PutData(const std::string& name_sahder, const std::string& name_param, T data);
 
     const Storage& GetStorage() const noexcept;

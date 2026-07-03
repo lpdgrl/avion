@@ -25,6 +25,53 @@ namespace avion::editor::panel
     RenderTabSelectObject();
   }
 
+  void InspectorPanel::RenderTabSelectItem() const noexcept 
+  {
+    ImGui::Text("Item:");
+    
+    auto&& item = m_editor_ctx.engine.GetScene().GetItem(m_editor_ctx.selection_ctx.item.id);
+
+    auto& transform = item.p_model->GetTransform();
+    auto& color = item.p_model->GetColor();
+    auto& material = item.p_model->GetMaterial();
+
+    ImGui::Text("Position");
+    ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);
+    ui::utils::InputFloat3V("inp_position", transform.position, 0.25f, 0.5f);
+
+    ImGui::Text("Size");
+    ui::utils::SliderFloat3V("size", transform.size, 0.f, 10.f);
+    ui::utils::InputFloat3V("inp_size", transform.size, 0.25f, 0.5f);
+
+    ImGui::Text("Color");
+    ImGui::ColorEdit3("##color", &color.x);
+
+    // ImGui::Text("Ambient");
+    // ImGui::ColorEdit3("##ambient", &material.ambient.x);
+
+    // ImGui::Text("Diffuse");
+    // ImGui::ColorEdit3("##diffuse", &material.diffuse.x);
+
+    // ImGui::Text("Specular");
+    // ImGui::ColorEdit3("##specular", &material.specular.x);
+
+    // ImGui::Text("Shininess");
+    // ImGui::DragFloat("##shininess", &material.shininess);
+
+    ImGui::Text("Rotate");
+    ImGui::SliderFloat3("##rotate", &transform.rotation.x, -180.f, 180.f);
+
+    auto& textures = m_editor_ctx.engine.GetResourceManager().GetListTexture();
+
+    ImGui::Text("Diffuse texture");
+    static size_t index_item_diffuse_selected = 0;
+    index_item_diffuse_selected = DrawComboTexture("diffuse", index_item_diffuse_selected, textures, material);
+
+    // ImGui::Text("Specular texture");
+    // static size_t index_item_specular_selected = 0;
+    // index_item_specular_selected = DrawComboTexture("specular", index_item_specular_selected, textures, material);
+  }
+
   void InspectorPanel::RenderTabSelectObject() const noexcept
   {
     TabBar tab("inspector_tab");
@@ -43,33 +90,37 @@ namespace avion::editor::panel
       {
         RenderTabPrimitive();
       }
+      else if (m_editor_ctx.selection_ctx.item)
+      {
+        RenderTabSelectItem();
+      }
     }
   }
 
   void InspectorPanel::RenderTabModel() const noexcept 
   {
     auto& select_ctx = m_editor_ctx.selection_ctx.model;
-    if (auto* model_obj = m_editor_ctx.engine.GetScene().GetModel(select_ctx.id, select_ctx.filename); model_obj != nullptr)
-    {
-      std::string msg("Model:");
-      msg.append(m_editor_ctx.selection_ctx.model.filename);
-      msg.append(" id:");
-      msg.append(std::to_string(model_obj->id));
-      ImGui::Text(msg.c_str());
+    // if (auto* model_obj = m_editor_ctx.engine.GetScene().GetModel(select_ctx.id, select_ctx.filename); model_obj != nullptr)
+    // {
+    //   std::string msg("Model:");
+    //   msg.append(m_editor_ctx.selection_ctx.model.filename);
+    //   msg.append(" id:");
+    //   msg.append(std::to_string(model_obj->id));
+    //   ImGui::Text(msg.c_str());
 
-      auto& transform = model_obj->model.GetTransform();
+    //   auto& transform = model_obj->model.GetTransform();
       
-      ImGui::Text("Position");
-      ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);
-      ui::utils::InputFloat3V("inp_position", transform.position, 0.25f, 0.5f);
+    //   ImGui::Text("Position");
+    //   ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);
+    //   ui::utils::InputFloat3V("inp_position", transform.position, 0.25f, 0.5f);
 
-      ImGui::Text("Size");
-      ui::utils::SliderFloat3V("size", transform.size, 0.f, 10.f);
-      ui::utils::InputFloat3V("inp_size", transform.size, 0.25f, 0.5f);
+    //   ImGui::Text("Size");
+    //   ui::utils::SliderFloat3V("size", transform.size, 0.f, 10.f);
+    //   ui::utils::InputFloat3V("inp_size", transform.size, 0.25f, 0.5f);
 
-      ImGui::Text("Rotate");
-      ImGui::SliderFloat3("##rotate", &transform.rotation.x, -180.f, 180.f);
-    }
+    //   ImGui::Text("Rotate");
+    //   ImGui::SliderFloat3("##rotate", &transform.rotation.x, -180.f, 180.f);
+    // }
   }
 
   void InspectorPanel::RenderTabLight() const noexcept 
@@ -161,56 +212,59 @@ namespace avion::editor::panel
   void InspectorPanel::RenderTabPrimitive() const noexcept 
   {
     ImGui::Text("Primitive");
+    
+    // auto* primitive_obj = m_editor_ctx.engine.GetScene().GetObject(m_editor_ctx.selection_ctx.primitive.id);
+    // if (primitive_obj)
+    // {
+    //   auto& transform = primitive_obj->object.GetTransform();
+    //   auto& color = primitive_obj->object.GetColor();
+    //   auto& material = primitive_obj->object.GetMaterial();
 
-    auto* primitive_obj = m_editor_ctx.engine.GetScene().GetObject(m_editor_ctx.selection_ctx.primitive.id);
-    if (primitive_obj)
-    {
-      auto& transform = primitive_obj->object.GetTransform();
-      auto& color = primitive_obj->object.GetColor();
-      auto& material = primitive_obj->object.GetMaterial();
+    //   ImGui::Text("Position");
+    //   ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);
+    //   ui::utils::InputFloat3V("inp_position", transform.position, 0.25f, 0.5f);
 
-      ImGui::Text("Position");
-      ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);
-      ui::utils::InputFloat3V("inp_position", transform.position, 0.25f, 0.5f);
+    //   ImGui::Text("Size");
+    //   ui::utils::SliderFloat3V("size", transform.size, 0.f, 10.f);
+    //   ui::utils::InputFloat3V("inp_size", transform.size, 0.25f, 0.5f);
 
-      ImGui::Text("Size");
-      ui::utils::SliderFloat3V("size", transform.size, 0.f, 10.f);
-      ui::utils::InputFloat3V("inp_size", transform.size, 0.25f, 0.5f);
+    //   ImGui::Text("Color");
+    //   ImGui::ColorEdit3("##color", &color.color.x);
 
-      ImGui::Text("Color");
-      ImGui::ColorEdit3("##color", &color.color.x);
+    //   ImGui::Text("Ambient");
+    //   ImGui::ColorEdit3("##ambient", &material.ambient.x);
 
-      ImGui::Text("Ambient");
-      ImGui::ColorEdit3("##ambient", &material.ambient.x);
+    //   ImGui::Text("Diffuse");
+    //   ImGui::ColorEdit3("##diffuse", &material.diffuse.x);
 
-      ImGui::Text("Diffuse");
-      ImGui::ColorEdit3("##diffuse", &material.diffuse.x);
+    //   ImGui::Text("Specular");
+    //   ImGui::ColorEdit3("##specular", &material.specular.x);
 
-      ImGui::Text("Specular");
-      ImGui::ColorEdit3("##specular", &material.specular.x);
+    //   ImGui::Text("Shininess");
+    //   ImGui::DragFloat("##shininess", &material.shininess);
 
-      ImGui::Text("Shininess");
-      ImGui::DragFloat("##shininess", &material.shininess);
+    //   ImGui::Text("Rotate");
+    //   ImGui::SliderFloat3("##rotate", &transform.rotation.x, -180.f, 180.f);
 
-      ImGui::Text("Rotate");
-      ImGui::SliderFloat3("##rotate", &transform.rotation.x, -180.f, 180.f);
+    //   auto& textures = m_editor_ctx.engine.GetResourceManager().GetListTexture();
 
-      auto& textures = m_editor_ctx.engine.GetResourceManager().GetListTexture();
+    //   ImGui::Text("Diffuse texture");
+    //   static size_t index_item_diffuse_selected = 0;
+    //   index_item_diffuse_selected = DrawComboTexture("diffuse", index_item_diffuse_selected, textures, material);
 
-      ImGui::Text("Diffuse texture");
-      static size_t index_item_diffuse_selected = 0;
-      index_item_diffuse_selected = DrawComboTexture("diffuse", index_item_diffuse_selected, textures, material);
-
-      ImGui::Text("Specular texture");
-      static size_t index_item_specular_selected = 0;
-      index_item_specular_selected = DrawComboTexture("specular", index_item_specular_selected, textures, material);
-    }
+    //   ImGui::Text("Specular texture");
+    //   static size_t index_item_specular_selected = 0;
+    //   index_item_specular_selected = DrawComboTexture("specular", index_item_specular_selected, textures, material);
+    // }
   }
 
-  size_t InspectorPanel::DrawComboTexture(const char* label, 
+  size_t InspectorPanel::DrawComboTexture
+  (
+    const char* label, 
     size_t index_selected_texture,
     const core::resman::ResourceManager::ListTexture& textures,
-    core::Material& material) const noexcept
+    gfx::Model::Material& material
+  ) const noexcept
   {
     const char* combo_preview_value = textures[index_selected_texture].c_str();
 
@@ -240,15 +294,24 @@ namespace avion::editor::panel
       auto* texture = m_editor_ctx.engine.GetResourceManager().GetResource<core::Texture>(textures[index_selected_texture]);
       if (texture != nullptr)
       {
-        material.is_texture = true;
-        if (label == "diffuse")
+        if (!texture->IsUploadedOpenGL())
         {
-          material.texture_diffuse = texture->GetId();
+          auto& txt_mng = m_editor_ctx.engine.GetTextureManager();
+          if (!txt_mng.Contains(textures[index_selected_texture]))
+          {
+            auto result = txt_mng.Load(textures[index_selected_texture]);
+            material.emplace_back(core::texturemanager::detail::TextureType::kDiffuse, result.value().id);
+          }
         }
-        else if (label == "specular")
-        {
-          material.texture_specular = texture->GetId();
-        }
+        // material.is_texture = true;
+        // if (label == "diffuse")
+        // {
+        //   material.texture_diffuse = texture->GetId();
+        // }
+        // else if (label == "specular")
+        // {
+        //   material.texture_specular = texture->GetId();
+        // }
       }
     }
 

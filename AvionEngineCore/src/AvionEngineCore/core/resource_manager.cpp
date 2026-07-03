@@ -43,7 +43,7 @@ namespace avion::core::resman
     return m_model_loaded_list;
   }
 
-  std::optional<Texture*> ResourceManager::CreateAndLoadTexture(const std::string& filename, FsPath& path)
+  std::optional<Texture*> ResourceManager::CreateAndLoadTexture(const std::string& filename, const FsPath& path)
   {
     std::string path_str(path.c_str());
     
@@ -180,6 +180,11 @@ namespace avion::core::resman
           }
           break;
         }
+        case ResourceType::kSprites:
+        {
+          AV_LOG_INFO("ResourceManager::RegisterResource: process sprites resource.");
+          break;
+        }
         case ResourceType::kUnknown:
         {
           AV_LOG_DEBUG("ResourceManager::RegisterResource: ResourceType::kUnknown");
@@ -193,10 +198,8 @@ namespace avion::core::resman
   }
 
 
-  Texture* ResourceManager::RegisterTexture(std::string_view path_to_resource)
+  Texture* ResourceManager::RegisterTexture(const FsPath& path)
   {
-    FsPath path(path_to_resource);
-
     auto result = CreateAndLoadTexture(path.filename(), path);
 
     return result.value();
