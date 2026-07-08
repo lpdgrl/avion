@@ -5,8 +5,11 @@
 
 namespace avion::controller {
 
-    Controller::Controller(double xpos_cursor, double ypos_cursor): last_xpos_cursor_(xpos_cursor), last_ypos_cursor_(ypos_cursor) {
-        ClearStateKeys();
+    Controller::Controller(double xpos_cursor, double ypos_cursor)
+    : last_xpos_cursor_(xpos_cursor)
+    , last_ypos_cursor_(ypos_cursor) 
+    {
+      
     }
 
     Controller::~Controller() {

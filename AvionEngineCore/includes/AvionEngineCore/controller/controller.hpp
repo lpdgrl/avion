@@ -68,23 +68,22 @@ namespace avion::controller {
         double GetLastYposCursor() const noexcept;
 
         void SetCoordinate(double xpos_cursor, double ypos_cursor);
-
         void ClearStateKeys();
 
         ~Controller();
     private:
-        std::array<bool, SIZE_ARRAY_KEYS> isDown_;
-        std::array<bool, SIZE_ARRAY_KEYS> wasPressed_;
-        std::array<bool, SIZE_ARRAY_KEYS> wasReleased_;
+        std::array<bool, SIZE_ARRAY_KEYS> isDown_{};
+        std::array<bool, SIZE_ARRAY_KEYS> wasPressed_{};
+        std::array<bool, SIZE_ARRAY_KEYS> wasReleased_{};
 
-        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> is_MB_button_down_;
-        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> was_MB_button_pressed_;
-        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> was_MB_button_released_;
+        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> is_MB_button_down_{};
+        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> was_MB_button_pressed_{};
+        std::array<bool, SIZE_ARRAY_MOUSE_BUTTON> was_MB_button_released_{};
 
-        double last_xpos_cursor_ = 0;
-        double last_ypos_cursor_ = 0;
-        double xoffset_ = 0;
-        double yoffset_ = 0;
+        double last_xpos_cursor_{};
+        double last_ypos_cursor_{};
+        double xoffset_{};
+        double yoffset_{};
     };
 
 } // namespace avion::controller
