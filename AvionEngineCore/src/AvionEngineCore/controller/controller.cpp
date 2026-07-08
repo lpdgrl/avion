@@ -1,5 +1,7 @@
-#include "../../../includes/AvionEngineCore/controller/controller.hpp"
+#include "AvionEngineCore/controller/controller.hpp"
 #include "AvionEngineCore/macro.h"
+
+#include "ranges"
 
 namespace avion::controller {
 
@@ -73,11 +75,11 @@ namespace avion::controller {
     }
 
     void Controller::ClearStateKeys() {
-        std::fill(wasPressed_.begin(), wasPressed_.end(), false);
-        std::fill(wasReleased_.begin(), wasReleased_.end(), false);
+      std::ranges::fill(wasPressed_, false);
+      std::ranges::fill(wasReleased_, false);
 
-        std::fill(was_MB_button_pressed_.begin(), was_MB_button_released_.end(), false);
-        std::fill(was_MB_button_released_.begin(), was_MB_button_released_.end(), false);
+      std::ranges::fill(was_MB_button_pressed_, false);
+      std::ranges::fill(was_MB_button_released_, false);
     }
 
     void Controller::OnMouseMove(double xpos, double ypos) {

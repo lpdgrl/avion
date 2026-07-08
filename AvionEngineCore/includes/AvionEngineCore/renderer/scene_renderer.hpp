@@ -28,7 +28,7 @@ namespace avion::gfx {
 
     void Init(int width, int height);
     void SetBackendCallback(BackendCallback callback);
-    void Draw() noexcept;
+    void PrepareRenderItems() noexcept;
 
   private:
     core::Scene& m_scene;

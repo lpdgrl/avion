@@ -63,11 +63,11 @@ namespace avion::core {
   {
     glfwSwapBuffers(window_);
     m_profiler.render_state.render_stat.Clear();
-    controller_.ClearStateKeys();
   }
 
   void Window::PollEvents()
   {
+    controller_.ClearStateKeys();
     glfwPollEvents(); 
   }
 
@@ -90,7 +90,7 @@ namespace avion::core {
     }
 
     if (WasPressedKey(GLFW_KEY_H)) {
-        cursor_state_ = cursor_state_ ? false : true;
+        cursor_state_ = !cursor_state_ ? true : false;
     }    
     
     if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
@@ -103,7 +103,6 @@ namespace avion::core {
     } else if (!cursor_state_) {
         glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
-    
     GetLastPosCursor();
   }
 

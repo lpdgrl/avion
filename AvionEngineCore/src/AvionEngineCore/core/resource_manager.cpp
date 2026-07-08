@@ -106,6 +106,7 @@ namespace avion::core::resman
       }
       case ResourceType::kTexture:
       case ResourceType::kUnknown:
+      case ResourceType::kSprite:
       {
         break;
       }
@@ -149,6 +150,8 @@ namespace avion::core::resman
       switch(resource)
       {
         case ResourceType::kTexture: 
+        // TODO: It's tmp!
+        case ResourceType::kSprite:
         {
           [[maybe_unused]] auto result = CreateAndLoadTexture(filename, path_canonical_resource);
           break;
@@ -178,11 +181,6 @@ namespace avion::core::resman
               }
             }
           }
-          break;
-        }
-        case ResourceType::kSprites:
-        {
-          AV_LOG_INFO("ResourceManager::RegisterResource: process sprites resource.");
           break;
         }
         case ResourceType::kUnknown:

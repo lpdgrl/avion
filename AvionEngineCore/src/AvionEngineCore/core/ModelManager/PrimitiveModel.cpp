@@ -80,7 +80,7 @@ namespace avion::core::modelmanager::detail
     constexpr std::size_t number_vertex = 24;
     constexpr std::size_t number_indices = 36;
 
-    return Make(cube, number_vertex, number_indices);
+    return Make(PrimitiveType::kCube, cube, number_vertex, number_indices);
   }
 
   PrimitiveModel::ModelData PrimitiveModel::MakePyramid() noexcept
@@ -120,7 +120,7 @@ namespace avion::core::modelmanager::detail
     constexpr std::size_t number_vertex  = 6;
     constexpr std::size_t number_indices = 18;
 
-    return Make(pyramid, number_vertex, number_indices);
+    return Make(PrimitiveType::kPyramid, pyramid, number_vertex, number_indices);
   }
 
   PrimitiveModel::ModelData PrimitiveModel::MakePlane() noexcept
@@ -128,21 +128,22 @@ namespace avion::core::modelmanager::detail
     std::vector<float> plane
     {
       // positions          // normals           // texture coords
-      -0.5f, 0.0f, 0.f,     0.f, 0.f, 0.f,        0.f, 0.f,
-      -0.5f, 0.5f, 0.0f,    0.f, 0.f, 0.f,        1.f, 0.f,
-       0.5f, 0.5f, 0.0f,    0.f, 0.f, 0.f,        1.f, 1.f,
+       0.0f, 0.0f, 0.f,     0.f, 0.f, 0.f,        0.f, 0.f,
+       0.0f, 1.f,  0.0f,    0.f, 0.f, 0.f,        0.f, 1.f,
+       1.0f, 0.f, 0.0f,    0.f, 0.f, 0.f,         1.f, 0.f,
 
-       0.5f, 0.f, 0.f,      0.f, 0.f, 0.f,        1.f, 0.f,
-      -0.5f, 0.f, 0.f,      0.f, 0.f, 0.f,        0.f, 0.f,
-       0.5f, 0.5f,0.f,      0.f, 0.f, 0.f,        1.f, 1.f
+       0.f, 1.f, 0.f,      0.f, 0.f, 0.f,        0.f, 1.f,
+       1.f, 1.f, 0.f,      0.f, 0.f, 0.f,        0.f, 0.f,
+       1.f, 0.f,0.f,       0.f, 0.f, 0.f,        1.f, 0.f
     };
 
     constexpr std::size_t number_vertex  = 4;
     constexpr std::size_t number_indices = 6;
-    return Make(plane, number_vertex, number_indices); 
+    return Make(PrimitiveType::kPlane, plane, number_vertex, number_indices); 
   }
 
   PrimitiveModel::ModelData PrimitiveModel::Make(
+    PrimitiveType type, 
     const std::vector<float> raw_vertices, 
     std::size_t num_vertex, 
     std::size_t num_indices
@@ -195,7 +196,9 @@ namespace avion::core::modelmanager::detail
     data.vertices = std::move(vertices);
     data.indices = std::move(indices);
     data.mesh_range = std::move(mesh_range);
-    data.texture_source.emplace_back(detail::TextureSource::TextureType::kSolidColor, 
+
+    using TextureType = detail::TextureSource::TextureType;
+    data.texture_source.emplace_back((type == PrimitiveType::kPlane ? TextureType::kDiffuse : TextureType::kSolidColor), 
       std::filesystem::path());
 
     return data;

@@ -40,6 +40,7 @@
         using ViewportState   = detail::ViewportState;
         using DepthState      = detail::DepthState;
         using StencilState    = detail::StencilState;
+        using BlendState      = detail::BlendingState;
         using RenderState     = detail::RenderState;
         using RenderAPI       = detail::RenderAPI; 
         using Projection      = detail::Projection;
@@ -94,7 +95,7 @@
         bool SetColorState(BackgroundColor bg_color) noexcept;
         bool SetDepthState(DepthState state) noexcept;
         bool SetStencilState(StencilState state) noexcept;
-        bool SetBlendingState() noexcept;
+        bool SetBlendingState(BlendState state) noexcept;
         bool SetViewportState(ViewportState viewport) noexcept;
         bool SetRenderState() noexcept;
 

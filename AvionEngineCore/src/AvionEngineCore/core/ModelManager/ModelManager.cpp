@@ -72,6 +72,42 @@ namespace avion::core::modelmanager
     return model_load_result;
   }
 
+  ModelManager::LoadModelResult ModelManager::Load(const std::string& filename_sprite, ModelManager::PrimitiveType type) noexcept
+  {
+    LoadModelResult model_load_result; 
+    // TODO:
+    if (Contains(filename_sprite))
+    {
+      AV_LOG_INFO("ModelManager::Load: sprite " + filename_sprite + " already loaded");
+      model_load_result = CreateModelCopy(filename_sprite);
+      return model_load_result;
+    }
+
+    auto* p_fs_path = m_cb_resman(filename_sprite);
+    if (!p_fs_path)
+    {
+      AV_LOG_ERROR("ModelManager::Load: sprite isn't load to resman!");
+      return std::nullopt;
+    }
+
+    auto model_data = detail::PrimitiveModel::Make(type);
+    auto model_handler = m_cb_backend(model_data);
+    auto [it_handle, _] = m_handle_storage.emplace(filename_sprite, model_handler);
+    
+    std::vector<TextureHandler> texture_handlers;
+    // loading and create opengl texture for model
+    auto texture_handler = m_cb_texture(p_fs_path->c_str());
+    texture_handlers.emplace_back(texturemanager::detail::TextureType::kDiffuse, texture_handler.value().id);
+
+  
+    // TODO: Model data moving to model
+    auto [it, success] = m_storage.emplace(filename_sprite, std::make_shared<Model>(filename_sprite, model_data, texture_handlers));
+    model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
+
+    AV_LOG_INFO("ModelManager::Load: sprite " + filename_sprite + " is loading success");
+    return model_load_result;
+  }
+
   ModelManager::LoadModelResult ModelManager::CreateModelCopy(const std::string& filename) noexcept
   {
     LoadModelResult result;

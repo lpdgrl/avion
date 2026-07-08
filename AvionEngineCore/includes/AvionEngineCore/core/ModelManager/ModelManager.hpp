@@ -56,6 +56,8 @@
 
         LoadModelResult Load(const std::string& filename);
         LoadModelResult Load(PrimitiveType type) noexcept;
+        // TODO: It's TMP! Create sprite over model manager!!
+        LoadModelResult Load(const std::string& filename_sprite, PrimitiveType type) noexcept;
 
         bool Remove(const std::string& filename) noexcept;
 

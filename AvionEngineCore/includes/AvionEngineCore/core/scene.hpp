@@ -29,25 +29,30 @@ namespace avion::core {
     kSpotLight = 3,
   };
 
-  struct SceneLight {
-    std::unique_ptr<ILight> light;
-    std::size_t id = 0;
-    LightType type;
-
-    bool is_selectable = false;
-  };
-
   class Scene {
   public:
     using ModelManager  = modelmanager::ModelManager;
-    using SourceLight   = std::vector<SceneLight>;
    
     struct SceneItem 
     {
-      std::uint32_t id;
+      std::uint32_t id{};
       ModelManager::ModelHandler model_handler;
       ModelManager::ModelPtr     p_model; 
     }; 
+
+    struct SceneLight 
+    {
+      std::unique_ptr<ILight> light;
+      std::uint32_t id{};
+      LightType type;
+
+      ModelManager::ModelHandler model_handler;
+      ModelManager::ModelPtr p_model;
+
+      bool is_selectable = false;
+    };
+
+    using SourceLight   = std::vector<SceneLight>;
 
     using SceneItems    = std::deque<SceneItem>;
     using CacheItems    = std::unordered_map<std::uint32_t, SceneItem&>;

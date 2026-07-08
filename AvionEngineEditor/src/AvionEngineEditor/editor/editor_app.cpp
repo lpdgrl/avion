@@ -38,15 +38,27 @@ namespace avion::editor::app
     auto& scene_renderer = m_engine.GetSceneRenderer();
 
     auto& fb_scene = backend.GetFrameBuffer("scene");
+
+    unsigned int w = m_editor_gui.GetContext().state.viewport_width;
+    unsigned int h = m_editor_gui.GetContext().state.viewport_height;
+
+    // if (w > 0 && h > 0 && (fb_scene.GetWidth() != w || fb_scene.GetHeight() != h))
+    // {
+    //   fb_scene.RescaleFrameBuffer(w, h);
+    // }
     fb_scene.Bind();
     backend.SetViewportState({0, 0,  fb_scene.GetWidth(),  fb_scene.GetHeight()});
     backend.SetColorState({0.1f, 0.1f, 0.5f, 1.f});
-    backend.BeginFrame();
-
-    scene_renderer.Draw();
-
-    backend.EndFrame();    
+    backend.SetBlendingState(
+      {
+        .enabled = true, 
+        .blend_source_factor = api::backend::detail::BlendingFunc::SourceAlpha,
+        .blend_destination_factor = api::backend::detail::BlendingFunc::OneMinusSourceAlpha
+        });
     
+    backend.BeginFrame();
+    scene_renderer.PrepareRenderItems();
+    backend.EndFrame();    
     fb_scene.Unbind();
     backend.ApplyDefaultRenderState();
 
@@ -57,11 +69,8 @@ namespace avion::editor::app
   bool EditorApp::RunFrame()
   {
     m_gui_context.BeginFrame();
-
     m_editor_gui.Render();
-    
     m_gui_context.EndFrame();
-
     return true;
   }
 
@@ -69,7 +78,6 @@ namespace avion::editor::app
   {
     m_gui_context.Shutdown();
     m_engine.Shutdown();
-  
     return true;
   }
 

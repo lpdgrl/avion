@@ -67,11 +67,20 @@ namespace avion::core {
   void Scene::AddSourceLight(LightType type) 
   {
     std::size_t n = ++m_last_scene_item_id;
+    auto&& result = m_model_manager.Load("light-bulb-color-icon.png", ModelManager::PrimitiveType::kPlane);
+    if (!result.has_value())
+    {
+      AV_LOG_INFO("Scene::AddSourceLight: result from model manager is empty!");
+      return;
+    }
 
+    auto&& model_item = result.value();
     source_lights_on_scene_.emplace_back( 
       MakeSourceLight(type),
       n,
-      type
+      type,
+      std::move(model_item.model_handler),
+      std::move(model_item.model)
       // glm::vec3(0.471f),
       // glm::vec3(0.25f)
     );

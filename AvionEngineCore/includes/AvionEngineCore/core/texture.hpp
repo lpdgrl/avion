@@ -36,7 +36,8 @@
             
             std::uint16_t         GetWidth()          const noexcept;
             std::uint16_t         GetHeight()         const noexcept;
-            GLenum                GetColorChannels()  const noexcept;
+            // GLenum                GetColorChannels()  const noexcept;
+            std::uint32_t         GetColorChannels()  const noexcept;
             std::uint8_t*         GetBuffer()         noexcept;
             const std::uint8_t*   GetBuffer()         const noexcept { return m_buffer; }
             std::uint64_t         GetSize()           const noexcept { return m_buffer_size; }

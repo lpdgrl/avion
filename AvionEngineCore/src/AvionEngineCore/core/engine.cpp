@@ -77,7 +77,7 @@ namespace avion::core::engine
     m_resman->RegisterResource(core::resman::ResourceType::kShader,  "assets/shaders");
     m_resman->RegisterResource(core::resman::ResourceType::kModel,   "assets/models");
     m_resman->RegisterResource(core::resman::ResourceType::kConfig,  "assets/config");
-    m_resman->RegisterResource(core::resman::ResourceType::kSprites, "assets/sprites");
+    m_resman->RegisterResource(core::resman::ResourceType::kSprite,  "assets/sprites");
 
     m_window->Init();
     m_backend->Init(render_state);
@@ -87,7 +87,8 @@ namespace avion::core::engine
     // m_scene.AddModel("backpack.obj");
     // m_scene.AddPrimitive(Scene::PrimitiveType::kCube);
     // m_scene.AddPrimitive(Scene::PrimitiveType::kPyramid);
-    m_scene.AddPrimitive(Scene::PrimitiveType::kPlane);
+    // m_scene.AddPrimitive(Scene::PrimitiveType::kPlane);
+    m_scene.AddSourceLight(core::LightType::kDirLight);
   }
 
   void Engine::Render()
@@ -145,12 +146,11 @@ namespace avion::core::engine
     while(!m_window->WindowShouldClose())
     {
       m_window->DeltaTimeUpdate();
-      m_window->ProcessEvents();
-
+      
       Render();
-
       m_window->SwapBuffers();
       m_window->PollEvents();
+      m_window->ProcessEvents();
     }
   }
 

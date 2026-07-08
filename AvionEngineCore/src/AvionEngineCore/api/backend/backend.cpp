@@ -200,6 +200,19 @@ namespace avion::api::backend
     return m_is_dirty_state;
   }
 
+  // Blending state
+  bool Backend::SetBlendingState(BlendState state) noexcept 
+  {
+    if (state == m_current_state.blend_state)
+    {
+      return false;
+    }
+    
+    m_current_state.blend_state = state;
+    m_is_dirty_state = true;
+    return m_is_dirty_state;
+  }
+
   std::string Backend::GetNameApi() const noexcept
   {
     return detail::ApiToString(m_api);

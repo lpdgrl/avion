@@ -40,7 +40,7 @@
       kShader  =  2,
       kModel   =  3,
       kConfig  =  4,
-      kSprites =  5,
+      kSprite =  5,
     };
 
     class ResourceManager {

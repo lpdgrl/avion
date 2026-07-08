@@ -22,7 +22,7 @@
       protected:
 
       private:
-        static ModelData Make(const std::vector<float> raw_vertices, std::size_t num_vertex, std::size_t num_indices) noexcept;
+        static ModelData Make(PrimitiveType type, const std::vector<float> raw_vertices, std::size_t num_vertex, std::size_t num_indices) noexcept;
         static ModelData MakeCube() noexcept;
         static ModelData MakePyramid() noexcept;      
         static ModelData MakePlane() noexcept;

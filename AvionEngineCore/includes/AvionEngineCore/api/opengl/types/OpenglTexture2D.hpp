@@ -39,14 +39,19 @@
     template <typename TextureItem>
     void OpenglTexture2D::SetupTexture(const TextureItem& item) noexcept 
     {
+      GLenum format = item.color_channels >= 4 ? GL_RGBA : GL_RGB;
+      AV_LOG_DEBUG("OpenglTexture2D::SetupTexture: " + std::to_string(format == GL_RGBA));
+
       glGenTextures(1, &m_texture_id);
       glBindTexture(GL_TEXTURE_2D, m_texture_id);
 
-      glTexImage2D(GL_TEXTURE_2D, 0, item.color_channels, item.width, item.height, 0, item.color_channels, GL_UNSIGNED_BYTE, &item.buffer[0]);
+      glTexImage2D(GL_TEXTURE_2D, 0, format, item.width, item.height, 0, format, GL_UNSIGNED_BYTE, &item.buffer[0]);
       glGenerateMipmap(GL_TEXTURE_2D);
 
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, 
+        format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, 
+        format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -55,3 +60,4 @@
   } // namespace avion::api::backend::opengl
 
 #endif 
+

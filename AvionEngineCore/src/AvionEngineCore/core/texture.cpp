@@ -120,18 +120,23 @@ namespace avion::core {
       return m_height;
     }
 
-    GLenum Texture::GetColorChannels() const noexcept
-    {
-        GLenum format;
-        if (m_num_color_channels == 1) {
-            format = GL_RED;
-        } else if (m_num_color_channels == 3) {
-            format = GL_RGB;
-        } else if (m_num_color_channels == 4) {
-            format = GL_RGBA;
-        }
+    // GLenum Texture::GetColorChannels() const noexcept
+    // {
+    //     GLenum format;
+    //     if (m_num_color_channels == 1) {
+    //         format = GL_RED;
+    //     } else if (m_num_color_channels == 3) {
+    //         format = GL_RGB;
+    //     } else if (m_num_color_channels == 4) {
+    //         format = GL_RGBA;
+    //     }
 
-        return format;
+    //     return format;
+    // }
+
+    std::uint32_t Texture::GetColorChannels() const noexcept
+    {
+      return m_num_color_channels;
     }
 
     void Texture::SwitchPathToTexture(const std::string& path_texture) {

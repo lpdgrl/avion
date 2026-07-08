@@ -3,7 +3,15 @@
 
   namespace avion::core
   {
-     
+    class Sprite
+    {
+      public:
+
+      protected:
+
+      private:
+                
+    };
   } // namespace avion::core
 
 #endif 

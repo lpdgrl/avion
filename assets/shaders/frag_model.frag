@@ -123,8 +123,8 @@ void main()
   //   }
   // }
 
-  frag_color = vec4(result, 1.0);
-
+  // frag_color = vec4(result, 1.0);
+  frag_color = texture(material.diffuse1, fr_texture_coordinates);
   // DEPTH TESTING EXPIREMENTS 
   // float near = 0.1;
   // float far = 100.0;

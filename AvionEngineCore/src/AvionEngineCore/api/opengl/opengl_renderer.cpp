@@ -233,7 +233,16 @@ namespace avion::api::backend::opengl
 
   void OpenglRenderer::ApplyBlendingState() const noexcept
   {
+    if (!m_blend_state.enabled)
+    {
+      glDisable(GL_BLEND);
+      return;
+    }
 
+    auto [_, blend_source_factor, blend_destination_factor, bledn_equation] = m_blend_state;
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   void OpenglRenderer::ApplyViewportState() const noexcept
