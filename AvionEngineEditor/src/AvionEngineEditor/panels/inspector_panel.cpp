@@ -294,15 +294,23 @@ namespace avion::editor::panel
       auto* texture = m_editor_ctx.engine.GetResourceManager().GetResource<core::Texture>(textures[index_selected_texture]);
       if (texture != nullptr)
       {
-        if (!texture->IsUploadedOpenGL())
+        auto& texture_manager = m_editor_ctx.engine.GetTextureManager();
+        if (texture_manager.Contains(textures[index_selected_texture]))
         {
-          auto& txt_mng = m_editor_ctx.engine.GetTextureManager();
-          if (!txt_mng.Contains(textures[index_selected_texture]))
+          auto texture_item = texture_manager.Get(textures[index_selected_texture]).value();
+          if (material.size() > 0)
           {
-            auto result = txt_mng.Load(textures[index_selected_texture]);
-            material.emplace_back(core::texturemanager::detail::TextureType::kDiffuse, result.value().id);
+            material[0] = {core::texturemanager::detail::TextureType::kDiffuse, texture_item.id};
+            return index_selected_texture;
           }
         }
+        auto result = texture_manager.Load(textures[index_selected_texture]).value();
+        if (material.size() > 0)
+        {
+          material[0] = {core::texturemanager::detail::TextureType::kDiffuse, result.id};
+          return index_selected_texture;
+        }
+        material.emplace_back(core::texturemanager::detail::TextureType::kDiffuse, result.id);
         // material.is_texture = true;
         // if (label == "diffuse")
         // {

@@ -32,6 +32,7 @@ namespace avion::core::texturemanager
 
     result = m_cb_backend(data);
     assert(result.has_value() && "TextureManager::Load: backend isn't to load opengl texture");
+    p_texture->SetUploadOpenGL();
 
     m_texture_storage.try_emplace(filename.filename().c_str(), result.value().id, p_texture);
 

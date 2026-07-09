@@ -32,7 +32,7 @@
             void SwitchPathToTexture(const std::string& path_texture);
             void SetUploadOpenGL() noexcept;
 
-            std::uint32_t&        GetId()             noexcept;
+            std::uint32_t&         GetId()             noexcept;
             
             std::uint16_t         GetWidth()          const noexcept;
             std::uint16_t         GetHeight()         const noexcept;

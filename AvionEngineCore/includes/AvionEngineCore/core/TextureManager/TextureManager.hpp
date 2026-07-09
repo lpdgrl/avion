@@ -28,7 +28,7 @@
 
         struct TextureItem
         {
-          using TextureId = std::uint64_t;
+          using TextureId = std::uint32_t;
 
           TextureId id;
           Texture* item = nullptr;

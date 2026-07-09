@@ -84,11 +84,12 @@ namespace avion::core::engine
     m_backend->SetProjection(Projection::kPerspective, 45.f, width_w, height_w, 0.1f, 100.f);
 
     m_scene_renderer->Init(width_w, height_w);
+    
     // m_scene.AddModel("backpack.obj");
-    // m_scene.AddPrimitive(Scene::PrimitiveType::kCube);
-    // m_scene.AddPrimitive(Scene::PrimitiveType::kPyramid);
-    // m_scene.AddPrimitive(Scene::PrimitiveType::kPlane);
-    m_scene.AddSourceLight(core::LightType::kDirLight);
+    m_scene.AddPrimitive(Scene::PrimitiveType::kCube);
+    m_scene.AddPrimitive(Scene::PrimitiveType::kPyramid);
+    m_scene.AddPrimitive(Scene::PrimitiveType::kPlane);
+    // m_scene.AddSourceLight(core::LightType::kDirLight);
   }
 
   void Engine::Render()
