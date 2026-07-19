@@ -54,8 +54,8 @@
         void SetBuffersIndices(BufferVertexIndices vertex_buffer) noexcept;
         BufferVertexIndices GetBuffersIndices() const noexcept;
 
-        const VertexArray& GetVerticesArray() const noexcept;
-        TextureArray& GetTexturesArray()      noexcept;
+        const VertexArray&  GetVerticesArray() const noexcept;
+        TextureArray&       GetTexturesArray()      noexcept;
         const IndicesArray& GetIndicesArray() const noexcept;
 
       private:

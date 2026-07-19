@@ -3,7 +3,7 @@
 struct Material {
   sampler2D diffuse1;
   sampler2D specular1;
-  sampler2D emission;
+  sampler2D emission1;
 
   float fl_shininess;
 };
@@ -74,6 +74,7 @@ out vec4 frag_color;
 
 uniform vec3 view_pos;
 uniform Material material;
+uniform vec3 solid_color;
 
 // Lights 
 uniform DirLight dir_light;
@@ -120,7 +121,7 @@ void main()
   }
 
   frag_color = vec4(result, 1.0);
-
+  // frag_color = texture(material.diffuse1, fr_texture_coordinates);
   // DEPTH TESTING EXPIREMENTS 
   // float near = 0.1;
   // float far = 100.0;
@@ -132,11 +133,10 @@ void main()
   // frag_color = vec4(vec3(res_linear), 1.0);
 }
 
-
 vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 view_dir)
 {
   vec3 result;
-  vec3 light_dir = normalize(-light.direction);
+  vec3 light_dir = normalize(light.direction);
   float diff = max(dot(normal, light_dir), 0.0);
   
   vec3 reflect_dir = reflect(-light_dir, normal);
@@ -146,11 +146,19 @@ vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 view_dir)
   vec3 diffuse;
   vec3 specular;
 
-  ambient  = light.ambient * vec3(texture(material.diffuse1, fr_texture_coordinates));
-  diffuse  = light.diffuse * diff * vec3(texture(material.diffuse1, fr_texture_coordinates));
-  specular = light.specular * spec * vec3(texture(material.specular1, fr_texture_coordinates));
-
-
+  if (material_type.is_texture)
+  {
+    ambient  = light.ambient * vec3(texture(material.diffuse1, fr_texture_coordinates));
+    diffuse  = light.diffuse * diff * vec3(texture(material.diffuse1, fr_texture_coordinates));
+    specular = light.specular * spec * vec3(texture(material.specular1, fr_texture_coordinates));
+  }
+  else 
+  {
+    ambient  = light.ambient * solid_color;
+    diffuse  = light.diffuse * diff * solid_color;
+    specular = light.specular * spec * solid_color;
+  }
+ 
   result = ambient + diffuse + specular;
   return result;
 }

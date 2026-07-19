@@ -37,18 +37,17 @@ namespace avion::core {
       gfx::Transform transform;
       glm::vec3 color;
       glm::vec3 mixing_color;
-      Material material;
+      // Material material;
     };
 
 
     std::ostream& operator<<(std::ostream& out, Size size);
-
     std::ostream& operator<<(std::ostream& out, Position pos);
 
     class Object {
     public:
         Object() = default;
-        Object(gfx::Transform transform, Color color, Color mixing_color, Material material);
+        Object(gfx::Transform transform, Color color, Color mixing_color);
         Object(ObjectParams params);
         Object(const Object& object);
         Object(Object&& object);
@@ -61,8 +60,8 @@ namespace avion::core {
         const gfx::Transform& GetTransform() const noexcept;
         gfx::Transform& GetTransform() noexcept;
 
-        const Material& GetMaterial() const noexcept;
-        Material& GetMaterial() noexcept;
+        // const Material& GetMaterial() const noexcept;
+        // Material& GetMaterial() noexcept;
 
         const Color& GetColor() const noexcept;
         Color& GetColor() noexcept;
@@ -79,14 +78,8 @@ namespace avion::core {
         gfx::Transform m_transform;
         Color color_;
         Color mixing_color_;
-        Material material_;
+        // Material material_;
         bool m_is_selected = false;
     };
-
-    // struct ObjectId {
-    //     ObjectId(int id, Position position, Size size, Color color);
-    //     int id = 0;
-    //     Object object;
-    // };
 
 } // namespace avion::core

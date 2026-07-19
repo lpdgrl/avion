@@ -32,10 +32,13 @@ add_subdirectory(${ASSIMP_DIR})
 add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/api/backend/backend.cpp
   src/AvionEngineCore/api/opengl/opengl_renderer.cpp
+  src/AvionEngineCore/api/opengl/types/OpenglBuffer.cpp
+  src/AvionEngineCore/api/opengl/types/OpenglTexture2D.cpp
+   src/AvionEngineCore/api/opengl/types/OpenglFrameBuffer.cpp
   src/AvionEngineCore/logger/logger.cpp
   src/AvionEngineCore/renderer/renderer.cpp
   # src/AvionEngineCore/renderer/text_rendering.cpp
-  src/AvionEngineCore/renderer/pipeline.cpp
+  src/AvionEngineCore/renderer/scene_renderer.cpp
   src/AvionEngineCore/renderer/shader.cpp
   src/AvionEngineCore/renderer/camera.cpp
   src/AvionEngineCore/renderer/model.cpp
@@ -51,6 +54,12 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/core/light.cpp
   src/AvionEngineCore/core/material.cpp
   src/AvionEngineCore/core/resource_manager.cpp
+  src/AvionEngineCore/core/Assimp/AssimpModelLoader.cpp
+  src/AvionEngineCore/core/Assimp/AssimpModelLoaderImpl.cpp
+  src/AvionEngineCore/core/ModelManager/ModelManager.cpp
+  src/AvionEngineCore/core/ModelManager/PrimitiveModel.cpp
+  src/AvionEngineCore/core/TextureManager/TextureManager.cpp
+  src/AvionEngineCore/core/Common/CameraProxy.cpp
   src/AvionEngineCore/controller/controller.cpp
   src/AvionEngineCore/external/glad.c
   src/AvionEngineCore/external/stb.c
@@ -68,8 +77,8 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
         assimp
 )
 
-target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_23)
-# target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_26)
+# target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wreoder)
 # target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -O3)
 
 # target_compile_options(${ENGINE_PROJECT_NAME} PRIVATE -fconcepts-diagnostics-depth=4)

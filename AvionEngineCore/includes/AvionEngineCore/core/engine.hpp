@@ -1,67 +1,88 @@
 #ifndef AVION_CORE_ENGINE_H 
 #define AVION_CORE_ENGINE_H
 
-  #include "resource_manager.hpp"
-  #include "scene.hpp"
-  #include "profiler.hpp"
+  #include "AvionEngineCore/core/scene.hpp"
+  #include "AvionEngineCore/core/profiler.hpp"
 
-  #include "AvionEngineCore/renderer/pipeline.hpp"
-  #include "AvionEngineCore/renderer/pipeline_queue.hpp"
-  #include "AvionEngineCore/renderer/renderer_command.hpp"
+  #include "AvionEngineCore/renderer/scene_renderer.hpp"
 
-  // Forward declaration
-  namespace avion::core
-  {
-    class Window;
-  }; // namespace avion::core
+  #include "AvionEngineCore/api/backend/backend.hpp"
+
+  #include "AvionEngineCore/core/window.hpp"
+  #include "AvionEngineCore/core/ModelManager/ModelManager.hpp"
+  #include "AvionEngineCore/core/TextureManager/TextureManager.hpp"
+
+  #include "AvionEngineCore/api/backend/IRenderApp.hpp"
+
+  #include <vector>
 
   namespace avion::core::engine
   {
-
     class Engine 
     {
       public:
-        using ResManager      = resman::ResourceManager;
-
-        using RendererCommand = gfx::RendererCommand; 
-        using PipelineQueue   = gfx::PipelineQueue;
-        using Pipeline        = gfx::Pipeline;
-        using FrameBuffer     = gfx::FrameBuffer;
-        
-        using Window          = core::Window;
-
         template <typename T>
         using UPtr = std::unique_ptr<T>;
 
-        Engine();
+        using Backend             = api::backend::Backend;
+        using RenderAPI           = api::backend::detail::RenderAPI;
+        using ResManager          = resman::ResourceManager;
 
-        void Init(int width, int height);
+        using SceneRenderer       = gfx::SceneRenderer;
+
+        using Window              = core::Window;
+        using ModelManager        = core::modelmanager::ModelManager;
+        using TextureManager      = core::texturemanager::TextureManager;
+
+        using IRenderApp          = core::common::IRenderApp;
+        using RenderAppContainer  = std::vector<UPtr<IRenderApp>>;
+
+        Engine();
+        Engine(const Engine& other) = delete;
+        Engine(Engine&& other) = delete;
+
+        Engine& operator=(const Engine& rhs) = delete;
+        Engine& operator=(Engine&& rhs) = delete;
+
+        ~Engine() = default;
+
+        void Init();
         void Run();
         void Render();
-        void Loop(Window* p_window);
         void Shutdown();
 
-        void CreateFrameBuffer(float width, float height);
-
-        ResManager&   GetResourceManager();
-        Pipeline&     GetPipeline();
-        Profiler&     GetProfiler();
-        Scene&        GetScene();
-        FrameBuffer&  GetFrameBuffer();
+        void AddRenderApp(std::unique_ptr<IRenderApp> u_ptr);
+ 
+        ResManager&     GetResourceManager();
+        SceneRenderer&  GetSceneRenderer();
+        Profiler&       GetProfiler();
+        Scene&          GetScene();
+        Window&         GetWindow() noexcept;
+        Backend&        GetBackend();
+        TextureManager& GetTextureManager() noexcept;
 
       private:
+        void Loop();
+        void SettingInternalCallbacks();
+  
         static constexpr int kObjectsCreate = 1000;
         
-        UPtr<ResManager>    m_resman;
-        UPtr<PipelineQueue> m_pl_queue;
-        Scene               m_scene;
-        UPtr<Pipeline>      m_pipeline;
-        Profiler            m_profiler;
-        RendererCommand     m_render_cmd;
-        FrameBuffer         m_frame_buffer;
+        // TODO: NOW IT ISN'T SAFE THREAD
+        // EventManager        m_event_manager;
 
+        TextureManager      m_texture_manager;
+        ModelManager        m_model_manager;
+        UPtr<ResManager>    m_resman;
+        Scene               m_scene;
+        Profiler            m_profiler;
+        UPtr<Backend>       m_backend;
+        UPtr<SceneRenderer> m_scene_renderer;
+        UPtr<Window>        m_window;
+      
         std::string         m_version_engine = "0.0.1";
         bool                m_is_running = false;
+
+        RenderAppContainer m_render_app_container;
     };
   } // namespace avion::core
 

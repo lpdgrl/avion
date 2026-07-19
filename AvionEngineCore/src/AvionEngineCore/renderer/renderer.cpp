@@ -31,6 +31,7 @@ namespace avion::gfx {
     }
 
     void Renderer::Init() {
+      
       glEnable(GL_DEPTH_TEST);
       glDepthFunc(GL_LESS);
 
@@ -46,6 +47,22 @@ namespace avion::gfx {
       InitRendererText();
       InitCamera();
     }
+
+    void Renderer::BeginFrame()
+    {
+
+    }
+
+    void Renderer::EndFrame()
+    {
+
+    }
+
+    void Renderer::ApplyRenderItem(RenderItem& render_item)
+    {
+
+    }
+
 
     void Renderer::InitCamera() {
         glm::vec3 camera_pos    = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -406,7 +423,7 @@ namespace avion::gfx {
         // shader_->setMat4("projection", projectionMatrix);
         // BindVertexArray(GetVAO(MapKey::OBJECTS));
 
-        // shader_text_->use();
+        // shader_text_->use(); 
         // glUniformMatrix4fv(glGetUniformLocation(shader_text_->GetID(), "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         // BindVertexArray(GetVAO(MapKey::TEXT));
     }
@@ -669,6 +686,7 @@ namespace avion::gfx {
       for (auto& texture : textures)
       {
         glActiveTexture(GL_TEXTURE0 + i);
+        
 
         std::string name_texture("material.");
         unsigned int id = texture.ptr_texture->GetId();
@@ -760,7 +778,7 @@ namespace avion::gfx {
       };
 
       render_context.transform = model.GetTransform();
-      auto& arr_mesh = model.GetMeshs();
+      // auto& arr_mesh = model.GetMesh();
 
       render_context.name_shader = "single_model";
       render_context.transform.size.x *= scale;
@@ -773,10 +791,10 @@ namespace avion::gfx {
       glStencilMask(0x00);
       glDisable(GL_DEPTH_TEST);
       
-      for (auto& mesh : arr_mesh)
-      {
-        Draw(mesh, render_context.name_shader);
-      }
+      // for (auto& mesh : arr_mesh)
+      // {
+      //   Draw(mesh, render_context.name_shader);
+      // }
 
       glEnable(GL_DEPTH_TEST);
       glStencilMask(0xFF);

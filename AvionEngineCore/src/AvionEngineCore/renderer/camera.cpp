@@ -2,8 +2,8 @@
 #include "AvionEngineCore/macro.h"
 
 namespace avion::gfx {
-
     // constructor with vectors
+    
     Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
             : camera_position_(position)
             , camera_front_(glm::vec3(0.0f, 0.0f, -1.0f))
@@ -15,6 +15,7 @@ namespace avion::gfx {
             , movement_speed_(SPEED)
             , mouse_senstivity_(SENSITIVITY)
             , zoom_(ZOOM) 
+            , m_proxy(*this)
     {
         UpdateCameraVectors();
     }
@@ -31,12 +32,13 @@ namespace avion::gfx {
             , movement_speed_(SPEED)
             , mouse_senstivity_(SENSITIVITY)
             , zoom_(ZOOM)
+            , m_proxy(*this)
     {
         UpdateCameraVectors();
     }
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    glm::mat4 Camera::GetViewMatrix() {
+    glm::mat4 Camera::GetViewMatrix() const noexcept {
         return glm::lookAt(camera_position_, camera_position_ + camera_front_, camera_up_);
     }
 
@@ -112,6 +114,11 @@ namespace avion::gfx {
 
     glm::vec3 Camera::GetPosition() const noexcept {
         return camera_position_;
+    }
+
+    Camera::CameraProxy& Camera::GetProxy() noexcept\
+    {
+      return m_proxy;
     }
 
 } // namespace avion::gfx

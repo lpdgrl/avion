@@ -6,7 +6,7 @@
 
 #include "glm/glm.hpp"
 
-#include "../core/light.hpp"
+#include "AvionEngineCore/core/light.hpp"
 
 #include <vector>
 #include <optional>

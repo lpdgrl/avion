@@ -1,26 +1,24 @@
 #include "AvionEngineCore/core/window.hpp"
 
-#include "AvionEngineCore/renderer/pipeline.hpp"
-
 namespace avion::core {
-  Window::Window(const std::string& window_name, int width, int height, Pipeline& pipeline, Profiler& profiler)
+  Window::Window(const std::string& window_name, int width, int height, Profiler& profiler, CameraProxy& camera_proxy)
     : window_name_(window_name)
     , width_window_(width)
     , height_window_(height)
     , controller_(controller::Controller((1.0 * width / 2), (1.0 * height / 2))) 
-    , m_pipeline(pipeline)
     , m_profiler(profiler)
+    , m_camera_proxy(camera_proxy)
     {
 
     }
 
-  Window::Window(const char* window_name, int width, int height, Pipeline& pipeline, Profiler& profiler)
+  Window::Window(const char* window_name, int width, int height, Profiler& profiler, CameraProxy& camera_proxy)
     : window_name_(window_name)
     , width_window_(width)
     , height_window_(height)
     , controller_(controller::Controller((1.0 * width / 2), (1.0 * height / 2)))
-    , m_pipeline(pipeline)
     , m_profiler(profiler)
+    , m_camera_proxy(camera_proxy)
     {
 
     }
@@ -33,34 +31,27 @@ namespace avion::core {
     }
   }
 
-  void Window::Init() {
-      glfwInit();
-      
-      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-      glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-      glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  void Window::Init() 
+  {
+    glfwInit();
+    
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-      CreateWindow();
+    CreateWindow();
 
-      glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
-      glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-      // glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
+    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    // glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-      glfwSetWindowUserPointer(window_, &controller_);
-      glfwSetKeyCallback(window_, controller::Controller::KeyCallback);
-      glfwSetCursorPosCallback(window_, controller::Controller::MouseCallback);
-      glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
-      glfwSetCursorPos(window_, width_window_, 1.0 * height_window_ / 2.0);
+    glfwSetWindowUserPointer(window_, &controller_);
+    glfwSetKeyCallback(window_, controller::Controller::KeyCallback);
+    glfwSetCursorPosCallback(window_, controller::Controller::MouseCallback);
+    glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
+    glfwSetCursorPos(window_, width_window_, 1.0 * height_window_ / 2.0);
 
-      m_profiler.frame_state.m_lt = glfwGetTime();
-
-      // ImGui::CreateContext();   
-      // widget_ = new gui::Widget(window_, *m_resman.get());
-      // widget_->Init();
-  }
-
-  void Window::Update() {
-
+    m_profiler.frame_state.m_lt = glfwGetTime();
   }
 
   bool Window::WindowShouldClose()
@@ -72,189 +63,47 @@ namespace avion::core {
   {
     glfwSwapBuffers(window_);
     m_profiler.render_state.render_stat.Clear();
-    controller_.ClearStateKeys();
-  }
-
-  void Window::ClearColorGl(float r, float g, float b) noexcept
-  {
-    glClearColor(r, g, b, 1.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   }
 
   void Window::PollEvents()
   {
+    controller_.ClearStateKeys();
     glfwPollEvents(); 
   }
 
-  void Window::Render() {
-      // float scr_aspect = 1.0 * height_window_ / width_window_;
-
-      int selected_object_id = 0;
-      int selected_lights_id = 0;
-
-      bool pickup_obj = false;
-      int id_pickup = 0;
-
-      // lt_ = glfwGetTime();
+  void Window::ProcessEvents() 
+  {
+    if (IsDown(GLFW_KEY_W)) {
+      m_camera_proxy.Update(static_cast<int>(MovementKey::kForward), delta_time_);
+    }
       
-  while (!glfwWindowShouldClose(window_)) {
-          DeltaTimeUpdate();
-          ProcessEvents();
+    if (IsDown(GLFW_KEY_A)) {
+      m_camera_proxy.Update(static_cast<int>(MovementKey::kLeft), delta_time_);
+    }
 
-          glClearColor(0.2f, 0.2f, 0.2f, 1.f);
-          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (IsDown(GLFW_KEY_D)) {
+      m_camera_proxy.Update(static_cast<int>(MovementKey::kRight), delta_time_);
+    }
 
-          GLfloat color_buffer[3];
-          GLfloat depth;
+    if (IsDown(GLFW_KEY_S)) {
+         m_camera_proxy.Update(static_cast<int>(MovementKey::kBackward), delta_time_);
+    }
 
-          double x_px = controller_.GetLastXposCursor();
-          double y_px = controller_.GetLastYposCursor();
-
-          // Why height - y_px - 1?
-          // glReadPixels(x_px, height_window_ - y_px - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-          // glReadPixels(x_px, height_window_ - y_px - 1, 1, 1, GL_RGB, GL_FLOAT, color_buffer);
-          // std::cout << "Clicked on pixel: " << std::setprecision(2) << x_px << " " << y_px << " " << color_buffer[0] << " " << color_buffer[1] << " " << color_buffer[2] << " Depth: " << depth << '\n';
-
-          // auto obj_coord_pickup = render_->PickUpObject(x_px, y_px, width_window_, height_window_, depth);
-          
-          double x_ndc = 2 * x_px / width_window_ - 1;
-          double y_ndc = 1 - 2 * y_px / height_window_;
-
-          // widget_->Frame();
-          // widget_->WindowLogs({
-          //     .fps = fps_, 
-          //     .delay = delay_,
-          //     .x_px = x_px,
-          //     .y_px = y_px, 
-          //     .x_ndc = x_ndc,
-          //     .y_ndc = y_ndc
-          // });
-
-          // const auto& objects = scene_.GetAllObjects();
-          // const auto& lights = scene_.GetAllSourceLights();
-          
-          // This code for ObjectPickup
-          // if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-          //     auto pickup_it = std::find_if(objects.begin(), objects.end(), [&](core::SceneObject& scene_object) {
-          //     auto [pz, sz, _, mixing_color] = scene_object.object.GetParams();
-
-          //         return pz.x + (sz.x / 2) >= obj_coord_pickup.x 
-          //             && pz.x - (sz.x / 2) <= obj_coord_pickup.x 
-          //             && depth < 1.0
-          //             && pz.y + (sz.y / 2) >= obj_coord_pickup.y
-          //             && pz.y - (sz.y / 2) <= obj_coord_pickup.y; 
-          //     });
-
-          //     if (auto& obj = pickup_it->object; pickup_it != objects.end()) {
-          //         pickup_it->object.SetMixingColor(glm::vec3(0.96f, 0.25f, 0.94f));
-
-          //         id_pickup = scene_.GetNumberObjects() - 1;
-          //         pickup_obj = true;
-
-          //         std::cout << "Do find pickup!!!" << '\n';
-          //     } else { std::cout << "Doesn't find pickup!!!" << '\n'; pickup_obj = false;}
-          // }
-
-          // selected_object_id = widget_->WindowListObjects(objects);
-          // selected_lights_id = widget_->w_ListLights(lights);
-          
-          // gfx::ShaderObject& shader_object = pipeline_->GetShaderObjectStruct();
-          
-          // shader_object.screen_aspect.value = scr_aspect;
-          // shader_object.delta.value = std::sin(GetDeltaTime());
-
-          // auto opt_result = widget_->w_AddModel();
-          // if (opt_result.has_value())
-          // {
-          //   scene_.AddModel(opt_result.value());
-          // }
-
-          // auto added_opt_obj = widget_->WindowAddObject();
-          // if (added_opt_obj.has_value()) {
-          //     auto obj = added_opt_obj.value();
-          //     scene_.AddObjectToScene(obj.type_obj, obj.params); 
-          // }
-          
-          // auto added_opt_light = widget_->w_LightAdd(); 
-          // if (added_opt_light.has_value()) {
-          //     auto type_light = added_opt_light.value();
-          //     scene_.AddSourceLight(type_light);
-          // }
-
-          // if (selected_object_id > 0) {
-          //     Object* object_ptr = scene_.GetObject(selected_object_id);
-          //     if (object_ptr) {
-          //         auto object_params = object_ptr->GetParams();
-          //         bool changed_material = widget_->WindowMaterial(object_params);
-          //         if (changed_material) {
-          //             object_ptr->SetParams(object_params);
-          //         }
-          //     } 
-          // } 
-
-          // // TODO: This is bad code. 
-          // if (selected_lights_id > 0 && lights.size() > 0) {
-          //     // TODO: This is bad access to element of light 
-          //     auto* scene_light = scene_.GetLight(selected_lights_id);
-
-          //     // TODO: This bad practice transfer raw pointer from unique_ptr. Maybe observer??
-          //     LightParams params{
-          //       .light = scene_light->light.get(),
-          //       .color = scene_light->color,
-          //       .size = scene_light->size
-          //     };
-
-
-          //     bool changed_light = widget_->w_LightProperties(params);
-          // }
-
-          // m_pipeline.TransferDataToFrameBuffer();
-
-          // widget_->Render();
-
-          glfwSwapBuffers(window_);
-          
-          // TODO: Undestand when call ClearStateKeys and How it works - glfwPollEvents
-          controller_.ClearStateKeys();
-          glfwPollEvents();
-          FramePerSecond();
-      }
-  }
-
-  void Window::ProcessEvents() {
-     
-      if (IsDown(GLFW_KEY_W)) {
-          m_pipeline.ChangeCameraPosition(gfx::CameraMovement::FORWARD, delta_time_);
-      }
-       
-      if (IsDown(GLFW_KEY_A)) {
-          m_pipeline.ChangeCameraPosition(gfx::CameraMovement::LEFT, delta_time_);
-      }
-
-      if (IsDown(GLFW_KEY_D)) {
-          m_pipeline.ChangeCameraPosition(gfx::CameraMovement::RIGHT, delta_time_);
-      }
-
-      if (IsDown(GLFW_KEY_S)) {
-          m_pipeline.ChangeCameraPosition(gfx::CameraMovement::BACKWARD, delta_time_);
-      }
-
-      if (WasPressedKey(GLFW_KEY_H)) {
-          cursor_state_ = cursor_state_ ? false : true;
-      }    
-      
-      if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
-          auto [xoffset, yoffset] = GetOffsetController();
-          m_pipeline.ProcessMouseMovement(xoffset, yoffset);
-      }
+    if (WasPressedKey(GLFW_KEY_H)) {
+        cursor_state_ = !cursor_state_ ? true : false;
+    }    
     
-      // if (cursor_state_) {
-      //     glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-      // } else if (!cursor_state_) {
-      //     glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-      // }
-      
-      GetLastPosCursor();
+    if (controller_.IsDownMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
+        auto [xoffset, yoffset] = GetOffsetController();
+         m_camera_proxy.Update(xoffset, yoffset);
+    }
+  
+    if (cursor_state_) {
+        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    } else if (!cursor_state_) {
+        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    GetLastPosCursor();
   }
 
   void Window::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -337,13 +186,8 @@ namespace avion::core {
     m_profiler.cursor_pos.y_ndc_cursor = 1 - 2 * m_profiler.cursor_pos.y_px_cursor / height_window_;
   }
 
-  void Window::GlViewPort(float width, float height) noexcept 
+  Window::WindowSize Window::GetSize() const noexcept 
   {
-    glViewport(0, 0, width, height);
-  }
-
-  void Window::GlEnable() const noexcept
-  {
-    glEnable(GL_DEPTH_TEST);
+    return {width_window_, height_window_};
   }
 } // namespace avion::core

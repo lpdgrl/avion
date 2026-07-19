@@ -47,7 +47,7 @@ namespace avion::core {
     {
       stbi_set_flip_vertically_on_load(true);
       if (IsUploaded()) {
-          AV_LOG_ERROR("Texture::LoadTexture: texture is already uploaded" + m_path);
+          AV_LOG_ERROR("Texture::LoadTexture: texture is already uploaded: " + m_path);
           return false;
       }
 
@@ -56,7 +56,6 @@ namespace avion::core {
       int num_color_channels = 0;
 
       m_buffer = stbi_load(m_path.c_str(), &width, &height, &num_color_channels, 0);
-        //if (stbi_failure_reason()) {
       if (!m_buffer) {
           AV_LOG_ERROR("Texture::LoadTexture: Texture failed to load at path: " + m_path);
 
@@ -77,7 +76,7 @@ namespace avion::core {
       m_width = width;
       m_height = height;
       m_num_color_channels = num_color_channels;
-      
+      m_buffer_size = width * height * num_color_channels;
       m_is_uploaded = true; 
 
       return m_is_uploaded;
@@ -107,7 +106,7 @@ namespace avion::core {
         return m_index;
     }
 
-    unsigned char* Texture::GetBuffer() noexcept {
+    std::uint8_t* Texture::GetBuffer() noexcept {
         return m_buffer; 
     }
 
@@ -121,24 +120,28 @@ namespace avion::core {
       return m_height;
     }
 
-    GLenum Texture::GetColorChannels() const noexcept
-    {
-        GLenum format;
-        if (m_num_color_channels == 1) {
-            format = GL_RED;
-        } else if (m_num_color_channels == 3) {
-            format = GL_RGB;
-        } else if (m_num_color_channels == 4) {
-            format = GL_RGBA;
-        }
+    // GLenum Texture::GetColorChannels() const noexcept
+    // {
+    //     GLenum format;
+    //     if (m_num_color_channels == 1) {
+    //         format = GL_RED;
+    //     } else if (m_num_color_channels == 3) {
+    //         format = GL_RGB;
+    //     } else if (m_num_color_channels == 4) {
+    //         format = GL_RGBA;
+    //     }
 
-        return format;
+    //     return format;
+    // }
+
+    std::uint32_t Texture::GetColorChannels() const noexcept
+    {
+      return m_num_color_channels;
     }
 
     void Texture::SwitchPathToTexture(const std::string& path_texture) {
         AV_LOG_TODO("Texture::SwitchTextureFile: is nothing done");
     }
-
 
     Texture::~Texture() {
         if (m_buffer) {

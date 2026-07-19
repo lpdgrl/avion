@@ -43,11 +43,18 @@ namespace avion::core::resman
     return m_model_loaded_list;
   }
 
-  std::optional<Texture*> ResourceManager::CreateAndLoadTexture(const std::string& filename, FsPath& path)
+  std::optional<Texture*> ResourceManager::CreateAndLoadTexture(const std::string& filename, const FsPath& path)
   {
-    std::string path_str(path.c_str());
+    if (auto it = m_resources.find(filename); it != m_resources.cend())
+    {
+      AV_LOG_INFO("ResourceManager::CreateAndLoadTexture: texture " + filename + " is exists!");
+      ResourceHolder<Texture>* holder_observer = static_cast<ResourceHolder<Texture>*>(it->second.get());
+      return &holder_observer->data;
+    }
     
-    auto it = m_resources.emplace(filename, std::make_unique<ResourceHolder<Texture>>(path_str)).first;
+    std::string path_str(path.c_str());
+
+    auto it = m_resources.try_emplace(filename, std::make_unique<ResourceHolder<Texture>>(path_str)).first;
     m_texture_loaded_list.push_back(filename);
 
     ResourceHolder<Texture>* holder_observer = static_cast<ResourceHolder<Texture>*>(it->second.get());
@@ -106,6 +113,7 @@ namespace avion::core::resman
       }
       case ResourceType::kTexture:
       case ResourceType::kUnknown:
+      case ResourceType::kSprite:
       {
         break;
       }
@@ -149,6 +157,8 @@ namespace avion::core::resman
       switch(resource)
       {
         case ResourceType::kTexture: 
+        // TODO: It's tmp!
+        case ResourceType::kSprite:
         {
           [[maybe_unused]] auto result = CreateAndLoadTexture(filename, path_canonical_resource);
           break;
@@ -193,10 +203,8 @@ namespace avion::core::resman
   }
 
 
-  Texture* ResourceManager::RegisterTexture(std::string_view path_to_resource)
+  Texture* ResourceManager::RegisterTexture(const FsPath& path)
   {
-    FsPath path(path_to_resource);
-
     auto result = CreateAndLoadTexture(path.filename(), path);
 
     return result.value();

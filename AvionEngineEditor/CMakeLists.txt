@@ -34,8 +34,8 @@ target_include_directories(${EDITOR_PROJECT_NAME}
     PUBLIC ${IMGUI_DIR}/backends
 )
 
-target_link_libraries(${EDITOR_PROJECT_NAME} AvionEngineCore)
+target_link_libraries(${EDITOR_PROJECT_NAME} PUBLIC AvionEngineCore)
 
-target_compile_features(${EDITOR_PROJECT_NAME} PUBLIC cxx_std_23)
+target_compile_features(${EDITOR_PROJECT_NAME} PUBLIC cxx_std_26)
 # target_compile_options(${EDITOR_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 # target_compile_options(${EDITOR_PROJECT_NAME} PRIVATE -O3)

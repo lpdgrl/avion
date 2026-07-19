@@ -30,8 +30,17 @@ namespace avion::editor::detail
     explicit operator bool() const { return is_select; }
   };
 
+  struct SelectItem
+  {
+    bool is_select{};
+    std::uint32_t id{};
+    
+    explicit operator bool() const { return is_select; }
+  };
+
   struct SelectionContext
   {
+    SelectItem      item;
     SelectPrimitive primitive;
     SelectLight     light;
     SelectModel     model;
