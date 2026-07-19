@@ -42,11 +42,11 @@ namespace avion::editor::panel
     } 
     else if (m_editor_ctx.selection_ctx.light.is_select)
     {
-      if (auto* p = scene_ctx.GetLight(m_editor_ctx.selection_ctx.light.id); p != nullptr)
-      {
-        m_editor_ctx.selection_ctx.light = detail::SelectLight();
-        p->is_selectable = false;
-      }
+      // if (auto* p = scene_ctx.GetLight(m_editor_ctx.selection_ctx.light.id); p != nullptr)
+      // {
+      //   m_editor_ctx.selection_ctx.light = detail::SelectLight();
+      //   p->is_selectable = false;
+      // }
     }
     else if (m_editor_ctx.selection_ctx.model.is_select)
     {
@@ -69,9 +69,12 @@ namespace avion::editor::panel
 
     for (auto& item : items)
     {
-      text.append(std::to_string(item.id));
+      text.append(std::to_string(item->id));
       text.append(":");
-      text.append(item.p_model->GetFileName());
+      text.append(item->item_type == core::ItemType::kSourceLight 
+        ? core::detail::TypeObjectToString<core::LightType>(static_cast<core::LightItem*>(item.get())->light_type) 
+        : item->ptr_model->GetFileName());
+
       TreeNode node(text.c_str(), ImGuiTreeNodeFlags_Leaf | ui::utils::CheckSelectableTreeNode(selection_mask, selection_index));
       if (node.IsOpen())
       {
@@ -80,7 +83,7 @@ namespace avion::editor::panel
           ClearOldSelectedObject();
           selection_mask = selection_index;
           m_editor_ctx.selection_ctx.item.is_select = true;
-          m_editor_ctx.selection_ctx.item.id = item.id;
+          m_editor_ctx.selection_ctx.item.id = item->id;
           // m_editor_ctx.selection_ctx.primitive.is_select = true;
           // m_editor_ctx.selection_ctx.primitive.id = item.id;
           // object.is_selectable = true;

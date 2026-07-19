@@ -2,11 +2,10 @@
 
 namespace avion::core {
 
-    Object::Object(gfx::Transform transform, Color color, Color mixing_color, Material material)
+    Object::Object(gfx::Transform transform, Color color, Color mixing_color)
         : m_transform(transform)
         , color_(color)
         , mixing_color_(mixing_color) 
-        , material_(material)
     {
         AV_LOG_INFO("Object ctor " + std::to_string(m_transform.position.x) + " " + std::to_string(m_transform.position.y) + " " + std::to_string(m_transform.position.z));
     }
@@ -15,7 +14,6 @@ namespace avion::core {
         : m_transform(params.transform)
         , color_(params.color)
         , mixing_color_(params.mixing_color)
-        , material_(params.material)
     {
         AV_LOG_INFO("Object ctor with args ObjectParams");
     }
@@ -35,7 +33,6 @@ namespace avion::core {
             m_transform = object.m_transform;
             color_ = object.color_;
             mixing_color_ = object.mixing_color_;
-            material_ = object.material_;
         }
         std::cout << "Object copy assingment " <<  '\n';    
         return *this; 
@@ -46,7 +43,6 @@ namespace avion::core {
             m_transform = object.m_transform;
             color_ = object.color_;
             mixing_color_ = object.mixing_color_;
-            material_ = object.material_;
         }
         std::cout << "Object move assingment " << '\n';
         return *this; 
@@ -74,8 +70,7 @@ namespace avion::core {
         ObjectParams params{
             .transform = m_transform,
             .color = color_.color,
-            .mixing_color = color_.color,
-            .material = material_
+            .mixing_color = color_.color
         };
         return params;
     }
@@ -84,7 +79,6 @@ namespace avion::core {
         m_transform = params.transform;
         color_ = params.color;
         mixing_color_ = params.mixing_color;
-        material_ = params.material;
     }
 
 
@@ -109,19 +103,5 @@ namespace avion::core {
     Color::operator glm::vec3() const {
         return color;
     }
-
-    const Material& Object::GetMaterial() const noexcept
-    {
-      return material_;
-    }
-
-    Material& Object::GetMaterial() noexcept
-    {
-      return material_;
-    }
-
-
-
-    // ObjectId::ObjectId(int id, Position position, Size size, Color color): id(id), object(position, size, color) {}
 
 } // namespace avion::core

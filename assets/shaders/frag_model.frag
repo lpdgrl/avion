@@ -3,7 +3,7 @@
 struct Material {
   sampler2D diffuse1;
   sampler2D specular1;
-  sampler2D emission;
+  sampler2D emission1;
 
   float fl_shininess;
 };
@@ -87,8 +87,7 @@ uniform LightType light_type;
 uniform int number_point_lights;
 uniform int number_spot_lights;
 
-// vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 view_dir);
-vec3 CalculateDirLight(vec3 light, vec3 normal, vec3 view_dir);
+vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 view_dir);
 vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view_dir);
 vec3 CalculateSpotLight(SpotLight light, vec3 normal, vec3 frag_pos, vec3 view_dir);
 float CalculateAttenuation(SpotLight light, vec3 frag_pos);
@@ -100,28 +99,26 @@ void main()
   vec3 view_dir = normalize(view_pos - fr_frag_position);
   vec3 result;
   
-  // if (light_type.is_dir_light)
-  // {  
-
-    vec3 dir_light = vec3(1.f, 1.f, 1.f);
+  if (light_type.is_dir_light)
+  {  
     result += CalculateDirLight(dir_light, normal, view_dir);
-  // }
+  }
 
-  // if (light_type.is_point_light)
-  // {
-  //   for (int i = 0; i < number_point_lights; ++i)
-  //   {
-  //     result += CalculatePointLight(point_light[i], normal, fr_frag_position, view_dir);
-  //   }
-  // }
+  if (light_type.is_point_light)
+  {
+    for (int i = 0; i < number_point_lights; ++i)
+    {
+      result += CalculatePointLight(point_light[i], normal, fr_frag_position, view_dir);
+    }
+  }
 
-  // if (light_type.is_spot_light)
-  // {  
-  //   for (int i = 0; i < number_spot_lights; ++i)
-  //   {
-  //     result += CalculateSpotLight(spot_light[i], normal, fr_frag_position, view_dir);
-  //   }
-  // }
+  if (light_type.is_spot_light)
+  {  
+    for (int i = 0; i < number_spot_lights; ++i)
+    {
+      result += CalculateSpotLight(spot_light[i], normal, fr_frag_position, view_dir);
+    }
+  }
 
   frag_color = vec4(result, 1.0);
   // frag_color = texture(material.diffuse1, fr_texture_coordinates);
@@ -136,10 +133,10 @@ void main()
   // frag_color = vec4(vec3(res_linear), 1.0);
 }
 
-vec3 CalculateDirLight(vec3 light, vec3 normal, vec3 view_dir)
+vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 view_dir)
 {
   vec3 result;
-  vec3 light_dir = normalize(vec3(0.f, 0.f, 0.f));
+  vec3 light_dir = normalize(light.direction);
   float diff = max(dot(normal, light_dir), 0.0);
   
   vec3 reflect_dir = reflect(-light_dir, normal);
@@ -151,42 +148,20 @@ vec3 CalculateDirLight(vec3 light, vec3 normal, vec3 view_dir)
 
   if (material_type.is_texture)
   {
-    ambient  = vec3(texture(material.diffuse1, fr_texture_coordinates));
-    diffuse  = diff * vec3(texture(material.diffuse1, fr_texture_coordinates));
-    specular = spec * vec3(texture(material.specular1, fr_texture_coordinates));
+    ambient  = light.ambient * vec3(texture(material.diffuse1, fr_texture_coordinates));
+    diffuse  = light.diffuse * diff * vec3(texture(material.diffuse1, fr_texture_coordinates));
+    specular = light.specular * spec * vec3(texture(material.specular1, fr_texture_coordinates));
   }
   else 
   {
-    ambient  = solid_color;
-    diffuse  = diff * solid_color;
-    specular = spec * solid_color;
+    ambient  = light.ambient * solid_color;
+    diffuse  = light.diffuse * diff * solid_color;
+    specular = light.specular * spec * solid_color;
   }
-
+ 
   result = ambient + diffuse + specular;
   return result;
 }
-
-// vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 view_dir)
-// {
-//   vec3 result;
-//   vec3 light_dir = normalize(-light.direction);
-//   float diff = max(dot(normal, light_dir), 0.0);
-  
-//   vec3 reflect_dir = reflect(-light_dir, normal);
-//   float spec = pow(max(dot(view_dir, reflect_dir), 0.0), material.fl_shininess);
-  
-//   vec3 ambient;
-//   vec3 diffuse;
-//   vec3 specular;
-
-//   ambient  = light.ambient * vec3(texture(material.diffuse1, fr_texture_coordinates));
-//   diffuse  = light.diffuse * diff * vec3(texture(material.diffuse1, fr_texture_coordinates));
-//   specular = light.specular * spec * vec3(texture(material.specular1, fr_texture_coordinates));
-
-
-//   result = ambient + diffuse + specular;
-//   return result;
-// }
 
 vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view_dir)
 {

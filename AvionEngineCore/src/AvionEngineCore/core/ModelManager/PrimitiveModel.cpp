@@ -127,14 +127,14 @@ namespace avion::core::modelmanager::detail
   {
     std::vector<float> plane
     {
-      // positions          // normals           // texture coords
-       0.0f, 0.0f, 0.f,     0.f, 0.f, 0.f,        0.f, 0.f,
-       0.0f, 1.f,  0.0f,    0.f, 0.f, 0.f,        0.f, 1.f,
-       1.0f, 0.f, 0.0f,    0.f, 0.f, 0.f,         1.f, 0.f,
+      // positions          // normals        // texture coords
+       0.f, 0.f, 0.f,    0.f, 0.f, 0.f,       0.f, 0.f,
+       0.f, 1.f, 0.f,    0.f, 0.f, 0.f,       0.f, 1.f,
+       1.f, 0.f, 0.f,    0.f, 0.f, 0.f,       1.f, 0.f,
 
-       0.f, 1.f, 0.f,      0.f, 0.f, 0.f,        0.f, 1.f,
-       1.f, 1.f, 0.f,      0.f, 0.f, 0.f,        0.f, 0.f,
-       1.f, 0.f,0.f,       0.f, 0.f, 0.f,        1.f, 0.f
+       0.f, 1.f, 0.f,      0.f, 0.f, 0.f,     0.f, 1.f,
+       1.f, 1.f, 0.f,      0.f, 0.f, 0.f,     1.f, 1.f,
+       1.f, 0.f,0.f,       0.f, 0.f, 0.f,     1.f, 0.f
     };
 
     constexpr std::size_t number_vertex  = 4;

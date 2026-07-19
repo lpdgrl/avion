@@ -70,91 +70,156 @@ namespace avion::api::backend::opengl
   void OpenglRenderer::Draw(const RenderItem& item) const noexcept
   {
     using RenderOption = api::backend::detail::RenderOption;
+    using LightType    = api::backend::detail::LightSrcRenderableType;
 
-    auto&& buffer_id = item.model_handler.id;
-    auto&& transform = item.transform;
-    auto&& mesh_range = item.mesh_range;
-    auto&& material_range = item.material_range;
-    auto&& view_matrix = item.view_matrix;
-    auto&& view_position = item.view_position;
-    auto&& model_matrix = transform.GetMatrix();
-    auto&& solid_color = item.solid_color;
-    auto&& render_option = item.render_item_option;
+    std::string shader("model");
+    auto&& buffer_id      = item.model_handler.id;
+    auto&& transform      = item.transform;
+    auto&& mesh_range     = item.mesh_range;
+    auto&& diffuse_range  = item.diffuse_range;
+    auto&& specular_range = item.specular_range;
+    auto&& view_matrix    = item.view_matrix;
+    auto&& view_position  = item.view_position;
+    auto&& model_matrix   = transform.GetMatrix();
+    auto&& solid_color    = item.solid_color;
+    auto&& render_option  = item.render_item_option;
+    auto&& light_src      = item.light_src_renderable;
 
-    m_shader_storage.PutData("model", "material_type.is_texture", 
-      render_option == RenderOption::kSolidColorMaterial ? false : true
+    m_shader_storage.PutData(shader, "material.fl_shininess", light_src.shininess);
+
+    m_shader_storage.PutData(shader, "material_type.is_texture", 
+      render_option & static_cast<std::uint8_t>(RenderOption::kSolidColorMaterial) ? false : true
     );
 
-    if (render_option == RenderOption::kSolidColorMaterial) 
+    if (render_option & static_cast<std::uint8_t>(RenderOption::kSolidColorMaterial)) 
     {
-      m_shader_storage.PutData("model", "solid_color", solid_color);
-      m_shader_storage.PutData("model", "material.fl_shininess", 32.f);
+      m_shader_storage.PutData(shader, "solid_color", solid_color);
+      
     }
 
-    m_shader_storage.PutData("model", "view", view_matrix);
-    m_shader_storage.PutData("model", "view_pos", view_position);
-    m_shader_storage.PutData("model", "model", model_matrix);
-    m_shader_storage.UseShader("model");
+    if (render_option & static_cast<std::uint8_t>(RenderOption::kLightRenderable))
+    {
+      switch(light_src.light_src_type)
+      {
+        case LightType::kDirLightSrc:
+        {
+          m_shader_storage.PutData(shader, "light_type.is_dir_light", true);
+          m_shader_storage.PutData(shader, "dir_light.direction", transform.position);
+          m_shader_storage.PutData(shader, "dir_light.ambient", light_src.ambient);
+          m_shader_storage.PutData(shader, "dir_light.diffuse", light_src.diffuse);
+          m_shader_storage.PutData(shader, "dir_light.specular", light_src.specular);
+          break;
+        }
+        case LightType::kPointLightSrc:
+        {
+          for (int i = 0; i < light_src.number_point_light; ++i)
+          {
+            m_shader_storage.PutData(shader, "light_type.is_point_light", true);
+            m_shader_storage.PutData(shader, "number_point_lights", light_src.number_point_light);
+            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].position", transform.position);
+            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].ambient", light_src.ambient);
+            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].diffuse", light_src.diffuse);
+            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].specular", light_src.specular);
+            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].constant", light_src.constant);
+            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].linear", light_src.linear);
+            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].quadratic", light_src.quadratic);
+          }
+          break;
+        }
+        case LightType::kSpotLightSrc:
+        { 
+          for (int i = 0; i < light_src.number_spot_light; ++i)
+          {
+            m_shader_storage.PutData(shader, "light_type.is_spot_light", true);
+            m_shader_storage.PutData(shader, "number_spot_lights", light_src.number_spot_light);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].position", transform.position);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].direction", transform.position);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].ambient", light_src.ambient);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].diffuse", light_src.diffuse);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].specular", light_src.specular);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].constant", light_src.constant);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].linear", light_src.linear);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].quadratic", light_src.quadratic);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].cut_off", light_src.cutoff);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].outer_cut_off", light_src.outer_cutoff);
+          }
+          break;
+        }
+      }
+    }
+
+    m_shader_storage.PutData(shader, "view", view_matrix);
+    m_shader_storage.PutData(shader, "view_pos", view_position);
+    m_shader_storage.PutData(shader, "model", model_matrix);
+    if (render_option & static_cast<std::uint8_t>(RenderOption::kTextureMaterial))
+    { 
+      int num_tex_unit = 0;
+      if (!diffuse_range.empty())
+      {
+        BindTexture2D(diffuse_range, num_tex_unit);
+      }
+      
+      if (!specular_range.empty())
+      {
+        BindTexture2D(specular_range, num_tex_unit);
+      }
+    }
+    m_shader_storage.UseShader(shader);
 
     auto it = m_buffer_storage.find(buffer_id);
     assert(!(it == m_buffer_storage.end()) && "OpenglRenderer::Draw(RenderItem item): buffer id isn't exists");
 
-    if (render_option == RenderOption::kTextureMaterial)
-    {
-      BindTexture2D(material_range);
-    }
-   
     auto&& buffer = it->second;
     glBindVertexArray(buffer.GetIdVao());
 
-    for (auto m : mesh_range)
+    for (auto& m : mesh_range)
     {
       glDrawElements(GL_TRIANGLES, m.index_count, GL_UNSIGNED_INT, 
         std::bit_cast<void*>(m.first_index * sizeof(std::uint32_t))
       );
     }
-    
-    if (render_option == RenderOption::kTextureMaterial)
+
+    if (render_option & static_cast<std::uint8_t>(RenderOption::kTextureMaterial))
     {
-      UnBindTexture2D(material_range);
+      UnBindTexture2D(diffuse_range);
+      UnBindTexture2D(specular_range);
     }
+
     glBindVertexArray(0);
   }
 
-  void OpenglRenderer::BindTexture2D(const MaterialRange& range) const noexcept
+  void OpenglRenderer::BindTexture2D(const MaterialRange& range, int& number) const noexcept
   {
-    int i = 1;
+    int shader_num_texture = 1;
     for (auto& material : range)
     {
-      glActiveTexture(GL_TEXTURE0 + i);
-
       std::string name_texture("material.");
-
       switch(material.type)
       {
         case TextureType::kDiffuse:
         {
           name_texture.append("diffuse");
-          name_texture.append(std::to_string(i));
+          name_texture.append(std::to_string(shader_num_texture));
           break;
         }
         case TextureType::kSpecular:
         { 
           name_texture.append("specular");
-          name_texture.append(std::to_string(i));
+          name_texture.append(std::to_string(shader_num_texture));
           break;
         }
         case TextureType::kEmission:
         {
           name_texture.append("emission");
-          name_texture.append(std::to_string(i));
+          name_texture.append(std::to_string(shader_num_texture));
           break;
         }
       }
 
-      m_shader_storage.PutData("model", name_texture, i++);
-      m_shader_storage.ExecuteAfterUse("model");
+      glActiveTexture(GL_TEXTURE0 + number);
+      m_shader_storage.PutData("model", name_texture, number++);
       m_texture2d_storage.find(material.id)->second.Bind();
+      shader_num_texture++;
     }
   }
 
@@ -241,8 +306,8 @@ namespace avion::api::backend::opengl
 
     auto [_, blend_source_factor, blend_destination_factor, bledn_equation] = m_blend_state;
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   void OpenglRenderer::ApplyViewportState() const noexcept

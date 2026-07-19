@@ -85,11 +85,10 @@ namespace avion::core::engine
 
     m_scene_renderer->Init(width_w, height_w);
     
-    // m_scene.AddModel("backpack.obj");
-    m_scene.AddPrimitive(Scene::PrimitiveType::kCube);
-    m_scene.AddPrimitive(Scene::PrimitiveType::kPyramid);
-    m_scene.AddPrimitive(Scene::PrimitiveType::kPlane);
-    // m_scene.AddSourceLight(core::LightType::kDirLight);
+    m_scene.AddModel("backpack.obj");
+    // m_scene.AddPrimitive(Scene::PrimitiveType::kCube);
+    // m_scene.AddPrimitive(Scene::PrimitiveType::kPyramid);
+    // m_scene.AddPrimitive(Scene::PrimitiveType::kPlane);
   }
 
   void Engine::Render()

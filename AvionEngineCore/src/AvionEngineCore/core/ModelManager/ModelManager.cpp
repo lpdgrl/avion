@@ -30,17 +30,30 @@ namespace avion::core::modelmanager
     auto& model_data = assimp_result.value();
     auto model_handler = m_cb_backend(model_data);
     
-    std::vector<TextureHandler> texture_handlers;
     // loading and create opengl texture for model
+    Material material;
+    material.type = MaterialType::kTexture;
     for (const auto& texture : model_data.texture_source)
     {
       auto path = p_fs_path->parent_path() / texture.path;
       auto texture_handler = m_cb_texture(path);
-      texture_handlers.emplace_back(texture.type, texture_handler.value().id);
+      switch (texture.type)
+      {
+        case TextureType::kDiffuse:
+        {
+          material.diffuse_texture.emplace_back(texture.type, texture_handler.value().id);
+          break;
+        }
+        case TextureType::kSpecular:
+        {
+          material.specular_texture.emplace_back(texture.type, texture_handler.value().id);
+          break;
+        }
+      }
     }
-    
+
     // TODO: Model data moving to model
-    auto [it, success] = m_storage.emplace(filename, std::make_shared<Model>(filename, model_data, texture_handlers));
+    auto [it, success] = m_storage.emplace(filename, std::make_shared<Model>(filename, model_data, material));
     auto [it_handle, _] = m_handle_storage.emplace(filename, model_handler);
     model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
 
@@ -64,9 +77,13 @@ namespace avion::core::modelmanager
     auto model_data = detail::PrimitiveModel::Make(type);
     auto model_handler = m_cb_backend(model_data);
 
+    Material material;
+    material.type  = MaterialType::kRegular;
+    material.color = glm::vec3(0.5f, 0.5f, 0.5f);
+    
     auto [it_handle, _] = m_handle_storage.emplace(filename, model_handler);
     auto [it, success] = m_storage.emplace(filename, 
-      std::make_shared<Model>(filename, model_data, glm::vec3(0.5f, 0.5f, 0.5f)));
+      std::make_shared<Model>(filename, model_data, material));
 
     model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
     return model_load_result;
@@ -94,14 +111,14 @@ namespace avion::core::modelmanager
     auto model_handler = m_cb_backend(model_data);
     auto [it_handle, _] = m_handle_storage.emplace(filename_sprite, model_handler);
     
-    std::vector<TextureHandler> texture_handlers;
     // loading and create opengl texture for model
+    Material material;
+    material.type = MaterialType::kTexture;
     auto texture_handler = m_cb_texture(p_fs_path->c_str());
-    texture_handlers.emplace_back(texturemanager::detail::TextureType::kDiffuse, texture_handler.value().id);
+    material.diffuse_texture.emplace_back(TextureType::kDiffuse, texture_handler.value().id);
 
-  
     // TODO: Model data moving to model
-    auto [it, success] = m_storage.emplace(filename_sprite, std::make_shared<Model>(filename_sprite, model_data, texture_handlers));
+    auto [it, success] = m_storage.emplace(filename_sprite, std::make_shared<Model>(filename_sprite, model_data, material));
     model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
 
     AV_LOG_INFO("ModelManager::Load: sprite " + filename_sprite + " is loading success");

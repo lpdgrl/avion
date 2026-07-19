@@ -155,7 +155,6 @@ namespace avion::gfx {
       }
   }
 
-
   /* 
   ShaderExecutor::ShaderExecutor() 
   {

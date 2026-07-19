@@ -40,9 +40,9 @@
     void OpenglTexture2D::SetupTexture(const TextureItem& item) noexcept 
     {
       GLenum format = item.color_channels >= 4 ? GL_RGBA : GL_RGB;
-      AV_LOG_DEBUG("OpenglTexture2D::SetupTexture: " + std::to_string(format == GL_RGBA));
 
       glGenTextures(1, &m_texture_id);
+      AV_LOG_DEBUG("OpenglTexture2D::SetupTexture: id=" + std::to_string(m_texture_id));
       glBindTexture(GL_TEXTURE_2D, m_texture_id);
 
       glTexImage2D(GL_TEXTURE_2D, 0, format, item.width, item.height, 0, format, GL_UNSIGNED_BYTE, &item.buffer[0]);

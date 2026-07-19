@@ -47,6 +47,7 @@ namespace avion::core::resman
   {
     if (auto it = m_resources.find(filename); it != m_resources.cend())
     {
+      AV_LOG_INFO("ResourceManager::CreateAndLoadTexture: texture " + filename + " is exists!");
       ResourceHolder<Texture>* holder_observer = static_cast<ResourceHolder<Texture>*>(it->second.get());
       return &holder_observer->data;
     }

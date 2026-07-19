@@ -31,11 +31,13 @@
         void RenderTabLight() const noexcept;
         void RenderTabPrimitive() const noexcept;
 
-        size_t DrawComboTexture(
+        size_t DrawComboTexture
+        (
           const char* label, 
           size_t index_selected_texture, 
           const core::resman::ResourceManager::ListTexture& textures,
-          gfx::Model::Material& material) const noexcept;
+          gfx::Model::Material& material
+        ) const noexcept;
 
       private:
         EditorContext&    m_editor_ctx;

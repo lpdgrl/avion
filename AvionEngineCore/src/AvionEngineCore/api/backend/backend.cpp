@@ -146,6 +146,11 @@ namespace avion::api::backend
       m_resman.GetResource<ResManager::FsPath>("simple_light_transform.vert")->c_str(),
       m_resman.GetResource<ResManager::FsPath>("simple_light_color.frag")->c_str()
     );
+
+    // m_shader_storage.PutData("model", "material.diffuse1", 0);
+    // m_shader_storage.PutData("model", "material.specular1", 1);
+    // m_shader_storage.PutData("model", "material.emission1", 2);
+    // m_shader_storage.UseShader("model");
   }
 
   // Common state 

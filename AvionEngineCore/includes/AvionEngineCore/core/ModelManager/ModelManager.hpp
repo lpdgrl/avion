@@ -18,31 +18,32 @@
     class ModelManager
     {
       public:
-        using FileName      = std::string;
-        using Model         = gfx::Model;
-        using ModelPtr      = std::shared_ptr<Model>;
-        
-        using FsPath        = resman::ResourceManager::FsPath;
-        using AssimpModelLoader = assimp::AssimpModelLoader;
-        using ModelData     = detail::ModelData;
-        using ModelHandler  = detail::ModelHandler;
-        using TextureHandler = texturemanager::detail::TextureHandler;
-        using PrimitiveType  = detail::PrimitiveType;
+        struct ModelItem;
 
-        using ModelHandleStorage = std::unordered_map<FileName, ModelHandler>;
-        using ModelStorage       = std::unordered_map<FileName, ModelPtr>;
-        
-        using ResmanCallback  = std::function<FsPath*(std::string_view filename_model)>;  
-        using TextureManagerCallback = std::function<std::optional<TextureHandler>(const FsPath& path)>;
-        using BackendCallback = std::function<ModelHandler(ModelData& model_data)>;
+        using FileName                = std::string;
+        using Model                   = gfx::Model;
+        using ModelPtr                = std::shared_ptr<Model>;
+        using FsPath                  = resman::ResourceManager::FsPath;
+        using AssimpModelLoader       = assimp::AssimpModelLoader;
+        using ModelData               = detail::ModelData;
+        using ModelHandler            = detail::ModelHandler;
+        using Material                = core::material::Material;
+        using MaterialType            = core::material::MaterialType;
+        using TextureHandler          = texturemanager::detail::TextureHandler;
+        using TextureType             = texturemanager::detail::TextureType;
+        using PrimitiveType           = detail::PrimitiveType;
+        using ModelHandleStorage      = std::unordered_map<FileName, ModelHandler>;
+        using ModelStorage            = std::unordered_map<FileName, ModelPtr>;
+        using ResmanCallback          = std::function<FsPath*(std::string_view filename_model)>;  
+        using TextureManagerCallback  = std::function<std::optional<TextureHandler>(const FsPath& path)>;
+        using BackendCallback         = std::function<ModelHandler(ModelData& model_data)>;
+        using LoadModelResult         = std::optional<ModelItem>;
 
         struct ModelItem
         {
           ModelHandler model_handler;
           ModelPtr model;
         };
-
-        using LoadModelResult = std::optional<ModelItem>;
 
         ModelManager() = default;
 
@@ -81,12 +82,12 @@
         LoadModelResult CreateModelCopy(const std::string& filename) noexcept;
 
       private:
-        ResmanCallback m_cb_resman;
-        BackendCallback m_cb_backend;
-        TextureManagerCallback m_cb_texture;
-        ModelStorage m_storage;
-        ModelHandleStorage m_handle_storage;
-        std::uint32_t m_number_copy_models{};
+        ResmanCallback          m_cb_resman;
+        BackendCallback         m_cb_backend;
+        TextureManagerCallback  m_cb_texture;
+        ModelStorage            m_storage;
+        ModelHandleStorage      m_handle_storage;
+        std::uint32_t           m_number_copy_models{};
     };
 
     template <typename Self>

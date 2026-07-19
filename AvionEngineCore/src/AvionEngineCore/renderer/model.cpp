@@ -13,21 +13,11 @@ namespace avion::gfx
 
   }
 
-  Model::Model(const std::string& filename, const ModelData& model_data, Color color)
-  : m_filename(filename)
-  , m_data(model_data)
-  , m_transform{.position{0.f, 0.f, 0.f}, .size{1.f}, .value_rotate{0.f}, .axis = AxisRotate::NONE}
-  , m_solid_color(color)
-  {
-
-  }
-
   Model::Model(const std::string& filename, const Model& other)
   : m_filename(filename)
   , m_data(other.m_data)
   , m_transform(other.m_transform)
   , m_material(other.m_material)
-  , m_solid_color(other.m_solid_color)
   {
      AV_LOG_DEBUG("Model::Model(const std::string& filename, const Model& other): " + m_filename);
   }
@@ -37,7 +27,6 @@ namespace avion::gfx
   , m_data(other.m_data)
   , m_transform(other.m_transform)
   , m_material(other.m_material)
-  , m_solid_color(other.m_solid_color)
   {
     AV_LOG_DEBUG("Model::Model(const Model& other): " + m_filename);
   }
@@ -47,7 +36,6 @@ namespace avion::gfx
   , m_data(std::move(other.m_data))
   , m_transform(std::move(other.m_transform))
   , m_material(std::move(m_material))
-  , m_solid_color(std::move(m_solid_color))
   {
 
   }
@@ -89,14 +77,13 @@ namespace avion::gfx
     swap(m_filename, other.m_filename);
     swap(m_data, other.m_data);
     swap(m_transform, other.m_transform);
+    swap(m_material, other.m_material);
   }
 
   std::string Model::GetFileName() const noexcept
   {
     return m_filename;
   }
-
-
 
   Transform& Model::GetTransform() noexcept
   {
@@ -131,16 +118,6 @@ namespace avion::gfx
   const Model::Material& Model::GetMaterial() const noexcept 
   { 
     return m_material; 
-  }
-
-  Model::Color& Model::GetColor() noexcept 
-  { 
-    return m_solid_color; 
-  }
-
-  Model::Color Model::GetColor() const noexcept 
-  { 
-    return m_solid_color; 
   }
 
   void swap(Model& lhs, Model& rhs) noexcept

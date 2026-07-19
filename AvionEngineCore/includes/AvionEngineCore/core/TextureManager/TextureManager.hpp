@@ -14,17 +14,16 @@
 
   namespace avion::core::texturemanager
   {
-    
     class TextureManager
     {
       public:
-        using FileName      = std::string;
-        using Texture       = core::Texture;
-        using FsPath        = resman::ResourceManager::FsPath;
+        using FileName          = std::string;
+        using Texture           = core::Texture;
+        using FsPath            = resman::ResourceManager::FsPath;
         using AssimpModelLoader = assimp::AssimpModelLoader;
-        using TextureHandler = detail::TextureHandler;
+        using TextureHandler    = detail::TextureHandler;
         using LoadTextureResult = std::optional<TextureHandler>;
-        using TextureData = detail::TextureData;
+        using TextureData       = detail::TextureData;
 
         struct TextureItem
         {

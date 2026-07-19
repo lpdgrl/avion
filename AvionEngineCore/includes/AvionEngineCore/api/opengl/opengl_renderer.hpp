@@ -80,7 +80,7 @@
         void ApplyColorState()    const noexcept;
 
         void SubmitProjectionMatrixToShader() noexcept;
-        void BindTexture2D(const MaterialRange& range) const noexcept;
+        void BindTexture2D(const MaterialRange& range, int& number) const noexcept;
         void UnBindTexture2D(const MaterialRange& range) const noexcept;
 
       private:

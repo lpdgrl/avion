@@ -7,7 +7,7 @@
 #include <deque>
 
 #include "AvionEngineCore/core/object.hpp"
-#include "AvionEngineCore/core/light.hpp"
+#include "AvionEngineCore/core/ISceneItem.hpp"
 #include "AvionEngineCore/renderer/camera.hpp"
 #include "AvionEngineCore/core/Common/CameraProxy.hpp"
 
@@ -20,49 +20,15 @@ namespace avion::core::resman
 }
 
 namespace avion::core {
-  
-  enum class LightType {
-    kUnknownLight = -1,
-    kSimpleLight = 0,
-    kDirLight = 1,
-    kPointLight = 2,
-    kSpotLight = 3,
-  };
-
   class Scene {
   public:
     using ModelManager  = modelmanager::ModelManager;
-   
-    struct SceneItem 
-    {
-      std::uint32_t id{};
-      ModelManager::ModelHandler model_handler;
-      ModelManager::ModelPtr     p_model; 
-    }; 
-
-    struct SceneLight 
-    {
-      std::unique_ptr<ILight> light;
-      std::uint32_t id{};
-      LightType type;
-
-      ModelManager::ModelHandler model_handler;
-      ModelManager::ModelPtr p_model;
-
-      bool is_selectable = false;
-    };
-
-    using SourceLight   = std::vector<SceneLight>;
-
-    using SceneItems    = std::deque<SceneItem>;
-    using CacheItems    = std::unordered_map<std::uint32_t, SceneItem&>;
-
+    using SceneItems    = std::deque<std::unique_ptr<ISceneItem>>;
+    using CacheItems    = std::unordered_map<std::uint32_t, ISceneItem&>;
     using ResManager    = resman::ResourceManager;
-
     using Camera        = gfx::Camera;
     using CameraData    = gfx::CameraData;
     using CameraProxy   = common::CameraProxy;
-
     using PrimitiveType = modelmanager::detail::PrimitiveType;
 
     Scene() = default;
@@ -80,19 +46,14 @@ namespace avion::core {
     bool AddModel(const std::string& name_model);
     bool AddPrimitive(PrimitiveType type); 
 
-    SourceLight& GetAllSourceLights();
     SceneItems& GetSceneItems();
-
-    SceneItem& GetItem(std::uint32_t id) noexcept;
-
-    const SourceLight& GetAllSourceLights() const noexcept;
     const SceneItems&  GetSceneItems() const noexcept;
+    ISceneItem& GetItem(std::uint32_t id) noexcept;
+    std::uint32_t GetNumberPointLight() const noexcept { return m_number_point_light; }
+    std::uint32_t GetNumberSpotLight() const noexcept { return m_number_spot_light; }
 
-    std::size_t GetNumberSourceLights() const noexcept;
-    // std::size_t GetNumberModels() const noexcept;
-
-    template<typename Self>
-    decltype(auto) GetLight(this Self& self, int id);
+    // template<typename Self>
+    // decltype(auto) GetLight(this Self& self, int id);
 
     // Camera interact 
     CameraData GetCameraData() const noexcept;
@@ -108,42 +69,41 @@ namespace avion::core {
   private:
     // factory member func
     std::unique_ptr<ILight> MakeSourceLight(LightType type) const noexcept; 
-    // ModelHandler*           GetModelFromCache(const std::string& filename_model) noexcept;
+
+    std::uint32_t IncAndGetId() noexcept { return ++m_last_scene_item_id; } 
 
     // template <typename Self, typename Pred>
     // decltype(auto) FindModel(this Self& self, Pred&& pred);
 
   private:
     ModelManager& m_model_manager;
-    SourceLight   source_lights_on_scene_;
-    SceneItems  m_storage_items;
-    CacheItems  m_cache_items;
-    Camera m_camera;
+    SceneItems    m_storage_items;
+    CacheItems    m_cache_items;
+    Camera        m_camera;
     std::uint32_t m_last_scene_item_id{};
-
-    // Models          m_models;
-    // ModelCache      m_cache_models;
+    std::uint32_t m_number_point_light;
+    std::uint32_t m_number_spot_light;
   };
 
-  template<typename Self>
-  decltype(auto) Scene::GetLight(this Self& self, int id)
-  {
-    using ReturnType = std::conditional_t<
-      std::is_const_v<std::remove_reference_t<Self>>,
-      const SceneLight*,
-      SceneLight*
-    >;
+  // template<typename Self>
+  // decltype(auto) Scene::GetLight(this Self& self, int id)
+  // {
+  //   using ReturnType = std::conditional_t<
+  //     std::is_const_v<std::remove_reference_t<Self>>,
+  //     const SceneLight*,
+  //     SceneLight*
+  //   >;
 
-    auto it = std::find_if(self.source_lights_on_scene_.begin(), self.source_lights_on_scene_.end(), [id](const auto& handler)
-      { return handler.id == id; });
+  //   auto it = std::find_if(self.source_lights_on_scene_.begin(), self.source_lights_on_scene_.end(), [id](const auto& handler)
+  //     { return handler.id == id; });
 
-    if (it == self.source_lights_on_scene_.end()) 
-    {
-      return ReturnType{nullptr};
-    }
+  //   if (it == self.source_lights_on_scene_.end()) 
+  //   {
+  //     return ReturnType{nullptr};
+  //   }
 
-    return static_cast<ReturnType>(&(*it));
-  }
+  //   return static_cast<ReturnType>(&(*it));
+  // }
   
   // template <typename Self>
   // decltype(auto) Scene::GetModel(this Self& self, std::uint32_t id, const std::string& filename)
@@ -189,7 +149,7 @@ namespace avion::core::detail
   template <typename T>
   constexpr std::string TypeObjectToString(T type)
   { 
-    using LightType  = core::LightType;
+    using LightType = core::LightType;
   
     std::string result;
     if constexpr (std::is_same_v<T, LightType>)

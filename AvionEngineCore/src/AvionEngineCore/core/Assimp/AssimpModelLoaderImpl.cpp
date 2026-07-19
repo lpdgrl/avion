@@ -104,7 +104,7 @@ namespace avion::core::assimp::detail
     if (mesh->mMaterialIndex >= 0)
     {
       aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-      std::unordered_set<std::string> duplicate;
+      static std::unordered_set<std::string> duplicate;
 
       std::vector<TextureSource> diffuse_map = LoadMaterialTextures(material, aiTextureType_DIFFUSE, duplicate);
       texture_source.insert_range(texture_source.begin(), diffuse_map);

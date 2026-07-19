@@ -47,7 +47,7 @@ namespace avion::editor::app
     //   fb_scene.RescaleFrameBuffer(w, h);
     // }
     fb_scene.Bind();
-    backend.SetViewportState({0, 0,  fb_scene.GetWidth(),  fb_scene.GetHeight()});
+    backend.SetViewportState({0, 0, fb_scene.GetWidth(), fb_scene.GetHeight()});
     backend.SetColorState({0.1f, 0.1f, 0.5f, 1.f});
     backend.SetBlendingState(
       {
