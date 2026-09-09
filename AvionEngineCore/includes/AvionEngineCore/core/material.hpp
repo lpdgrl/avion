@@ -53,6 +53,13 @@
       kTexture      = 2,
     };
 
+    enum class Transparency : std::uint8_t 
+    {
+      kOpaque = 0,
+      kSemiTransparency = 1,
+      kFullTranspanrency = 2,
+    };
+
     struct Material
     {
       using TextureHandler = texturemanager::detail::TextureHandler;
@@ -72,6 +79,7 @@
       float shininess{};
 
       MaterialType type = MaterialType::kUnSpecified;
+      Transparency opacity = Transparency::kOpaque;
     };
 
   //   struct Material 

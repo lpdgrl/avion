@@ -25,6 +25,7 @@ namespace avion::core {
     using ModelManager  = modelmanager::ModelManager;
     using SceneItems    = std::deque<std::unique_ptr<ISceneItem>>;
     using CacheItems    = std::unordered_map<std::uint32_t, ISceneItem&>;
+    using CacheLightItems = std::vector<LightItem*>;
     using ResManager    = resman::ResourceManager;
     using Camera        = gfx::Camera;
     using CameraData    = gfx::CameraData;
@@ -49,6 +50,8 @@ namespace avion::core {
     SceneItems& GetSceneItems();
     const SceneItems&  GetSceneItems() const noexcept;
     ISceneItem& GetItem(std::uint32_t id) noexcept;
+
+    CacheLightItems& GetCacheLightItems() noexcept { return m_cache_light_items; }
     std::uint32_t GetNumberPointLight() const noexcept { return m_number_point_light; }
     std::uint32_t GetNumberSpotLight() const noexcept { return m_number_spot_light; }
 
@@ -79,6 +82,7 @@ namespace avion::core {
     ModelManager& m_model_manager;
     SceneItems    m_storage_items;
     CacheItems    m_cache_items;
+    CacheLightItems m_cache_light_items; 
     Camera        m_camera;
     std::uint32_t m_last_scene_item_id{};
     std::uint32_t m_number_point_light;

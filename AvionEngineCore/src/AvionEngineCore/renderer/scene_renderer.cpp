@@ -1,18 +1,14 @@
 #include "AvionEngineCore/renderer/scene_renderer.hpp"
-#include "AvionEngineCore/renderer/pipeline_queue.hpp"
-
 #include "AvionEngineCore/core/resource_manager.hpp"
 
-// TODO: THIS IS WRONG!!! VERY WRONGG. THE ABSTRACTION LEAKING FROM EDITOR CONTEXT
-#include "../../../../AvionEngineEditor/includes/AvionEngineEditor/editor/editor_context.hpp"
 
 namespace avion::gfx {
 
     SceneRenderer::SceneRenderer(core::Scene& scene, core::resman::ResourceManager& resman)
     : m_scene(scene)
-    , m_resman(resman) 
+    , m_resman(resman)
     {
-      
+
     }
 
     SceneRenderer::~SceneRenderer() {
@@ -27,29 +23,31 @@ namespace avion::gfx {
     {
       m_cb_backend = callback;
     }
-    
-    void SceneRenderer::PrepareRenderItems() noexcept 
+
+    void SceneRenderer::PrepareRenderItems() noexcept
     {
       using namespace api::backend::detail;
 
       auto&& items = m_scene.GetSceneItems();
       auto camera_data = m_scene.GetCameraData();
-      for (const auto& item : items)
+      auto& light_src = m_scene.GetCacheLightItems();
+      std::vector<LightSrcRenderable> light;
+
+      // Light pass
+      if (!light_src.empty())
       {
-        RenderItem renderable_item;
-        auto& light_src_renderable = renderable_item.light_src_renderable;
-        auto& material = item->ptr_model->GetMaterial();
-        if (item->item_type == core::ItemType::kSourceLight)
+        LightSrcRenderable light_src_renderable;
+        for (const auto* light_item : light_src)
         {
-          renderable_item.render_item_option |= g_MaskRenderOption & 
-            static_cast<std::uint8_t>(RenderOption::kLightRenderable);
+          // auto& light_src_renderable = renderable_item.light_src_renderable;
+          // light_src_renderable.shininess = material.shininess;
 
-          const auto& light_item = static_cast<const core::LightItem&>(*item.get());
-          light_src_renderable.ambient  = light_item.light->GetAmbient();
-          light_src_renderable.diffuse  = light_item.light->GetDiffuse();
-          light_src_renderable.specular = light_item.light->GetSpecular();
+          light_src_renderable.ambient  = light_item->light->GetAmbient();
+          light_src_renderable.diffuse  = light_item->light->GetDiffuse();
+          light_src_renderable.specular = light_item->light->GetSpecular();
+          light_src_renderable.position = light_item->ptr_model->GetTransform().position;
 
-          switch(light_item.light_type)
+          switch(light_item->light_type)
           {
             case core::LightType::kDirLight:
             {
@@ -59,7 +57,7 @@ namespace avion::gfx {
             case core::LightType::kPointLight:
             {
               light_src_renderable.light_src_type = LightSrcRenderableType::kPointLightSrc;
-              auto* light_src = static_cast<core::PointLight*>(light_item.light.get());
+              const auto* light_src = static_cast<core::PointLight*>(light_item->light.get());
               light_src_renderable.constant  = light_src->GetConstant();
               light_src_renderable.linear    = light_src->GetLinear();
               light_src_renderable.quadratic = light_src->GetQuadratic();
@@ -69,7 +67,7 @@ namespace avion::gfx {
             case core::LightType::kSpotLight:
             {
               light_src_renderable.light_src_type = LightSrcRenderableType::kSpotLightSrc;
-              auto* light_src = static_cast<core::SpotLight*>(light_item.light.get());
+              const auto* light_src = static_cast<core::SpotLight*>(light_item->light.get());
               light_src_renderable.constant     = light_src->GetConstant();
               light_src_renderable.linear       = light_src->GetLinear();
               light_src_renderable.quadratic    = light_src->GetQuadratic();
@@ -80,12 +78,19 @@ namespace avion::gfx {
               break;
             }
           }
+          light.emplace_back(light_src_renderable);
         }
- 
+      }
+
+      for (const auto& item : items)
+      {
+        RenderItem renderable_item;
+        auto& material = item->ptr_model->GetMaterial();
+
         bool is_material = material.type == core::material::MaterialType::kTexture ? true : false;
         if (is_material)
         {
-          renderable_item.render_item_option |= g_MaskRenderOption & 
+          renderable_item.render_item_option |= g_MaskRenderOption &
             static_cast<std::uint8_t>(RenderOption::kTextureMaterial);
 
           if (material.diffuse_texture.size() > 0)
@@ -96,10 +101,15 @@ namespace avion::gfx {
           {
             renderable_item.specular_range = {material.specular_texture.data(), material.specular_texture.size()};
           }
+          if (material.opacity == core::material::Transparency::kSemiTransparency)
+          {
+            renderable_item.render_item_option |= g_MaskRenderOption &
+              static_cast<std::uint8_t>(RenderOption::kSemiTransparency);
+          }
         }
         else
         {
-          renderable_item.render_item_option |= g_MaskRenderOption & 
+          renderable_item.render_item_option |= g_MaskRenderOption &
             static_cast<std::uint8_t>(RenderOption::kSolidColorMaterial);
           renderable_item.solid_color = material.color;
         }
@@ -109,10 +119,22 @@ namespace avion::gfx {
         renderable_item.model_handler = item->model_handler;
         renderable_item.mesh_range = item->ptr_model->GetMeshRange();
         renderable_item.transform = item->ptr_model->GetTransform();
-        renderable_item.light_src_renderable.shininess = material.shininess;
 
+        if (!light.empty())
+        {
+          renderable_item.render_item_option |= g_MaskRenderOption &
+            static_cast<std::uint8_t>(RenderOption::kLightRenderable);
+          auto& light_src_renderable = light.back();
+          light_src_renderable.shininess = material.shininess;
+          renderable_item.light_src_renderable = light_src_renderable;
+        }
         m_cb_backend(renderable_item);
       }
+    }
+
+    void SceneRenderer::PrepareLightItems(std::vector<GpuLightSource>& light_items) noexcept
+    {
+
     }
 
 } // namespace avion::gfx

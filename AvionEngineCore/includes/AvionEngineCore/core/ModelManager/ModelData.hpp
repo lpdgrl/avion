@@ -30,14 +30,14 @@
     struct MeshRange
     {
       // offset for index 
-      std::uint32_t first_index = 0;
+      std::uint32_t first_index{};
       // count indices for mesh
-      std::uint32_t index_count = 0;
+      std::uint32_t index_count{};
       
       // offset for vertex
-      std::uint32_t first_vertex = 0;
+      std::uint32_t first_vertex{};
       // count vertex for mesh
-      std::uint32_t vertex_count = 0;
+      std::uint32_t vertex_count{};
     };
 
     struct ModelData

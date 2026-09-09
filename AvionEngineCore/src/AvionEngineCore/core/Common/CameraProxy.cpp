@@ -20,4 +20,9 @@
       m_camera.ProcessMouseMovement(xoffset, yoffset);
     }
 
+    auto CameraProxy::GetCameraInfo() const noexcept -> CameraInfo
+    {
+      return m_camera.GetCameraInfo();
+    }
+
   } // namespace avion::core::common

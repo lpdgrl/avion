@@ -72,6 +72,8 @@ namespace avion::core {
         void Render();
         void GetLastPosCursor() noexcept;
 
+        void UpdateCameraInfoInProfiler() noexcept;
+
     private:
         enum class MovementKey : int
         {

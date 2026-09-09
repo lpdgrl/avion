@@ -8,6 +8,7 @@
   #include "AvionEngineCore/core/ModelManager/ModelData.hpp"
   #include "AvionEngineCore/core/TextureManager/TextureHandler.hpp"
   #include "AvionEngineCore/renderer/transform.hpp"
+  #include "AvionEngineCore/api/backend/renderstate.hpp"
 
   namespace avion::api::backend::detail
   {
@@ -18,6 +19,7 @@
       kSolidColorMaterial = 128,
       kTextureMaterial    = 64,
       kLightRenderable    = 32,
+      kSemiTransparency   = 16,
     };
 
     enum class LightSrcRenderableType : std::uint8_t
@@ -40,6 +42,7 @@
       glm::vec3 specular{};
       
       // for spot light
+      glm::vec3 position{};
       glm::vec3 direction{};
 
       float shininess{};
@@ -75,6 +78,7 @@
       MaterialRange specular_range;
 
       LightSrcRenderable light_src_renderable;
+      RenderState render_state;
     };
   } // namespace avion::api::backend::detail
 

@@ -151,7 +151,8 @@ namespace avion::core::modelmanager
 
   bool ModelManager::Remove(const std::string& filename) noexcept
   {
-    return true;
+    AV_LOG_INFO("ModelManager::Remove: NOTHING!");
+    return false;
   }
 
   bool ModelManager::Contains(const std::string& filename) const noexcept

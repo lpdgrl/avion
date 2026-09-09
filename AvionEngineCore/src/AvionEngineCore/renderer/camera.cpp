@@ -121,4 +121,38 @@ namespace avion::gfx {
       return m_proxy;
     }
 
+    auto Camera::GetCameraInfo() const noexcept -> core::common::CameraInfo
+    {
+      core::common::CameraInfo camera_info
+      {
+        .position_x = camera_position_.x,
+        .position_y = camera_position_.y,
+        .position_z = camera_position_.z,
+
+        .front_position_x = camera_front_.x,
+        .front_position_y = camera_front_.y,
+        .front_position_z = camera_front_.z,
+
+        .up_position_x = camera_up_.x,
+        .up_position_y = camera_up_.y,
+        .up_position_z = camera_up_.z,
+
+        .right_position_x = camera_right_.x,
+        .right_position_y = camera_right_.y,
+        .right_position_z = camera_right_.z,
+
+        .world_up_position_x = camera_world_up_.x,
+        .world_up_position_y = camera_world_up_.y,
+        .world_up_position_z = camera_world_up_.z,
+
+        .angle_yaw = angle_yaw_,
+        .angle_pitch = angle_pitch_,
+
+        .movement_speed = movement_speed_,
+        .mouse_senstivity = mouse_senstivity_,
+        .zoom = zoom_
+      };
+      return camera_info;
+    }
+
 } // namespace avion::gfx

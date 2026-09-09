@@ -74,20 +74,47 @@ namespace avion::editor::panel
     TabItem tab_item("Camera");
     if (tab_item.IsOpen())
     {
+      auto& camera_state = m_context.profiler.render_state.camera_state;
+
       std::string text;
       ImGui::Text("Camera position:");
       text.append("x: ");
-      text.append(std::to_string(m_context.profiler.render_state.camera_state.camera_position.x));
+      text.append(std::to_string(camera_state.camera_position.x));
       ImGui::Text(text.c_str());
       text.clear();
 
       text.append("y: ");
-      text.append(std::to_string(m_context.profiler.render_state.camera_state.camera_position.y));
+      text.append(std::to_string(camera_state.camera_position.y));
       ImGui::Text(text.c_str());
       text.clear();
 
       text.append("z: ");
-      text.append(std::to_string(m_context.profiler.render_state.camera_state.camera_position.z));
+      text.append(std::to_string(camera_state.camera_position.z));
+      ImGui::Text(text.c_str());
+      text.clear();
+
+      text.append("Angle yaw:");
+      text.append(std::to_string(camera_state.angle_yaw));
+      ImGui::Text(text.c_str());
+      text.clear();
+
+      text.append("Angle pitch:");
+      text.append(std::to_string(camera_state.angle_pitch));
+      ImGui::Text(text.c_str());
+      text.clear();
+
+      text.append("Movement speed:");
+      text.append(std::to_string(camera_state.movement_speed));
+      ImGui::Text(text.c_str());
+      text.clear();
+
+      text.append("Mouse senstivity:");
+      text.append(std::to_string(camera_state.mouse_senstivity));
+      ImGui::Text(text.c_str());
+      text.clear();
+
+      text.append("Zoom:");
+      text.append(std::to_string(camera_state.zoom));
       ImGui::Text(text.c_str());
       text.clear();
     }

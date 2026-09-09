@@ -67,7 +67,7 @@ namespace avion::api::backend::opengl
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   }
 
-  void OpenglRenderer::Draw(const RenderItem& item) const noexcept
+  std::tuple<std::size_t, std::size_t> OpenglRenderer::Draw(const RenderItem &item) const noexcept
   {
     using RenderOption = api::backend::detail::RenderOption;
     using LightType    = api::backend::detail::LightSrcRenderableType;
@@ -84,6 +84,7 @@ namespace avion::api::backend::opengl
     auto&& solid_color    = item.solid_color;
     auto&& render_option  = item.render_item_option;
     auto&& light_src      = item.light_src_renderable;
+    auto&& render_state   = item.render_state;
 
     m_shader_storage.PutData(shader, "material.fl_shininess", light_src.shininess);
 
@@ -94,7 +95,6 @@ namespace avion::api::backend::opengl
     if (render_option & static_cast<std::uint8_t>(RenderOption::kSolidColorMaterial)) 
     {
       m_shader_storage.PutData(shader, "solid_color", solid_color);
-      
     }
 
     if (render_option & static_cast<std::uint8_t>(RenderOption::kLightRenderable))
@@ -104,7 +104,7 @@ namespace avion::api::backend::opengl
         case LightType::kDirLightSrc:
         {
           m_shader_storage.PutData(shader, "light_type.is_dir_light", true);
-          m_shader_storage.PutData(shader, "dir_light.direction", transform.position);
+          m_shader_storage.PutData(shader, "dir_light.direction", light_src.position);
           m_shader_storage.PutData(shader, "dir_light.ambient", light_src.ambient);
           m_shader_storage.PutData(shader, "dir_light.diffuse", light_src.diffuse);
           m_shader_storage.PutData(shader, "dir_light.specular", light_src.specular);
@@ -116,7 +116,7 @@ namespace avion::api::backend::opengl
           {
             m_shader_storage.PutData(shader, "light_type.is_point_light", true);
             m_shader_storage.PutData(shader, "number_point_lights", light_src.number_point_light);
-            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].position", transform.position);
+            m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].position", light_src.position);
             m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].ambient", light_src.ambient);
             m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].diffuse", light_src.diffuse);
             m_shader_storage.PutData(shader, "point_light["+ std::to_string(i) + "].specular", light_src.specular);
@@ -132,8 +132,8 @@ namespace avion::api::backend::opengl
           {
             m_shader_storage.PutData(shader, "light_type.is_spot_light", true);
             m_shader_storage.PutData(shader, "number_spot_lights", light_src.number_spot_light);
-            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].position", transform.position);
-            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].direction", transform.position);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].position", light_src.position);
+            m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].direction", light_src.direction);
             m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].ambient", light_src.ambient);
             m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].diffuse", light_src.diffuse);
             m_shader_storage.PutData(shader, "spot_light["+ std::to_string(i) + "].specular", light_src.specular);
@@ -172,11 +172,15 @@ namespace avion::api::backend::opengl
     auto&& buffer = it->second;
     glBindVertexArray(buffer.GetIdVao());
 
+    std::size_t num_vertex{};
+    std::size_t num_indice{};
     for (auto& m : mesh_range)
     {
       glDrawElements(GL_TRIANGLES, m.index_count, GL_UNSIGNED_INT, 
         std::bit_cast<void*>(m.first_index * sizeof(std::uint32_t))
       );
+      num_vertex += m.vertex_count;
+      num_indice += m.index_count;
     }
 
     if (render_option & static_cast<std::uint8_t>(RenderOption::kTextureMaterial))
@@ -186,6 +190,7 @@ namespace avion::api::backend::opengl
     }
 
     glBindVertexArray(0);
+    return std::make_tuple(num_vertex, num_indice);
   }
 
   void OpenglRenderer::BindTexture2D(const MaterialRange& range, int& number) const noexcept

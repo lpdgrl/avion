@@ -87,6 +87,9 @@ namespace avion::core {
 
     auto& ref_last_item = m_storage_items.back();
     m_cache_items.emplace(ref_last_item->id, *ref_last_item.get());
+    auto* light_item = static_cast<LightItem*>(ref_last_item.get());
+
+    m_cache_light_items.emplace_back(light_item);
     
     switch(type)
     {

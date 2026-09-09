@@ -49,13 +49,6 @@ namespace avion::editor::app
     fb_scene.Bind();
     backend.SetViewportState({0, 0, fb_scene.GetWidth(), fb_scene.GetHeight()});
     backend.SetColorState({0.1f, 0.1f, 0.5f, 1.f});
-    backend.SetBlendingState(
-      {
-        .enabled = true, 
-        .blend_source_factor = api::backend::detail::BlendingFunc::SourceAlpha,
-        .blend_destination_factor = api::backend::detail::BlendingFunc::OneMinusSourceAlpha
-        });
-    
     backend.BeginFrame();
     scene_renderer.PrepareRenderItems();
     backend.EndFrame();    

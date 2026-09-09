@@ -12,7 +12,7 @@ namespace avion::core::resman
   // Path::Path(const std::string& relative_path)
   // : m_path(relative_path)
   // {
-    
+
   // }
 
   // Path::Path(std::string_view relative_path)
@@ -21,7 +21,7 @@ namespace avion::core::resman
 
   // }
 
-  // std::string Path::GetAbsolutePath() const 
+  // std::string Path::GetAbsolutePath() const
   // {
   //   return std::filesystem::weakly_canonical(m_path);
   // }
@@ -30,7 +30,7 @@ namespace avion::core::resman
   ResourceManager::ResourceManager(std::string_view path)
   : m_path_exe(NormalizePath(path))
   {
-    
+
   }
 
   const ResourceManager::ListTexture& ResourceManager::GetListTexture() const noexcept
@@ -51,7 +51,7 @@ namespace avion::core::resman
       ResourceHolder<Texture>* holder_observer = static_cast<ResourceHolder<Texture>*>(it->second.get());
       return &holder_observer->data;
     }
-    
+
     std::string path_str(path.c_str());
 
     auto it = m_resources.try_emplace(filename, std::make_unique<ResourceHolder<Texture>>(path_str)).first;
@@ -60,15 +60,15 @@ namespace avion::core::resman
     ResourceHolder<Texture>* holder_observer = static_cast<ResourceHolder<Texture>*>(it->second.get());
     bool result = holder_observer->data.LoadTexture();
 
-    std::string msg; 
+    std::string msg;
     msg = (result) ? ("Texture is loading success " + path_str) : "Texture isn't loading success";
     AV_LOG_INFO("ResourceManager: " + msg);
-    
+
     return &holder_observer->data;
   }
 
-  void ResourceManager::LoadShader(const std::string& path, bool result) 
-  { 
+  void ResourceManager::LoadShader(const std::string& path, bool result)
+  {
     std::string msg;
     msg = (result) ? ("Shader is finding  " + path) : "Shader isn't finding success";
     AV_LOG_INFO("ResourceManager: " + msg);
@@ -80,7 +80,7 @@ namespace avion::core::resman
     msg = (result) ? ("Config is finding  " + path) : "Config isn't finding success";
     AV_LOG_INFO("ResourceManager: " + msg);
   }
-  
+
   void ResourceManager::LoadModel(const std::string& path, bool result)
   {
     std::string msg;
@@ -92,7 +92,7 @@ namespace avion::core::resman
   {
     std::string path_str(path.c_str());
     auto [_, result] = m_resources.emplace(filename, std::make_unique<ResourceHolder<FsPath>>(path_str));
-    
+
     switch(type)
     {
       case ResourceType::kShader:
@@ -132,21 +132,21 @@ namespace avion::core::resman
     return res;
   }
 
-  bool ResourceManager::RegisterResource(ResourceType resource, std::string_view path_to_resource) 
+  bool ResourceManager::RegisterResource(ResourceType resource, std::string_view path_to_resource)
   {
     using namespace std::literals;
 
     FsPath path = m_path_exe / path_to_resource;
 
     // auto create_load_texture = [&](const std::string& filename, FsPath& path) {
-      
+
     // };
 
-    // TODO: Simple way to control resources    
+    // TODO: Simple way to control resources
     for (const auto& it_entry : std::filesystem::directory_iterator(path)) {
       std::string filename(it_entry.path().filename());
       FsPath path_canonical_resource(std::filesystem::canonical(it_entry));
-      
+
       if (auto it_res = m_resources.find(filename); it_res != m_resources.end())
       {
         AV_LOG_INFO("ResourceManager::RegisterResource: resource " + filename + " is duplicate");
@@ -156,7 +156,7 @@ namespace avion::core::resman
       // TODO: It is stupid every once checking type of resource
       switch(resource)
       {
-        case ResourceType::kTexture: 
+        case ResourceType::kTexture:
         // TODO: It's tmp!
         case ResourceType::kSprite:
         {
@@ -174,13 +174,13 @@ namespace avion::core::resman
           break;
         }
         case ResourceType::kModel:
-        { 
+        {
           if (it_entry.is_directory())
           {
             for (const auto& it_entry_subdir : std::filesystem::directory_iterator(it_entry.path()))
             {
               auto path_model = it_entry_subdir.path();
-              if (path_model.extension() == ".obj"sv)
+              if (path_model.extension() == ".obj"sv || path_model.extension() == ".fbx"sv)
               {
                 std::string model_filename(path_model.filename());
                 FsPath model_path_canonical_resource(std::filesystem::canonical(it_entry_subdir));
@@ -209,5 +209,5 @@ namespace avion::core::resman
 
     return result.value();
   }
-  
+
 } // namespace avion::core::resman::fs

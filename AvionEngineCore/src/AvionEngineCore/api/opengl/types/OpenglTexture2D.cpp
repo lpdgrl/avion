@@ -10,14 +10,6 @@ namespace avion::api::backend::opengl
 
   void OpenglTexture2D::Bind() const noexcept
   {
-    // if (m_texture_id == 1)
-    // {
-    //   glActiveTexture(GL_TEXTURE0);
-    // }
-    // else 
-    // {
-    //   glActiveTexture(GL_TEXTURE0 + static_cast<int>(m_texture_id));
-    // 
     glBindTexture(GL_TEXTURE_2D, m_texture_id);
   }
 

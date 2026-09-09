@@ -8,7 +8,7 @@ namespace avion::core::engine
   , m_scene(kObjectsCreate, m_model_manager)
   , m_scene_renderer(std::make_unique<SceneRenderer>(m_scene, *m_resman.get()))
   , m_window(std::make_unique<Window>("Sandbox", 1920, 1080, m_profiler, m_scene.GetCameraProxy()))
-  , m_backend(std::make_unique<Backend>(RenderAPI::kOpengl, *m_resman.get()))
+  , m_backend(std::make_unique<Backend>(RenderAPI::kOpengl, *m_resman.get(), m_profiler.render_state.render_stat))
   {
     AV_LOG_INFO("Running avion engine v. " + m_version_engine);
     SettingInternalCallbacks();
@@ -84,11 +84,6 @@ namespace avion::core::engine
     m_backend->SetProjection(Projection::kPerspective, 45.f, width_w, height_w, 0.1f, 100.f);
 
     m_scene_renderer->Init(width_w, height_w);
-    
-    m_scene.AddModel("backpack.obj");
-    // m_scene.AddPrimitive(Scene::PrimitiveType::kCube);
-    // m_scene.AddPrimitive(Scene::PrimitiveType::kPyramid);
-    // m_scene.AddPrimitive(Scene::PrimitiveType::kPlane);
   }
 
   void Engine::Render()
@@ -148,6 +143,8 @@ namespace avion::core::engine
       m_window->DeltaTimeUpdate();
       
       Render();
+      
+      m_window->FramePerSecond();
       m_window->SwapBuffers();
       m_window->PollEvents();
       m_window->ProcessEvents();

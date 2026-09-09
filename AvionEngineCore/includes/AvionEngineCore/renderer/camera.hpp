@@ -56,6 +56,8 @@ namespace avion::gfx {
       // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
       void ProcessMouseScroll(float y_offset);
 
+      auto GetCameraInfo() const noexcept -> core::common::CameraInfo;
+
       glm::vec3 GetPosition() const noexcept;
 
       CameraProxy& GetProxy() noexcept;

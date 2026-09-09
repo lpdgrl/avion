@@ -25,7 +25,7 @@
         virtual void Init(RenderState state) = 0;
         virtual void ApplyCurrentState(RenderState& render_state) noexcept = 0;
         virtual void PrepareDraw() const noexcept = 0;
-        virtual void Draw(const RenderItem& item) const noexcept = 0;
+        virtual std::tuple<std::size_t, std::size_t> Draw(const RenderItem& item) const noexcept = 0;
 
         virtual void SetOrthoProjection(OrthoProjection& projection) noexcept = 0;
         virtual void SetPerspectiveProjection(PerspectiveProjection& projection) noexcept = 0;

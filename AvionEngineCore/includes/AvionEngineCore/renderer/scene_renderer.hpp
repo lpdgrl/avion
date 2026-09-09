@@ -11,6 +11,7 @@ namespace avion::gfx {
   public:
     using ModelHandler        = api::backend::Backend::ModelHandler;
     using RenderItem          = api::backend::Backend::RenderItem;
+    using GpuLightSource      = api::backend::Backend::LightSource;
     using Backend             = api::backend::Backend;
 
     using BackendCallback     = std::function<void(const RenderItem& render_item)>;
@@ -29,6 +30,7 @@ namespace avion::gfx {
     void Init(int width, int height);
     void SetBackendCallback(BackendCallback callback);
     void PrepareRenderItems() noexcept;
+    void PrepareLightItems(std::vector<GpuLightSource>& light_items)  noexcept;
 
   private:
     core::Scene& m_scene;

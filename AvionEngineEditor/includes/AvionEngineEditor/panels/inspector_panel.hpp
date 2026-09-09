@@ -27,9 +27,7 @@
       private:
         void RenderTabSelectObject() const noexcept;
         void RenderTabSelectItem() const noexcept;
-        void RenderTabModel() const noexcept;
         void RenderTabLight() const noexcept;
-        void RenderTabPrimitive() const noexcept;
 
         size_t DrawComboTexture
         (

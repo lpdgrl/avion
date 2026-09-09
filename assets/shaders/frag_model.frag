@@ -178,9 +178,18 @@ vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view
   vec3 diffuse;
   vec3 specular;
 
-  ambient = light.ambient * vec3(texture(material.diffuse1, fr_texture_coordinates));
-  diffuse = light.diffuse * diff * vec3(texture(material.diffuse1, fr_texture_coordinates));
-  specular = light.specular * spec * vec3(texture(material.specular1, fr_texture_coordinates));
+  if (material_type.is_texture)
+  {
+    ambient = light.ambient * vec3(texture(material.diffuse1, fr_texture_coordinates));
+    diffuse = light.diffuse * diff * vec3(texture(material.diffuse1, fr_texture_coordinates));
+    specular = light.specular * spec * vec3(texture(material.specular1, fr_texture_coordinates));
+  }
+  else 
+  {
+    ambient  = light.ambient * solid_color;
+    diffuse  = light.diffuse * diff * solid_color;
+    specular = light.specular * spec * solid_color;
+  }
 
   ambient  *= attenuation;
   diffuse  *= attenuation;

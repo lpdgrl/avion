@@ -23,6 +23,17 @@
     struct CameraState
     {
       glm::vec3 camera_position;
+      glm::vec3 front_position;
+      glm::vec3 up_position;
+      glm::vec3 right_position;
+      glm::vec3 world_up_position;
+
+      float angle_yaw{};
+      float angle_pitch{};
+
+      float movement_speed{};
+      float mouse_senstivity{};
+      float zoom{};
     };
 
     struct RenderStatistics

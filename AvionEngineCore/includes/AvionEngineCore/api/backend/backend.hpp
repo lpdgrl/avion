@@ -10,6 +10,7 @@
   #include "AvionEngineCore/api/opengl/opengl_renderer.hpp"
 
   #include "AvionEngineCore/core/resource_manager.hpp"
+  #include "AvionEngineCore/core/profiler.hpp"
   #include "AvionEngineCore/macro.h"
 
   namespace avion::api::backend
@@ -45,6 +46,8 @@
         using RenderAPI       = detail::RenderAPI; 
         using Projection      = detail::Projection;
         using RenderItem      = detail::RenderItem;
+        using LightSource     = detail::LightSrcRenderable;
+        using RenderStatistics = core::RenderStatistics;
 
         using RenderableQueue = std::deque<RenderItem>;
 
@@ -60,7 +63,7 @@
         using FrameBufferId   = std::uint32_t;
 
         Backend() = delete;
-        explicit Backend(RenderAPI api, ResManager& resman);
+        explicit Backend(RenderAPI api, ResManager& resman, RenderStatistics& rnd_stat);
 
         Backend(const Backend&) = delete;
         Backend(Backend&&)      = delete;
@@ -116,11 +119,13 @@
         // TODO: It's must be interface class for different api (opengl or vulkan) render
         std::unique_ptr<IRenderer> m_renderer;
 
-        RenderState     m_current_state;
-        RenderState     m_default_state;
-        RenderAPI       m_api;
+        RenderState m_current_state;
+        RenderState m_default_state;
+        RenderAPI m_api;
 
         RenderableQueue m_renderable_queue;
+
+        RenderStatistics& m_render_stat;
 
         bool m_is_dirty_state = false;
     };

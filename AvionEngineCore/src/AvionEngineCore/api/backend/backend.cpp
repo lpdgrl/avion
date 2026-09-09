@@ -2,9 +2,10 @@
 
 namespace avion::api::backend
 {
-  Backend::Backend(RenderAPI api, ResManager& resman)
+  Backend::Backend(RenderAPI api, ResManager& resman, RenderStatistics& rnd_stat)
   : m_resman(resman)
   , m_api(api)
+  , m_render_stat(rnd_stat)
   {
 
   }
@@ -97,8 +98,10 @@ namespace avion::api::backend
     while (!m_renderable_queue.empty())
     {
       auto&& item = m_renderable_queue.front();
-      m_renderer->Draw(item);
+      auto render_stat = m_renderer->Draw(item);
       m_renderable_queue.pop_front();
+      // Getting rendering stat
+      m_render_stat.Update(std::get<0>(render_stat), std::get<1>(render_stat));
     }
   }
 

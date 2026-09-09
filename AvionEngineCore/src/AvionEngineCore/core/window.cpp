@@ -86,7 +86,7 @@ namespace avion::core {
     }
 
     if (IsDown(GLFW_KEY_S)) {
-         m_camera_proxy.Update(static_cast<int>(MovementKey::kBackward), delta_time_);
+      m_camera_proxy.Update(static_cast<int>(MovementKey::kBackward), delta_time_);
     }
 
     if (WasPressedKey(GLFW_KEY_H)) {
@@ -104,6 +104,24 @@ namespace avion::core {
         glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     GetLastPosCursor();
+    UpdateCameraInfoInProfiler();
+  }
+
+  void Window::UpdateCameraInfoInProfiler() noexcept
+  {
+    auto& camera_state = m_profiler.render_state.camera_state;
+    auto camera_info = m_camera_proxy.GetCameraInfo();
+
+    camera_state.camera_position.x = camera_info.position_x;
+    camera_state.camera_position.y = camera_info.position_y;
+    camera_state.camera_position.z = camera_info.position_z;
+    
+    camera_state.angle_yaw = camera_info.angle_yaw;
+    camera_state.angle_pitch = camera_info.angle_pitch;
+
+    camera_state.movement_speed = camera_info.movement_speed;
+    camera_state.mouse_senstivity = camera_info.mouse_senstivity;
+    camera_state.zoom = camera_info.zoom;
   }
 
   void Window::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {
