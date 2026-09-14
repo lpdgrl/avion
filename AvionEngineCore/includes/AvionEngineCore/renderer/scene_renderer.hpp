@@ -4,6 +4,7 @@
 
 #include "AvionEngineCore/core/scene.hpp"
 #include "AvionEngineCore/api/backend/backend.hpp"
+#include "AvionEngineCore/core/Animation/Animator.hpp"
 
 namespace avion::gfx {
 
@@ -15,6 +16,7 @@ namespace avion::gfx {
     using Backend             = api::backend::Backend;
 
     using BackendCallback     = std::function<void(const RenderItem& render_item)>;
+    using WindowCallback      = std::function<float()>;
 
     SceneRenderer() = delete;
     SceneRenderer(core::Scene& scene, core::resman::ResourceManager& resman);
@@ -29,6 +31,7 @@ namespace avion::gfx {
 
     void Init(int width, int height);
     void SetBackendCallback(BackendCallback callback);
+    void SetWindowCallback(WindowCallback callback);
     void PrepareRenderItems() noexcept;
     void PrepareLightItems(std::vector<GpuLightSource>& light_items)  noexcept;
 
@@ -36,6 +39,7 @@ namespace avion::gfx {
     core::Scene& m_scene;
     core::resman::ResourceManager&  m_resman;
     BackendCallback m_cb_backend;
+    WindowCallback m_cb_window;
   };
   
 } // namespace avion::gfx

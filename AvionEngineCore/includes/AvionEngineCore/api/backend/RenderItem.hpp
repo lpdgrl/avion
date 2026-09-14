@@ -79,6 +79,9 @@
 
       LightSrcRenderable light_src_renderable;
       RenderState render_state;
+
+      bool has_animation{};
+      std::vector<glm::mat4> final_bones_matrices{};
     };
   } // namespace avion::api::backend::detail
 

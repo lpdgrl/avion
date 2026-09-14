@@ -4,38 +4,46 @@
 namespace avion::gfx
 {
 
-  Model::Model(const std::string& filename, const ModelData& model_data, const Material& material)
+  Model::Model(const std::string& filename, CpuModelData& cpu_model_data, const Material& material, bool has_animation)
   : m_filename(filename)
-  , m_data(model_data)
-  , m_transform{.position{0.f, 0.f, 0.f}, .size{1.f}, .value_rotate{0.f}, .axis = AxisRotate::NONE}
+  , m_cpu_model_data(cpu_model_data)
+  , m_transform{.position{0.f, 0.f, 0.f}, .size{0.005f}, .value_rotate{0.f}, .axis = AxisRotate::NONE}
   , m_material(material)
+  , m_animator(m_cpu_model_data)
+  , m_has_animation(has_animation)
   {
 
   }
 
   Model::Model(const std::string& filename, const Model& other)
   : m_filename(filename)
-  , m_data(other.m_data)
+  , m_cpu_model_data(other.m_cpu_model_data)
   , m_transform(other.m_transform)
   , m_material(other.m_material)
+  , m_animator(m_cpu_model_data)
+  , m_has_animation(other.m_has_animation)
   {
      AV_LOG_DEBUG("Model::Model(const std::string& filename, const Model& other): " + m_filename);
   }
 
   Model::Model(const Model& other)
   : m_filename(other.m_filename)
-  , m_data(other.m_data)
+  , m_cpu_model_data(other.m_cpu_model_data)
   , m_transform(other.m_transform)
   , m_material(other.m_material)
+  , m_animator(other.m_animator)
+  , m_has_animation(other.m_has_animation)
   {
     AV_LOG_DEBUG("Model::Model(const Model& other): " + m_filename);
   }
 
   Model::Model(Model&& other)
   : m_filename(std::move(other.m_filename))
-  , m_data(std::move(other.m_data))
+  , m_cpu_model_data(std::move(other.m_cpu_model_data))
   , m_transform(std::move(other.m_transform))
-  , m_material(std::move(m_material))
+  , m_material(std::move(other.m_material))
+  , m_animator(std::move(other.m_animator))
+  , m_has_animation(other.m_has_animation)
   {
 
   }
@@ -75,9 +83,10 @@ namespace avion::gfx
     // Swap Idiom (ADL lookup)
     using std::swap;
     swap(m_filename, other.m_filename);
-    swap(m_data, other.m_data);
+    swap(m_cpu_model_data, other.m_cpu_model_data);
     swap(m_transform, other.m_transform);
     swap(m_material, other.m_material);
+    swap(m_has_animation, other.m_has_animation);
   }
 
   std::string Model::GetFileName() const noexcept
@@ -95,19 +104,19 @@ namespace avion::gfx
     return m_transform;
   }
 
-  Model::ModelData& Model::GetModelData() noexcept 
+  Model::CpuModelData& Model::GetCpuModelData() noexcept 
   { 
-    return m_data; 
+    return m_cpu_model_data; 
   }
 
-  const Model::ModelData& Model::GetModelData() const noexcept 
+  const Model::CpuModelData& Model::GetCpuModelData() const noexcept 
   { 
-    return m_data; 
+    return m_cpu_model_data; 
   }
 
   Model::MeshRange Model::GetMeshRange() noexcept 
   { 
-    return {m_data.mesh_range.begin(), m_data.mesh_range.end()}; 
+    return {m_cpu_model_data.mesh_range.begin(), m_cpu_model_data.mesh_range.end()}; 
   }
 
   Model::Material& Model::GetMaterial() noexcept
@@ -119,6 +128,16 @@ namespace avion::gfx
   { 
     return m_material; 
   }
+
+   auto Model::HasAnimation() const noexcept -> bool
+   {
+    return m_has_animation;
+   }
+
+   auto Model::GetAnimator() noexcept -> Animator&
+   {
+    return m_animator;
+   }
 
   void swap(Model& lhs, Model& rhs) noexcept
   {

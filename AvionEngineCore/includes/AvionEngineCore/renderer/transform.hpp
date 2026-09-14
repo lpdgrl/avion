@@ -18,7 +18,7 @@
 
       glm::vec3 position{0.f}; 
       glm::vec3 rotation{0.f};
-      glm::vec3 size{1.f};
+      glm::vec3 size{0.005f};
 
       float value_rotate = 0.f;
 

@@ -97,9 +97,9 @@ namespace avion::logger {
       ) noexcept
       {
         // 1 - date, 2 - color of level log, 3 - log level, 4 - reset color, 5 - argument
-        return std::format("[{}] {}[{}]{}: {}\n", 
-          GetCurrentTimeAndDate(), 
+        return std::format("{}[{}] [{}]{}: {}\n", 
           color, 
+          GetCurrentTimeAndDate(), 
           log_level, 
           RESET_CLR, 
           arg

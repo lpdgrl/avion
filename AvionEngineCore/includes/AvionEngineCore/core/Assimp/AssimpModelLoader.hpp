@@ -12,8 +12,8 @@
     class AssimpModelLoader
     {
       public:
-      using ModelData       = core::modelmanager::detail::ModelData;
-      using LoadModelResult = std::optional<ModelData>; 
+      using CpuModelData    = core::modelmanager::detail::CpuModelData;
+      using LoadModelResult = std::optional<CpuModelData>; 
 
       AssimpModelLoader() = delete;
       

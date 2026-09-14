@@ -59,7 +59,7 @@
         void ApplyCurrentState(RenderState& render_state) noexcept override;
         void PrepareDraw() const noexcept override;
         // TODO: THIS WAY IS TMP!!
-        std::tuple<std::size_t, std::size_t> Draw(const RenderItem& item) const noexcept override; 
+        std::tuple<std::size_t, std::size_t, std::size_t> Draw(const RenderItem& item) const noexcept override; 
 
         void SetOrthoProjection(OrthoProjection& projection) noexcept override;
         void SetPerspectiveProjection(PerspectiveProjection& projection) noexcept override;

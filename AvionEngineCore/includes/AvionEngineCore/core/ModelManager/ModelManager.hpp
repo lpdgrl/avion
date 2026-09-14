@@ -25,7 +25,7 @@
         using ModelPtr                = std::shared_ptr<Model>;
         using FsPath                  = resman::ResourceManager::FsPath;
         using AssimpModelLoader       = assimp::AssimpModelLoader;
-        using ModelData               = detail::ModelData;
+        using CpuModelData            = detail::CpuModelData;
         using ModelHandler            = detail::ModelHandler;
         using Material                = core::material::Material;
         using MaterialType            = core::material::MaterialType;
@@ -36,7 +36,7 @@
         using ModelStorage            = std::unordered_map<FileName, ModelPtr>;
         using ResmanCallback          = std::function<FsPath*(std::string_view filename_model)>;  
         using TextureManagerCallback  = std::function<std::optional<TextureHandler>(const FsPath& path)>;
-        using BackendCallback         = std::function<ModelHandler(ModelData& model_data)>;
+        using BackendCallback         = std::function<ModelHandler(CpuModelData& model_data)>;
         using LoadModelResult         = std::optional<ModelItem>;
 
         struct ModelItem

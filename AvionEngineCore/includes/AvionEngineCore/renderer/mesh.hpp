@@ -1,11 +1,11 @@
-#ifndef AVION_GFX_MESH_H 
+#ifndef AVION_GFX_MESH_H
 #define AVION_GFX_MESH_H
 
   #include <vector>
-  #include <string>
+  #include <array>
 
   #include "glm/glm.hpp"
-  
+
   #include "AvionEngineCore/core/texture.hpp"
 
   namespace avion::gfx
@@ -14,10 +14,10 @@
     {
       kUnknown  = 0,
       kDiffuse  = 1,
-      kSpecular = 2,  
+      kSpecular = 2,
     };
 
-    struct Vertex_t 
+    struct Vertex_t
     {
       glm::vec3 position;
       glm::vec3 normal;
@@ -37,8 +37,8 @@
       TextureType type = TextureType::kUnknown;
       core::Texture* ptr_texture = nullptr;
     };
-    
-    class Mesh 
+
+    class Mesh
     {
       using VertexArray  = std::vector<Vertex_t>;
       using IndicesArray = std::vector<unsigned int>;
@@ -62,7 +62,7 @@
         BufferVertexIndices   m_buffer_vertex_indices;
         VertexArray           m_vertices;
         IndicesArray          m_indices;
-        TextureArray          m_textures; 
+        TextureArray          m_textures;
     };
   } // namespace avion::gfx
 #endif

@@ -4,7 +4,7 @@
 namespace avion::core::modelmanager::detail
 {
 
-  PrimitiveModel::ModelData PrimitiveModel::Make(PrimitiveType type) noexcept
+  PrimitiveModel::CpuModelData PrimitiveModel::Make(PrimitiveType type) noexcept
   {
     switch (type)
     {
@@ -29,7 +29,7 @@ namespace avion::core::modelmanager::detail
     return {};
   }
 
-  PrimitiveModel::ModelData PrimitiveModel::MakeCube() noexcept
+  PrimitiveModel::CpuModelData PrimitiveModel::MakeCube() noexcept
   {
     std::vector<float> cube
     {
@@ -83,7 +83,7 @@ namespace avion::core::modelmanager::detail
     return Make(PrimitiveType::kCube, cube, number_vertex, number_indices);
   }
 
-  PrimitiveModel::ModelData PrimitiveModel::MakePyramid() noexcept
+  PrimitiveModel::CpuModelData PrimitiveModel::MakePyramid() noexcept
   {
     std::vector<float> pyramid
     {
@@ -123,7 +123,7 @@ namespace avion::core::modelmanager::detail
     return Make(PrimitiveType::kPyramid, pyramid, number_vertex, number_indices);
   }
 
-  PrimitiveModel::ModelData PrimitiveModel::MakePlane() noexcept
+  PrimitiveModel::CpuModelData PrimitiveModel::MakePlane() noexcept
   {
     std::vector<float> plane
     {
@@ -142,14 +142,14 @@ namespace avion::core::modelmanager::detail
     return Make(PrimitiveType::kPlane, plane, number_vertex, number_indices); 
   }
 
-  PrimitiveModel::ModelData PrimitiveModel::Make(
+  PrimitiveModel::CpuModelData PrimitiveModel::Make(
     PrimitiveType type, 
     const std::vector<float> raw_vertices, 
     std::size_t num_vertex, 
     std::size_t num_indices
   ) noexcept
   {
-    ModelData data;
+    CpuModelData data;
     
     std::vector<Vertex> vertices;
     vertices.reserve(num_vertex);

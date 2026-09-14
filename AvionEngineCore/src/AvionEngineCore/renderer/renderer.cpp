@@ -413,7 +413,7 @@ namespace avion::gfx {
       BindVertexArray(0);
 
       // Collect render statistics
-      m_render_state.render_stat.Update(num_vertex, 0);
+      // m_render_state.render_stat.Update(num_vertex, 0);
     }
 
     void Renderer::SetOrthoProjection(float left, float width, float bottom, float height, float zNear, float zFar) {
@@ -721,7 +721,7 @@ namespace avion::gfx {
       
       // Collect render statistics
       int num_vertex = mesh.GetVerticesArray().size();
-      m_render_state.render_stat.Update(num_vertex, 0);
+      // m_render_state.render_stat.Update(num_vertex, 0);
     }
     
     void Renderer::SetRenderContext(RenderContext& render_ctx) noexcept

@@ -180,7 +180,7 @@ namespace avion::core::resman
             for (const auto& it_entry_subdir : std::filesystem::directory_iterator(it_entry.path()))
             {
               auto path_model = it_entry_subdir.path();
-              if (path_model.extension() == ".obj"sv || path_model.extension() == ".fbx"sv)
+              if (path_model.extension() == ".obj"sv || path_model.extension() == ".fbx"sv || path_model.extension() == ".dae"sv)
               {
                 std::string model_filename(path_model.filename());
                 FsPath model_path_canonical_resource(std::filesystem::canonical(it_entry_subdir));

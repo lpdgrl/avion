@@ -52,9 +52,9 @@
         number_triangles  = 0;
       }
    
-      inline void Update(size_t n_vertex, size_t n_indices)
+      inline void Update(size_t n_vertex, size_t n_indices, size_t d_calls)
       {
-        ++draw_calls;
+        draw_calls += d_calls;
         number_vertex    += n_vertex;
         number_indices   += n_indices;
         number_triangles += n_vertex / kNumVertInTriang;

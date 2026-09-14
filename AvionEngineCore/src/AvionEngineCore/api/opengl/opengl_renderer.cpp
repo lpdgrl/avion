@@ -67,7 +67,7 @@ namespace avion::api::backend::opengl
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   }
 
-  std::tuple<std::size_t, std::size_t> OpenglRenderer::Draw(const RenderItem &item) const noexcept
+  std::tuple<std::size_t, std::size_t, std::size_t> OpenglRenderer::Draw(const RenderItem &item) const noexcept
   {
     using RenderOption = api::backend::detail::RenderOption;
     using LightType    = api::backend::detail::LightSrcRenderableType;
@@ -85,6 +85,8 @@ namespace avion::api::backend::opengl
     auto&& render_option  = item.render_item_option;
     auto&& light_src      = item.light_src_renderable;
     auto&& render_state   = item.render_state;
+    auto&& has_animation  = item.has_animation;
+    auto&& final_bones_matrices = item.final_bones_matrices;
 
     m_shader_storage.PutData(shader, "material.fl_shininess", light_src.shininess);
 
@@ -151,6 +153,14 @@ namespace avion::api::backend::opengl
     m_shader_storage.PutData(shader, "view", view_matrix);
     m_shader_storage.PutData(shader, "view_pos", view_position);
     m_shader_storage.PutData(shader, "model", model_matrix);
+    m_shader_storage.PutData(shader, "has_animation", (has_animation ? true : false));
+    if (has_animation)
+    {
+      for (int i = 0; i < final_bones_matrices.size(); ++i)
+      {
+        m_shader_storage.PutData(shader, "final_bones_matrices[" + std::to_string(i) + "]", final_bones_matrices[i]);
+      }
+    }
     if (render_option & static_cast<std::uint8_t>(RenderOption::kTextureMaterial))
     { 
       int num_tex_unit = 0;
@@ -174,6 +184,7 @@ namespace avion::api::backend::opengl
 
     std::size_t num_vertex{};
     std::size_t num_indice{};
+    std::size_t num_draw_calls{};
     for (auto& m : mesh_range)
     {
       glDrawElements(GL_TRIANGLES, m.index_count, GL_UNSIGNED_INT, 
@@ -181,6 +192,7 @@ namespace avion::api::backend::opengl
       );
       num_vertex += m.vertex_count;
       num_indice += m.index_count;
+      ++num_draw_calls;
     }
 
     if (render_option & static_cast<std::uint8_t>(RenderOption::kTextureMaterial))
@@ -190,7 +202,7 @@ namespace avion::api::backend::opengl
     }
 
     glBindVertexArray(0);
-    return std::make_tuple(num_vertex, num_indice);
+    return std::make_tuple(num_vertex, num_indice, num_draw_calls);
   }
 
   void OpenglRenderer::BindTexture2D(const MaterialRange& range, int& number) const noexcept

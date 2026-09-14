@@ -45,6 +45,13 @@ namespace avion::core::engine
       }
     );
 
+    // TODO: This dirty method!!!
+    // Set window callback for scene 
+    m_scene_renderer->SetWindowCallback([&window = *m_window.get()]() -> float
+    {
+      return window.GetDeltaTime();
+    });
+    
     // Set resource manager callback
     m_texture_manager.SetResmanCallback([&resman = *m_resman.get()] (auto& path_texture) -> std::optional<Texture*>
       {

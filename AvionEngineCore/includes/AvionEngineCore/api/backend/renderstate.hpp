@@ -175,7 +175,7 @@
     {
       std::string   name_framebuffer;
       bool enabled_framebuffer = false;
-       
+
       DepthState    depth_state;
       StencilState  stencil_state;
       BlendingState blend_state;
@@ -194,17 +194,19 @@
 
     struct MeshData
     {
-      std::span<std::byte> vertices;
-      std::uint64_t vertices_size = 0;
+      std::span<const std::byte> vertices;
+      std::uint64_t vertices_size{};
 
-      std::span<unsigned int> indices;
-      std::uint64_t indices_size = 0;
+      std::span<const unsigned int> indices;
+      std::uint64_t indices_size{};
 
-      std::uint64_t stride = 0;
+      std::uint64_t stride_size{};
 
-      std::uint64_t offset_position = 0;
-      std::uint64_t offset_normals =  0;
-      std::uint64_t offset_tex_coords = 0;
+      std::uint64_t offset_position{};
+      std::uint64_t offset_normals{};
+      std::uint64_t offset_tex_coords{};
+      std::uint64_t offset_bone_ids{};
+      std::uint64_t offset_weights{};
     };
 
     struct Texture2dData

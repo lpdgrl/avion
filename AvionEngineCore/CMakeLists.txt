@@ -15,6 +15,7 @@ add_subdirectory(${GLFW_DIR})
 SET(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 SET(ASSIMP_BUILD_OBJ_IMPORTER ON)
 SET(ASSIMP_BUILD_FBX_IMPORTER ON)
+SET(ASSIMP_BUILD_COLLADA_IMPORTER ON)
 
 SET(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 SET(ASSIMP_BUILD_OBJ_EXPORTER ON)
@@ -36,7 +37,6 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/api/opengl/types/OpenglTexture2D.cpp
    src/AvionEngineCore/api/opengl/types/OpenglFrameBuffer.cpp
   src/AvionEngineCore/logger/logger.cpp
-  src/AvionEngineCore/renderer/renderer.cpp
   # src/AvionEngineCore/renderer/text_rendering.cpp
   src/AvionEngineCore/renderer/scene_renderer.cpp
   src/AvionEngineCore/renderer/shader.cpp
@@ -56,6 +56,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/core/resource_manager.cpp
   src/AvionEngineCore/core/Assimp/AssimpModelLoader.cpp
   src/AvionEngineCore/core/Assimp/AssimpModelLoaderImpl.cpp
+  src/AvionEngineCore/core/Animation/Bone.cpp
+  src/AvionEngineCore/core/Animation/Animator.cpp
   src/AvionEngineCore/core/ModelManager/ModelManager.cpp
   src/AvionEngineCore/core/ModelManager/PrimitiveModel.cpp
   src/AvionEngineCore/core/TextureManager/TextureManager.cpp

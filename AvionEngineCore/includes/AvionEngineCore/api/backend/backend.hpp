@@ -54,7 +54,7 @@
         using ShaderStorage   = gfx::ShaderStorage;
 
         using ResManager      = core::resman::ResourceManager;
-        using ModelData       = core::modelmanager::detail::ModelData;
+        using CpuModelData       = core::modelmanager::detail::CpuModelData;
         using ModelHandler    = core::modelmanager::detail::ModelHandler;
         using VertexModel     = core::modelmanager::detail::Vertex;
 
@@ -84,7 +84,7 @@
         void SubmitRenderableItem(RenderItem item) noexcept;
 
         // GPU Objects
-        ModelHandler CreateModel(ModelData& model_data);
+        ModelHandler CreateModel(CpuModelData& cpu_model_data);
         TextureHandler CreateTexture2D(const TextureData& data);
         void CreateFrameBuffer(const std::string& name, float width, float height);
 

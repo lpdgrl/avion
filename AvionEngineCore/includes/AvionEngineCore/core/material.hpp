@@ -51,6 +51,7 @@
       kUnSpecified  = 0,
       kRegular      = 1,
       kTexture      = 2,
+      kBaseColor    = 3,
     };
 
     enum class Transparency : std::uint8_t 
@@ -69,7 +70,7 @@
       std::vector<TextureHandler> emission_texture;
       
       // for regular model
-      glm::vec3 color{};
+      glm::vec3 color{0.729f, 0.729f, 0.729f};
 
       // for light
       // glm::vec3 ambient{};

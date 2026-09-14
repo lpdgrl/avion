@@ -14,18 +14,18 @@
     {
       public:
         using PrimitiveType = detail::PrimitiveType;
-        using ModelData     = detail::ModelData;
+        using CpuModelData     = detail::CpuModelData;
         using Vertex   = detail::Vertex;
 
 
-        static ModelData Make(PrimitiveType type) noexcept;
+        static CpuModelData Make(PrimitiveType type) noexcept;
       protected:
 
       private:
-        static ModelData Make(PrimitiveType type, const std::vector<float> raw_vertices, std::size_t num_vertex, std::size_t num_indices) noexcept;
-        static ModelData MakeCube() noexcept;
-        static ModelData MakePyramid() noexcept;      
-        static ModelData MakePlane() noexcept;
+        static CpuModelData Make(PrimitiveType type, const std::vector<float> raw_vertices, std::size_t num_vertex, std::size_t num_indices) noexcept;
+        static CpuModelData MakeCube() noexcept;
+        static CpuModelData MakePyramid() noexcept;      
+        static CpuModelData MakePlane() noexcept;
     };
 
     std::string PrimitiveTypeToString(PrimitiveType) noexcept;

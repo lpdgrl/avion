@@ -114,7 +114,7 @@ namespace avion::core {
       return false;
     }
     auto&& model_item = model_load_result.value();
-
+    
     m_storage_items.emplace_back
     (
       std::make_unique<ObjectItem>

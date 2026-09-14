@@ -24,9 +24,16 @@ namespace avion::gfx {
       m_cb_backend = callback;
     }
 
+    void SceneRenderer::SetWindowCallback(WindowCallback callback)
+    {
+      m_cb_window = callback;
+    }
+
     void SceneRenderer::PrepareRenderItems() noexcept
     {
       using namespace api::backend::detail;
+
+      auto delta_time = m_cb_window();
 
       auto&& items = m_scene.GetSceneItems();
       auto camera_data = m_scene.GetCameraData();
@@ -86,6 +93,13 @@ namespace avion::gfx {
       {
         RenderItem renderable_item;
         auto& material = item->ptr_model->GetMaterial();
+        
+        if(item->ptr_model->HasAnimation())
+        {
+          renderable_item.has_animation = true;
+          item->ptr_model->GetAnimator().UpdateAnimation(delta_time);
+          renderable_item.final_bones_matrices = item->ptr_model->GetAnimator().GetFinalBoneMatrices();
+        }
 
         bool is_material = material.type == core::material::MaterialType::kTexture ? true : false;
         if (is_material)
