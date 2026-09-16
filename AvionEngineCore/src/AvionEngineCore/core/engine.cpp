@@ -88,7 +88,7 @@ namespace avion::core::engine
 
     m_window->Init();
     m_backend->Init(render_state);
-    m_backend->SetProjection(Projection::kPerspective, 45.f, width_w, height_w, 0.1f, 100.f);
+    // m_backend->SetProjection(Projection::kPerspective, 45.f, width_w, height_w, 0.1f, 100.f);
 
     m_scene_renderer->Init(width_w, height_w);
   }

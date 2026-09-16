@@ -16,7 +16,8 @@ namespace avion::editor::app
     m_gui_context.Init(m_engine.GetWindow().GetPointer());
     m_engine.AddRenderApp(std::make_unique<RenderEditorApp>(*this));
 
-    // m_engine.AddBackendComand("FrameBuffer", "scene"); 
+    auto [width, height] = m_engine.GetWindow().GetSize();
+    m_engine.GetBackend().SetProjection(api::backend::detail::Projection::kPerspective, 45.f, width, height, 0.1f, 100.f);
     m_engine.GetBackend().CreateFrameBuffer("scene", 1020, 700);
 
     return true;

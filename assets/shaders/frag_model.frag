@@ -87,7 +87,7 @@ uniform LightType light_type;
 uniform int number_point_lights;
 uniform int number_spot_lights;
 
-vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 view_dir);
+vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 frag_pos, vec3 view_dir);
 vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view_dir);
 vec3 CalculateSpotLight(SpotLight light, vec3 normal, vec3 frag_pos, vec3 view_dir);
 float CalculateAttenuation(SpotLight light, vec3 frag_pos);
@@ -101,7 +101,7 @@ void main()
   
   if (light_type.is_dir_light)
   {  
-    result += CalculateDirLight(dir_light, normal, view_dir);
+    result += CalculateDirLight(dir_light, normal, fr_frag_position, view_dir);
   }
 
   if (light_type.is_point_light)
@@ -133,7 +133,7 @@ void main()
   // frag_color = vec4(vec3(res_linear), 1.0);
 }
 
-vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 view_dir)
+vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 frag_pos, vec3 view_dir)
 {
   vec3 result;
   vec3 light_dir = normalize(light.direction);
@@ -167,10 +167,11 @@ vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view
 {
   vec3 result;
   vec3 light_dir = normalize(light.position - frag_pos);
+  vec3 half_way_dir = normalize(light_dir + view_dir);
   float diff = max(dot(normal, light_dir), 0.0);
 
-  vec3 reflect_dir = reflect(-light_dir, normal);
-  float spec = pow(max(dot(view_dir, reflect_dir), 0.0), material.fl_shininess);
+  // vec3 reflect_dir = reflect(-light_dir, normal);
+  float spec = pow(max(dot(view_dir, half_way_dir), 0.0), material.fl_shininess);
 
   float attenuation = CalculateAttenuation(light, frag_pos);
   
