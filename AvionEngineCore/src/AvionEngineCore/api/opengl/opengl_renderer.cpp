@@ -69,6 +69,8 @@ namespace avion::api::backend::opengl
 
   std::tuple<std::size_t, std::size_t, std::size_t> OpenglRenderer::Draw(const RenderItem &item) const noexcept
   {
+    m_shader_storage.UpdateStateShadersReloaded("projection", m_projection);
+    
     using RenderOption = api::backend::detail::RenderOption;
     using LightType    = api::backend::detail::LightSrcRenderableType;
 
@@ -358,7 +360,7 @@ namespace avion::api::backend::opengl
     SubmitProjectionMatrixToShader();
   }
 
-  void OpenglRenderer::SubmitProjectionMatrixToShader() noexcept
+  void OpenglRenderer::SubmitProjectionMatrixToShader() const noexcept
   {
     for (const auto& [_, shader] : m_shader_storage.GetStorage())
     {

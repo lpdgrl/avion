@@ -48,6 +48,7 @@
       using FsPath      = std::filesystem::path;
       using ListTexture = std::vector<std::string>;
       using ModelList   = std::vector<std::string>;
+      using ShaderPaths = std::vector<FsPath>;
  
       ResourceManager() = delete;
       ResourceManager(std::string_view path);
@@ -61,6 +62,7 @@
 
       const ListTexture& GetListTexture() const noexcept;
       const ModelList&   GetModelLoadedList() const noexcept;
+      const ShaderPaths&  GetShaderPaths() const noexcept;
 
     private:
       std::optional<Texture*> CreateAndLoadTexture(const std::string& filename, const FsPath& path);
@@ -89,6 +91,7 @@
       ResourceStorage m_resources;
       ListTexture     m_texture_loaded_list;
       ModelList       m_model_loaded_list;
+      ShaderPaths     m_shader_paths;
       FsPath          m_path_exe;
     };
 

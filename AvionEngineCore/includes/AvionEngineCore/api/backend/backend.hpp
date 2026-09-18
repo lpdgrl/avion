@@ -4,6 +4,7 @@
   #include <string>
   #include <cassert>
   #include <deque>
+  #include <vector>
 
   #include "AvionEngineCore/api/backend/RenderItem.hpp"
   #include "AvionEngineCore/api/backend/renderstate.hpp"
@@ -12,6 +13,8 @@
   #include "AvionEngineCore/core/resource_manager.hpp"
   #include "AvionEngineCore/core/profiler.hpp"
   #include "AvionEngineCore/macro.h"
+
+  #include "AvionEngineCore/core/Common/EventQueue.hpp"
 
   namespace avion::api::backend
   {
@@ -62,6 +65,8 @@
         using TextureData     = core::texturemanager::detail::TextureData;
         using FrameBufferId   = std::uint32_t;
 
+        using EventChangedFiles = core::common::EventQueue::EventChangedFiles;
+
         Backend() = delete;
         explicit Backend(RenderAPI api, ResManager& resman, RenderStatistics& rnd_stat);
 
@@ -107,6 +112,7 @@
         void SetProjection(Projection projection, Args&&... args);
 
         std::string GetNameApi() const noexcept;
+        auto ReloadChangedShaders(const std::vector<EventChangedFiles>& events) noexcept -> void;
 
       protected:
 

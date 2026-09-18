@@ -30,7 +30,11 @@ namespace avion::core::resman
   ResourceManager::ResourceManager(std::string_view path)
   : m_path_exe(NormalizePath(path))
   {
-
+    RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
+    RegisterResource(core::resman::ResourceType::kShader,  "assets/shaders");
+    RegisterResource(core::resman::ResourceType::kModel,   "assets/models");
+    RegisterResource(core::resman::ResourceType::kConfig,  "assets/config");
+    RegisterResource(core::resman::ResourceType::kSprite,  "assets/sprites");
   }
 
   const ResourceManager::ListTexture& ResourceManager::GetListTexture() const noexcept
@@ -97,6 +101,7 @@ namespace avion::core::resman
     {
       case ResourceType::kShader:
       {
+        m_shader_paths.emplace_back(path);
         LoadShader(path_str, result);
         break;
       }
@@ -208,6 +213,11 @@ namespace avion::core::resman
     auto result = CreateAndLoadTexture(path.filename(), path);
 
     return result.value();
+  }
+
+  const ResourceManager::ShaderPaths& ResourceManager::GetShaderPaths() const noexcept
+  {
+    return m_shader_paths;
   }
 
 } // namespace avion::core::resman::fs

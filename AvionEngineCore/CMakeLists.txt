@@ -63,6 +63,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/core/ModelManager/PrimitiveModel.cpp
   src/AvionEngineCore/core/TextureManager/TextureManager.cpp
   src/AvionEngineCore/core/Common/CameraProxy.cpp
+  src/AvionEngineCore/core/Common/EventQueue.cpp
+  src/AvionEngineCore/core/ResourceManager/FileWatcher.cpp
   src/AvionEngineCore/controller/controller.cpp
   src/AvionEngineCore/external/glad.c
   src/AvionEngineCore/external/stb.c

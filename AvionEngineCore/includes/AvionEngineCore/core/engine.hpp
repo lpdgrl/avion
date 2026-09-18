@@ -14,6 +14,9 @@
 
   #include "AvionEngineCore/api/backend/IRenderApp.hpp"
 
+  #include "AvionEngineCore/core/Common/EventQueue.hpp"
+  #include "AvionEngineCore/core/ResourceManager/FileWatcher.hpp"
+
   #include <vector>
 
   namespace avion::core::engine
@@ -37,6 +40,9 @@
         using IRenderApp          = core::common::IRenderApp;
         using RenderAppContainer  = std::vector<UPtr<IRenderApp>>;
 
+        using EventQueue          = core::common::EventQueue;
+        using FileWatcher         = core::resman::filewatcher::FileWatcher;
+
         Engine();
         Engine(const Engine& other) = delete;
         Engine(Engine&& other) = delete;
@@ -52,6 +58,7 @@
         void Shutdown();
 
         void AddRenderApp(std::unique_ptr<IRenderApp> u_ptr);
+        void ProcessEvents() noexcept;
  
         ResManager&     GetResourceManager();
         SceneRenderer&  GetSceneRenderer();
@@ -78,6 +85,9 @@
         UPtr<Backend>       m_backend;
         UPtr<SceneRenderer> m_scene_renderer;
         UPtr<Window>        m_window;
+        EventQueue          m_event_queue;
+        FileWatcher         m_file_watcher;
+
       
         std::string         m_version_engine = "0.0.1";
         bool                m_is_running = false;

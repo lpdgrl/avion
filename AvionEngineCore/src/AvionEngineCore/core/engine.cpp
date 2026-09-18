@@ -9,6 +9,7 @@ namespace avion::core::engine
   , m_scene_renderer(std::make_unique<SceneRenderer>(m_scene, *m_resman.get()))
   , m_window(std::make_unique<Window>("Sandbox", 1920, 1080, m_profiler, m_scene.GetCameraProxy()))
   , m_backend(std::make_unique<Backend>(RenderAPI::kOpengl, *m_resman.get(), m_profiler.render_state.render_stat))
+  , m_file_watcher(m_event_queue, m_resman->GetShaderPaths())
   {
     AV_LOG_INFO("Running avion engine v. " + m_version_engine);
     SettingInternalCallbacks();
@@ -80,12 +81,6 @@ namespace avion::core::engine
       .color_state{0.0f, 0.0f, 0.0f, 1.f},
     };
 
-    m_resman->RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
-    m_resman->RegisterResource(core::resman::ResourceType::kShader,  "assets/shaders");
-    m_resman->RegisterResource(core::resman::ResourceType::kModel,   "assets/models");
-    m_resman->RegisterResource(core::resman::ResourceType::kConfig,  "assets/config");
-    m_resman->RegisterResource(core::resman::ResourceType::kSprite,  "assets/sprites");
-
     m_window->Init();
     m_backend->Init(render_state);
     // m_backend->SetProjection(Projection::kPerspective, 45.f, width_w, height_w, 0.1f, 100.f);
@@ -148,7 +143,8 @@ namespace avion::core::engine
     while(!m_window->WindowShouldClose())
     {
       m_window->DeltaTimeUpdate();
-      
+      ProcessEvents();
+
       Render();
       
       m_window->FramePerSecond();
@@ -166,5 +162,21 @@ namespace avion::core::engine
   Engine::TextureManager& Engine::GetTextureManager() noexcept
   {
     return m_texture_manager;
+  }
+
+  void Engine::ProcessEvents() noexcept
+  {
+    auto result = m_event_queue.Consume();
+    if (!result.has_value())
+    {
+      return;
+    }
+
+    auto& events = result.value();
+    for (const auto& event : events)
+    {
+      AV_LOG_DEBUG(std::format("Engine::ProcessEvents: File {} is changed", event.path.c_str()));
+    }
+    m_backend->ReloadChangedShaders(events);
   }
 } // namespace avion::core

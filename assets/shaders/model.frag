@@ -120,6 +120,7 @@ void main()
     }
   }
 
+  // frag_color = vec4(vec3(1.f, 0.5f, 0.5f), 1.0);
   frag_color = vec4(result, 1.0);
   // frag_color = texture(material.diffuse1, fr_texture_coordinates);
   // DEPTH TESTING EXPIREMENTS 
@@ -170,7 +171,7 @@ vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view
   vec3 half_way_dir = normalize(light_dir + view_dir);
   float diff = max(dot(normal, light_dir), 0.0);
 
-  // vec3 reflect_dir = reflect(-light_dir, normal);
+  vec3 reflect_dir = reflect(-light_dir, normal);
   float spec = pow(max(dot(view_dir, half_way_dir), 0.0), material.fl_shininess);
 
   float attenuation = CalculateAttenuation(light, frag_pos);

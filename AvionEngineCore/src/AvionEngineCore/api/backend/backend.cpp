@@ -112,14 +112,35 @@ namespace avion::api::backend
     m_renderable_queue.emplace_back(std::move(item));
   }
 
+  auto Backend::ReloadChangedShaders(const std::vector<EventChangedFiles>& events) noexcept -> void
+  {
+    if (events.empty())
+    {
+      AV_LOG_DEBUG(std::format("Backend::ReloadChangedShaders: vector of event changed files is empty"));
+      return;
+    }
+    for (const auto& event : events)
+    {
+      std::string name_shader(event.path.filename());
+      std::size_t pos = name_shader.find('.');
+      if (pos == std::string::npos)
+      {
+        continue;
+      }
+      name_shader = name_shader.substr(0, pos);
+      // AV_LOG_DEBUG("Backend::ReloadChangedShaders: " + name_shader);
+      m_shader_storage.ReloadShader(name_shader);
+    }
+  }
+
   void Backend::CompileAndLoadShaders()
   {
+    auto& shaders = m_resman.GetShaderPaths();
     // TODO: Initialization shaders and register them
-    std::string simple_cube("lighting");
-    std::string shader_model_light_source("shader_model_light_source");
-    std::string frag_model("model");
-    std::string select_single_object("single_object");
-    std::string select_single_model("single_model");
+    std::string simple_light("simple_light");
+    std::string model("model");
+    std::string select_single_color("select_single_color");
+    std::string select_single_model("select_single_model");
     std::string grass("grass");
 
     m_shader_storage.RegisterShader(
@@ -135,27 +156,22 @@ namespace avion::api::backend
     );
 
     m_shader_storage.RegisterShader(
-      select_single_object,
+      select_single_color,
       m_resman.GetResource<ResManager::FsPath>("select_single_color.vert")->c_str(),
       m_resman.GetResource<ResManager::FsPath>("select_single_color.frag")->c_str()
     );
 
     m_shader_storage.RegisterShader(
-      frag_model,
-      m_resman.GetResource<ResManager::FsPath>("vert_model.vert")->c_str(),
-      m_resman.GetResource<ResManager::FsPath>("frag_model.frag")->c_str()
+      model,
+      m_resman.GetResource<ResManager::FsPath>("model.vert")->c_str(),
+      m_resman.GetResource<ResManager::FsPath>("model.frag")->c_str()
     );
 
     m_shader_storage.RegisterShader(
-      shader_model_light_source,
-      m_resman.GetResource<ResManager::FsPath>("simple_light_transform.vert")->c_str(),
-      m_resman.GetResource<ResManager::FsPath>("simple_light_color.frag")->c_str()
+      simple_light,
+      m_resman.GetResource<ResManager::FsPath>("simple_light.vert")->c_str(),
+      m_resman.GetResource<ResManager::FsPath>("simple_light.frag")->c_str()
     );
-
-    // m_shader_storage.PutData("model", "material.diffuse1", 0);
-    // m_shader_storage.PutData("model", "material.specular1", 1);
-    // m_shader_storage.PutData("model", "material.emission1", 2);
-    // m_shader_storage.UseShader("model");
   }
 
   // Common state

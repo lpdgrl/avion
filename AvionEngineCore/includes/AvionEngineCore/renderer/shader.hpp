@@ -11,6 +11,7 @@
 #include <memory>
 #include <unordered_map>
 #include <type_traits>
+#include <queue>
 
 namespace avion::gfx {
   static constexpr std::size_t kSizeShaderData = 32;
@@ -32,6 +33,7 @@ namespace avion::gfx {
   public:
       using ShaderProgram = std::uint32_t;
       // constructor reads and builds the shader
+      Shader() = delete;
       Shader(const char* vertexPath, const char* fragmentPath);
 
       ~Shader();
@@ -41,8 +43,13 @@ namespace avion::gfx {
       
       void SetValue(const std::string& name, ParamType value) const;
 
+      auto Reload() -> void;
+
       ShaderProgram GetID() const noexcept;
       ShaderProgram GetID() noexcept;
+
+      auto HasReloaded() const noexcept -> bool;
+      auto UpdateStateAfterReloaded() noexcept -> void;
   
   private:
     void SetBool (const std::string &name, bool value) const;
@@ -54,6 +61,9 @@ namespace avion::gfx {
 
   private:
     ShaderProgram m_id_prog;
+    std::string m_vertex_path;
+    std::string m_fragment_path;
+    bool m_reloaded{};
   };
 
   class ShaderExecutor {
@@ -67,6 +77,8 @@ namespace avion::gfx {
     
     template <typename T>
     void PutData(const std::string& name_param, T data);
+
+    auto Reload() -> void;
 
     ~ShaderExecutor() = default; 
   private:
@@ -97,10 +109,18 @@ namespace avion::gfx {
     void PutData(const std::string& name_sahder, const std::string& name_param, T data);
 
     const Storage& GetStorage() const noexcept;
+    auto ReloadShader(const std::string& name) noexcept -> void;
+    
+    template <typename T>
+    auto UpdateStateShadersReloaded(const std::string& param, T data) noexcept -> void;
 
     ~ShaderStorage() = default;
+
+  private:
+    auto GetShaderExecutorByName(const std::string& name) noexcept -> std::unique_ptr<ShaderExecutor>&;
   private:
     Storage m_storage_shaders;
+    std::queue<std::string> m_shaders_reloaded;
   };
 
   template <typename T>
@@ -121,5 +141,18 @@ namespace avion::gfx {
     auto& executor = it_sh->second;
     executor->PutData(name_param, data);
   }
+
+  template <typename T>
+  auto ShaderStorage::UpdateStateShadersReloaded(const std::string& param, T data) noexcept -> void
+  {
+    while (!m_shaders_reloaded.empty())
+    {
+      auto& shader_name = m_shaders_reloaded.back();
+      auto& executor = GetShaderExecutorByName(shader_name);
+      executor->PutData(param, data);
+      m_shaders_reloaded.pop();
+    }
+  }
+
 
 } // namespace avion::gfx

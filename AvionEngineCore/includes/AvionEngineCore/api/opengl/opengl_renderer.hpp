@@ -81,7 +81,7 @@
         void ApplyViewportState() const noexcept;
         void ApplyColorState()    const noexcept;
 
-        void SubmitProjectionMatrixToShader() noexcept;
+        void SubmitProjectionMatrixToShader() const noexcept;
         void BindTexture2D(const MaterialRange& range, int& number) const noexcept;
         void UnBindTexture2D(const MaterialRange& range) const noexcept;
 
