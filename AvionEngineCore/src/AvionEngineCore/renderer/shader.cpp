@@ -3,142 +3,68 @@
 #include <sstream>
 
 namespace avion::gfx {
-
-  // constructor reads and builds the shader
-  Shader::Shader (const char* vertexPath, const char* fragmentPath)
-  : m_vertex_path(vertexPath)
-  , m_fragment_path(fragmentPath)
+  Shader::Shader (std::string_view vertex_code, std::string_view fragment_code)
   {   
-      AV_LOG_DEBUG(std::format("Vertex path {} \n Fragment path {}", m_vertex_path, m_fragment_path));
-      // 1. retrieve the vertex/fragment source code from filePath
-      std::string vertexCode;
-      std::string fragmentCode;
-      std::ifstream vShaderFile;
-      std::ifstream fShaderFile;
+      api::backend::opengl::GLShader vertex(api::backend::opengl::detail::ShaderType::Vertex, vertex_code);
+      api::backend::opengl::GLShader fragment(api::backend::opengl::detail::ShaderType::Fragment, fragment_code);
 
-      // ensure ifstream objects can throw exceptions:
-      vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-      fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-      try
+      if (vertex.IsSuccess() && fragment.IsSuccess())
       {
-          // open files
-          vShaderFile.open(vertexPath);
-          fShaderFile.open(fragmentPath);
-          std::stringstream vShaderStream, fShaderStream;
-
-          //read file's buffer contents into stream
-          vShaderStream << vShaderFile.rdbuf();
-          fShaderStream << fShaderFile.rdbuf();
-
-          // close file handlers
-          vShaderFile.close();
-          fShaderFile.close();
-
-          // convert stream into string
-          vertexCode = vShaderStream.str();
-          fragmentCode = fShaderStream.str();
+        m_program.AttachShader(vertex);
+        m_program.AttachShader(fragment);
+        m_program.LinkProgram();
+        m_is_completed = m_program.IsSuccess();
       }
-      catch(std::ifstream::failure& e) 
-      {
-          std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ " << vertexPath << " or " << fragmentPath << " " << e.what() << std::endl;
-      }
-      const char* vShaderCode = vertexCode.c_str();
-      const char* fShaderCode = fragmentCode.c_str();
-      
-      // 2. compile shaders
-      unsigned int vertex, fragment;
-      int success;
-      char infoLog[512];
-      
-      // vertex Shader
-      
-      vertex = glCreateShader(GL_VERTEX_SHADER);
-      glShaderSource(vertex, 1, &vShaderCode, NULL);
-      glCompileShader(vertex);
-      
-      // print compile error if any
-      glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-      if (!success)
-      {
-          glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-          std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED " << vertexPath << infoLog << std::endl;
-      }
-      
-      // fragment Shader
-      fragment = glCreateShader(GL_FRAGMENT_SHADER);
-      glShaderSource(fragment, 1, &fShaderCode, NULL);
-      glCompileShader(fragment);
-
-      // print compile error if any
-      glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-      if (!success)
-      {
-          glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-          std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << fragmentPath << infoLog << std::endl;
-      }
-
-      // shader Program
-      m_id_prog = glCreateProgram();
-      glAttachShader(m_id_prog, vertex);
-      glAttachShader(m_id_prog, fragment);
-      glLinkProgram(m_id_prog);
-
-      //print linking errors if any
-      glGetProgramiv(m_id_prog, GL_LINK_STATUS, &success);
-      if (!success) {
-          glGetProgramInfoLog(m_id_prog, 512, NULL, infoLog);
-          std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-      }
-      
-      // delete the shaders as they're linked into our now and no longer necessary
-      glDeleteShader(vertex);
-      glDeleteShader(fragment);
-      
   }
 
   Shader::~Shader() {
     // TODO: Delete shader from GPU memory
-    AV_LOG_INFO("Shader::~Shader(): shader is destroyed");
+    AV_LOG_INFO(std::format("Shader::~Shader(): shader is destroyed."));
   }
 
   void Shader::Use() 
   {
-      // AV_LOG_DEBUG(std::format("Shader::Use: id_prog {}", m_id_prog));
-      glUseProgram(m_id_prog);
+    // AV_LOG_DEBUG(std::format("Shader::Use: id_prog {}", m_program.GetId()));
+    glUseProgram(m_program.GetId());
   }
 
   void Shader::SetBool(const std::string &name, bool value) const
   {
-      glUniform1i(glGetUniformLocation(m_id_prog, name.c_str()), (int)value);
+      glUniform1i(glGetUniformLocation(m_program.GetId(), name.c_str()), (int)value);
   }
 
   void Shader::SetInt(const std::string &name, int value) const
   {
-      glUniform1i(glGetUniformLocation(m_id_prog, name.c_str()), value);
+      glUniform1i(glGetUniformLocation(m_program.GetId(), name.c_str()), value);
   }
 
   void Shader::SetFloat(const std::string &name, float value) const
   {
-      glUniform1f(glGetUniformLocation(m_id_prog, name.c_str()), value);
+      glUniform1f(glGetUniformLocation(m_program.GetId(), name.c_str()), value);
   }
   void Shader::SetMat4(const std::string &name, glm::mat4& value) const {
-      glUniformMatrix4fv(glGetUniformLocation(m_id_prog, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+      glUniformMatrix4fv(glGetUniformLocation(m_program.GetId(), name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
   }
 
   void Shader::SetVec3(const std::string &name, glm::vec3& value) const {
-      glUniform3fv(glGetUniformLocation(m_id_prog, name.c_str()), 1, &value[0]);
+      glUniform3fv(glGetUniformLocation(m_program.GetId(), name.c_str()), 1, &value[0]);
   }
 
   void Shader::SetVec4(const std::string& name, glm::vec4& value) const {
-    glUniform4fv(glGetUniformLocation(m_id_prog, name.c_str()), 1, &value[0]);
+    glUniform4fv(glGetUniformLocation(m_program.GetId(), name.c_str()), 1, &value[0]);
   }
 
   Shader::ShaderProgram Shader::GetID() const noexcept {
-      return m_id_prog;
+      return m_program.GetId();
   }
 
   Shader::ShaderProgram Shader::GetID() noexcept {
-      return m_id_prog;
+      return m_program.GetId();
+  }
+
+  auto Shader::IsCompleted() const noexcept -> bool
+  {
+    return m_is_completed;
   }
 
   void Shader::SetValue(const std::string& name, ParamType value) const
@@ -158,112 +84,27 @@ namespace avion::gfx {
       }
   }
 
-  auto Shader::Reload() -> void
+  auto Shader::Reload(std::string_view vertex_code, std::string_view fragment_code) -> void
   {
+      api::backend::opengl::GLShader vertex(api::backend::opengl::detail::ShaderType::Vertex, vertex_code);
+      api::backend::opengl::GLShader fragment(api::backend::opengl::detail::ShaderType::Fragment, fragment_code);
+      api::backend::opengl::GLShaderProgram new_program;
 
-      AV_LOG_DEBUG(std::format("Shader::Reload(): Vertex path: {} Fragment Path {}", m_vertex_path, m_fragment_path));
-
-      // 1. retrieve the vertex/fragment source code from filePath
-      std::string vertexCode;
-      std::string fragmentCode;
-      std::ifstream vShaderFile;
-      std::ifstream fShaderFile;
-
-      // ensure ifstream objects can throw exceptions:
-      vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-      fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-      try
+      if (vertex.IsSuccess() && fragment.IsSuccess())
       {
-          // open files
-          vShaderFile.open(m_vertex_path);
-          fShaderFile.open(m_fragment_path);
-          std::stringstream vShaderStream, fShaderStream;
-
-          //read file's buffer contents into stream
-          vShaderStream << vShaderFile.rdbuf();
-          fShaderStream << fShaderFile.rdbuf();
-
-          // close file handlers
-          vShaderFile.close();
-          fShaderFile.close();
-
-          // convert stream into string
-          vertexCode = vShaderStream.str();
-          fragmentCode = fShaderStream.str();
-      }
-      catch(std::ifstream::failure& e) 
-      {
-          std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ " << m_vertex_path << " or " << m_fragment_path << " " << e.what() << std::endl;
+        new_program.AttachShader(vertex);
+        new_program.AttachShader(fragment);
+        new_program.LinkProgram();
+        m_is_completed = new_program.IsSuccess();
+        if (m_is_completed)
+        { 
+          using std::swap;
+          swap(m_program, new_program);
+          m_reloaded = true;
           return;
+        }
       }
-      // AV_LOG_DEBUG(std::format("Shader::Reload(): vertex_code = {}", vertexCode));
-      // AV_LOG_DEBUG(std::format("Shader::Reload(): fragment_code = {}", fragmentCode));
-      const char* vShaderCode = vertexCode.c_str();
-      const char* fShaderCode = fragmentCode.c_str();
-      
-      // 2. compile shaders
-      unsigned int vertex, fragment;
-      int success;
-      char infoLog[512];
-      
-      // vertex Shader
-      
-      vertex = glCreateShader(GL_VERTEX_SHADER);
-      glShaderSource(vertex, 1, &vShaderCode, NULL);
-      glCompileShader(vertex);
-      
-      // print compile error if any
-      glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-      if (!success)
-      {
-          glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-          std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED " << m_vertex_path << infoLog << std::endl;
-          glDeleteShader(vertex);
-          return;
-      }
-      
-      // fragment Shader
-      fragment = glCreateShader(GL_FRAGMENT_SHADER);
-      glShaderSource(fragment, 1, &fShaderCode, NULL);
-      glCompileShader(fragment);
-
-      // print compile error if any
-      glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-      if (!success)
-      {
-          glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-          std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << m_fragment_path << infoLog << std::endl;
-          glDeleteShader(fragment);
-          glDeleteShader(vertex);
-          return;
-      }
-
-
-      // shader Program
-      ShaderProgram new_program = glCreateProgram();
-      glAttachShader(new_program, vertex);
-      glAttachShader(new_program, fragment);
-      glLinkProgram(new_program);
-
-      //print linking errors if any
-      glGetProgramiv(new_program, GL_LINK_STATUS, &success);
-      if (!success) {
-          glGetProgramInfoLog(new_program, 512, NULL, infoLog);
-          std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-          glDeleteShader(vertex);
-          glDeleteShader(fragment);
-          glDeleteProgram(new_program);
-          return;
-      }
-      
-      ShaderProgram old_program = m_id_prog;
-      m_id_prog = new_program;
-
-      glDeleteShader(vertex);
-      glDeleteShader(fragment);
-      glDeleteProgram(old_program);
-
-      m_reloaded = true;
+      m_reloaded = false;
   }
 
   auto Shader::HasReloaded() const noexcept -> bool
@@ -283,8 +124,8 @@ namespace avion::gfx {
   }
   */
 
-  ShaderExecutor::ShaderExecutor(const std::string& vertex, const std::string& fragment)
-    : m_shader(std::make_unique<Shader>(vertex.c_str(), fragment.c_str()))
+  ShaderExecutor::ShaderExecutor(std::string_view vertex_code, std::string_view fragment_code)
+    : m_shader(std::make_unique<Shader>(vertex_code, fragment_code))
   {
     m_data.reserve(kSizeShaderData);
   }
@@ -322,9 +163,9 @@ namespace avion::gfx {
     m_data.clear();
   }
 
-  auto ShaderExecutor::Reload() -> void
+  auto ShaderExecutor::Reload(std::string_view vertex_code, std::string_view fragment_code) -> void
   {
-    m_shader->Reload();
+    m_shader->Reload(vertex_code, fragment_code);
   }
 
   void ShaderStorage::ExecuteAfterUse(const std::string& name_shader)
@@ -339,11 +180,21 @@ namespace avion::gfx {
     executor->ExecuteAfterUse();
   }
 
-  void ShaderStorage::RegisterShader(const std::string& name_shader, std::string vertex, std::string fragment)
+  void ShaderStorage::RegisterShader(const std::string& name_shader, const Path& vertex, const Path& fragment)
   {
     auto it_sh = m_storage_shaders.find(name_shader);
-    if (it_sh == m_storage_shaders.end()) {
-      m_storage_shaders.emplace(name_shader, std::make_unique<ShaderExecutor>(vertex, fragment));
+    if (it_sh == m_storage_shaders.end()) 
+    {
+      auto vertex_code = core::filesystem::FileReader::ReadFile(vertex);
+      auto fragment_code = core::filesystem::FileReader::ReadFile(fragment);
+      if (vertex_code.empty() || fragment_code.empty())
+      {
+        AV_LOG_ERROR("ShaderStorage::RegisterShader: name shader " + name_shader + " is not register! Vertex or fragment code empty!");
+        // TODO: Add result operation 
+        return;
+      }
+
+      m_storage_shaders.emplace(name_shader, std::make_unique<ShaderExecutor>(vertex_code, fragment_code));
       AV_LOG_INFO("Shader " + name_shader + " is successfully register");
     }
   }
@@ -370,7 +221,7 @@ namespace avion::gfx {
     return m_storage_shaders;
   }
 
-  auto ShaderStorage::ReloadShader(const std::string& name) noexcept -> void
+  auto ShaderStorage::ReloadShader(const std::string& name, const std::filesystem::path& path) noexcept -> void
   {
     auto it = m_storage_shaders.find(name);
     if (it == m_storage_shaders.end())
@@ -379,8 +230,25 @@ namespace avion::gfx {
       return;
     }
 
+    // TODO: think about making a dependency on the file system from here
     auto& shader_ptr = it->second;
-    shader_ptr->Reload();
+    if (path.extension() == ".vert")
+    {
+      std::string filename(name);
+      filename.append(".frag");
+      std::filesystem::path frag = path.parent_path() / filename;
+      auto frag_code = core::filesystem::FileReader::ReadFile(frag);
+      auto vertex_code = core::filesystem::FileReader::ReadFile(path);
+      shader_ptr->Reload(vertex_code, frag_code);
+    } else if (path.extension() == ".frag")
+    {
+      std::string filename(name);
+      filename.append(".vert");
+      std::filesystem::path vert = path.parent_path() / filename;
+      auto vertex_code = core::filesystem::FileReader::ReadFile(vert);
+      auto frag_code = core::filesystem::FileReader::ReadFile(path);
+      shader_ptr->Reload(vertex_code, frag_code);
+    }
     m_shaders_reloaded.push(name);
   }
 

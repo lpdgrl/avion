@@ -25,8 +25,4 @@ add_subdirectory(AvionEngineCore)
 add_subdirectory(AvionEngineEditor)
 add_subdirectory(AvionEngineTest)
 
-
-
-
-
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT AvionEngineTest)

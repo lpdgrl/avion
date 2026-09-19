@@ -1,28 +1,28 @@
 #pragma once
 
-#include "glad/glad.h"
-#include "../../glm/gtc/type_ptr.hpp"
-#include "AvionEngineCore/macro.h"
-
 #include <string>
+#include <string_view>
 #include <vector>
 #include <variant>
-#include <iostream>
 #include <memory>
 #include <unordered_map>
 #include <type_traits>
 #include <queue>
 
+#include "glad/glad.h"
+#include "../../glm/gtc/type_ptr.hpp"
+
+#include "AvionEngineCore/api/opengl/types/GLShader.hpp"
+#include "AvionEngineCore/api/opengl/types/GLShaderProgram.hpp"
+
+#include "AvionEngineCore/core/FileSystem/FileReader.hpp"
+
+#include "AvionEngineCore/macro.h"
+
 namespace avion::gfx {
   static constexpr std::size_t kSizeShaderData = 32;
 
   using ParamType = std::variant<glm::mat4, glm::vec4, glm::vec3, float, int, bool>;
-
-  enum class ShaderType {
-    kUnknown  = -1,
-    kVertex   =  1,
-    kFragment =  2,
-  };
 
   struct ShaderParam {
     std::string name;
@@ -32,9 +32,10 @@ namespace avion::gfx {
   class Shader {
   public:
       using ShaderProgram = std::uint32_t;
+
       // constructor reads and builds the shader
       Shader() = delete;
-      Shader(const char* vertexPath, const char* fragmentPath);
+      Shader(std::string_view vertex_code, std::string_view fragment_code);
 
       ~Shader();
       
@@ -43,12 +44,14 @@ namespace avion::gfx {
       
       void SetValue(const std::string& name, ParamType value) const;
 
-      auto Reload() -> void;
+      auto Reload(std::string_view vertex_code, std::string_view fragment_code) -> void;
 
       ShaderProgram GetID() const noexcept;
       ShaderProgram GetID() noexcept;
 
       auto HasReloaded() const noexcept -> bool;
+      auto IsCompleted() const noexcept -> bool;
+
       auto UpdateStateAfterReloaded() noexcept -> void;
   
   private:
@@ -60,17 +63,16 @@ namespace avion::gfx {
     void SetVec4 (const std::string &name, glm::vec4& value) const;  
 
   private:
-    ShaderProgram m_id_prog;
-    std::string m_vertex_path;
-    std::string m_fragment_path;
+    api::backend::opengl::GLShaderProgram m_program;
     bool m_reloaded{};
+    bool m_is_completed{};
   };
 
   class ShaderExecutor {
   public:
    //  ShaderExecutor();
 
-    explicit ShaderExecutor(const std::string& vertex, const std::string& fragment);
+    explicit ShaderExecutor(std::string_view vertex_code, std::string_view fragment_code);
    
     void Execute();
     void ExecuteAfterUse();
@@ -78,7 +80,7 @@ namespace avion::gfx {
     template <typename T>
     void PutData(const std::string& name_param, T data);
 
-    auto Reload() -> void;
+    auto Reload(std::string_view vertex_code, std::string_view fragment_code) -> void;
 
     ~ShaderExecutor() = default; 
   private:
@@ -95,11 +97,12 @@ namespace avion::gfx {
 
   class ShaderStorage {
   public:
+    using Path    = std::filesystem::path;
     using Storage = std::unordered_map<std::string, std::unique_ptr<ShaderExecutor>>;
 
     ShaderStorage() = default;
     
-    void RegisterShader(const std::string& name_shader, std::string vertex, std::string fragment); 
+    void RegisterShader(const std::string& name_shader, const Path& vertex, const Path& fragment); 
     void UnRegisterShader();
     
     void UseShader(const std::string& key);
@@ -109,7 +112,7 @@ namespace avion::gfx {
     void PutData(const std::string& name_sahder, const std::string& name_param, T data);
 
     const Storage& GetStorage() const noexcept;
-    auto ReloadShader(const std::string& name) noexcept -> void;
+    auto ReloadShader(const std::string& name, const std::filesystem::path& path) noexcept -> void;
     
     template <typename T>
     auto UpdateStateShadersReloaded(const std::string& param, T data) noexcept -> void;

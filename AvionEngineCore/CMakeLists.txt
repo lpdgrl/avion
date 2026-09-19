@@ -36,8 +36,13 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/api/opengl/opengl_renderer.cpp
   src/AvionEngineCore/api/opengl/types/OpenglBuffer.cpp
   src/AvionEngineCore/api/opengl/types/OpenglTexture2D.cpp
-   src/AvionEngineCore/api/opengl/types/OpenglFrameBuffer.cpp
+  src/AvionEngineCore/api/opengl/types/OpenglFrameBuffer.cpp
+  src/AvionEngineCore/api/opengl/types/GLShaderProgram.cpp
+  src/AvionEngineCore/api/opengl/types/GLShader.cpp
+  src/AvionEngineCore/api/opengl/OpenglUtils.cpp
+
   src/AvionEngineCore/logger/logger.cpp
+
   # src/AvionEngineCore/renderer/text_rendering.cpp
   src/AvionEngineCore/renderer/scene_renderer.cpp
   src/AvionEngineCore/renderer/shader.cpp
@@ -47,6 +52,7 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/renderer/pipeline_queue.cpp
   src/AvionEngineCore/renderer/framebuffer.cpp
   src/AvionEngineCore/renderer/renderer_command.cpp
+
   src/AvionEngineCore/core/engine.cpp
   src/AvionEngineCore/core/scene.cpp
   src/AvionEngineCore/core/object.cpp
@@ -55,17 +61,27 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/core/light.cpp
   src/AvionEngineCore/core/material.cpp
   src/AvionEngineCore/core/resource_manager.cpp
+
   src/AvionEngineCore/core/Assimp/AssimpModelLoader.cpp
   src/AvionEngineCore/core/Assimp/AssimpModelLoaderImpl.cpp
+
   src/AvionEngineCore/core/Animation/Bone.cpp
   src/AvionEngineCore/core/Animation/Animator.cpp
+
   src/AvionEngineCore/core/ModelManager/ModelManager.cpp
   src/AvionEngineCore/core/ModelManager/PrimitiveModel.cpp
+
   src/AvionEngineCore/core/TextureManager/TextureManager.cpp
+
   src/AvionEngineCore/core/Common/CameraProxy.cpp
   src/AvionEngineCore/core/Common/EventQueue.cpp
+
+  src/AvionEngineCore/core/FileSystem/FileReader.cpp
+
   src/AvionEngineCore/core/ResourceManager/FileWatcher.cpp
+
   src/AvionEngineCore/controller/controller.cpp
+
   src/AvionEngineCore/external/glad.c
   src/AvionEngineCore/external/stb.c
 )

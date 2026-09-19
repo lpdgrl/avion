@@ -1,5 +1,5 @@
 #ifndef AVION_API_BACKEND_OPENGL_H
-#define AVION_API_BACKEND_OPENGL_H
+#define AVION_API_BACKEND_OPENGL_H 1
 
     #include <memory>
     #include <unordered_map>

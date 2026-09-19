@@ -16,11 +16,11 @@
         OpenglFrameBuffer() = delete;
 
         OpenglFrameBuffer(float width, float height);
-        OpenglFrameBuffer(const OpenglFrameBuffer& other) = default;
+        OpenglFrameBuffer(const OpenglFrameBuffer& other) = delete;
 
         OpenglFrameBuffer(OpenglFrameBuffer&& other) = default;
 
-        OpenglFrameBuffer& operator=(const OpenglFrameBuffer& other) = default;
+        OpenglFrameBuffer& operator=(const OpenglFrameBuffer& other) = delete;
         OpenglFrameBuffer& operator=(OpenglFrameBuffer&& other) = default;
 
         ~OpenglFrameBuffer();

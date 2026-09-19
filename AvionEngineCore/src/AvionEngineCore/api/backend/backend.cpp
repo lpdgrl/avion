@@ -129,7 +129,7 @@ namespace avion::api::backend
       }
       name_shader = name_shader.substr(0, pos);
       // AV_LOG_DEBUG("Backend::ReloadChangedShaders: " + name_shader);
-      m_shader_storage.ReloadShader(name_shader);
+      m_shader_storage.ReloadShader(name_shader, event.path);
     }
   }
 
