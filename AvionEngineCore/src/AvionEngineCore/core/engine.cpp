@@ -87,8 +87,8 @@ namespace avion::core::engine
 
     m_scene_renderer->Init(width_w, height_w);
 
-    m_scene.AddModel("dancing.fbx");
-    m_scene.AddSourceLight(core::LightType::kPointLight);
+    auto res_model = m_scene.AddItem("dancing.fbx");
+    auto res_light = m_scene.AddItem(core::LightType::kPointLight);
   }
 
   void Engine::Render()

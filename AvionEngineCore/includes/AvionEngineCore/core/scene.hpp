@@ -48,9 +48,9 @@ namespace avion::core {
 
     ~Scene();
     
-    void AddSourceLight(LightType type);
-    bool AddModel(const std::string& name_model);
-    bool AddPrimitive(PrimitiveType type); 
+    [[nodiscard]] auto AddItem(LightType type) -> bool;
+    [[nodiscard]] auto AddItem(const std::string& name) -> bool;
+    [[nodiscard]] auto AddItem(PrimitiveType type) -> bool;
     
     auto DeleteScene() noexcept -> void;
     auto DeleteItem(std::uint32_t id) noexcept -> bool;

@@ -62,13 +62,13 @@ namespace avion::core {
     return ptr;
   }
 
-  void Scene::AddSourceLight(LightType type) 
+  [[nodiscard]] auto Scene::AddItem(LightType type) -> bool
   {
     auto&& result = m_model_manager.Load("light-bulb-color-icon.png", ModelManager::PrimitiveType::kPlane);
     if (!result.has_value())
     {
       AV_LOG_INFO("Scene::AddSourceLight: result from model manager is empty!");
-      return;
+      return false;
     }
 
     auto&& model_item = result.value();
@@ -104,11 +104,12 @@ namespace avion::core {
         break;
       }
     }
+    return true;
   }
 
-  bool Scene::AddModel(const std::string& model_name) 
+  [[nodiscard]] auto Scene::AddItem(const std::string& name) -> bool
   {
-    auto&& model_load_result = m_model_manager.Load(model_name);
+    auto&& model_load_result = m_model_manager.Load(name);
     if (!model_load_result.has_value())
     {
       return false;
@@ -131,7 +132,7 @@ namespace avion::core {
     return true;
   }
 
-  bool Scene::AddPrimitive(PrimitiveType type)
+  [[nodiscard]] auto Scene::AddItem(PrimitiveType type) -> bool
   {
     auto&& primitive_model_load_result = m_model_manager.Load(type);
     if (!primitive_model_load_result.has_value())
@@ -242,7 +243,7 @@ namespace avion::core {
 
     for (const auto& entity : entities)
     {
-      AddModel(entity.filename_model);
+      AddItem(entity.filename_model);
       auto& added_item = m_storage_items.back();
       auto&& transform = added_item->ptr_model->GetTransform();
       auto&& material = added_item->ptr_model->GetMaterial();

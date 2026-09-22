@@ -53,7 +53,7 @@ namespace avion::editor::panel
 
       if (index_select != -1)
       {
-        m_context.engine.GetScene().AddModel(model[index_select]);
+        m_context.engine.GetScene().AddItem(model[index_select]);
         index_select = -1;
       }
     }
@@ -76,17 +76,17 @@ namespace avion::editor::panel
       // Add cube to scene
       if (selection[0])
       {
-        scene.AddPrimitive(core::Scene::PrimitiveType::kCube);
+        auto result = scene.AddItem(core::Scene::PrimitiveType::kCube);
       }
       // Add pyramid to scene
       else if (selection[1])
       {
-        scene.AddPrimitive(core::Scene::PrimitiveType::kPyramid);
+        auto result = scene.AddItem(core::Scene::PrimitiveType::kPyramid);
       }
       // Add plane to scene
       else if (selection[2])
       {
-        scene.AddPrimitive(core::Scene::PrimitiveType::kPlane);
+        auto result = scene.AddItem(core::Scene::PrimitiveType::kPlane);
       }
 
       std::ranges::fill(selection, false);
@@ -108,17 +108,17 @@ namespace avion::editor::panel
       // Add point light to scene
       if (selection[0])
       {
-        scene.AddSourceLight(avion::core::LightType::kPointLight);
+        auto result = scene.AddItem(avion::core::LightType::kPointLight);
       }
       // Add direction light to scene
       else if (selection[1])
       {
-        scene.AddSourceLight(avion::core::LightType::kDirLight);
+        auto result = scene.AddItem(avion::core::LightType::kDirLight);
       }
       // Add spot light to scene
       else if (selection[2])
       {
-        scene.AddSourceLight(avion::core::LightType::kSpotLight);
+        auto result = scene.AddItem(avion::core::LightType::kSpotLight);
       }
 
       std::ranges::fill(selection, false);
