@@ -1,6 +1,12 @@
 #pragma once 
 
+#include <source_location>
 #include "logger/logger.hpp"
+
+#define AV_TRUE                 1
+#define AV_FALSE                0
+
+#define AV_DEBUG_MODE           AV_FALSE
 
 #define AV_LOGGER               avion::logger::Logger
 #define AV_LOG(a, b)            AV_LOGGER::Log(a, b)
@@ -20,5 +26,6 @@
 #define AV_LOG_DEBUG(msg)       do { AV_LOG(AV_LOG_LEVEL_DEBUG, msg); }     while(0);
 #define AV_LOG_CRITICAL(msg)    do { AV_LOG(AV_LOG_LEVEL_CRITICAL, msg); }  while(0);
 #define AV_LOG_TODO(msg)        do { AV_LOG(AV_LOG_LEVEL_TODO, msg); }      while(0);
+#define AV_LOG_SCDEBUG(msg)     do {AV_LOG(std::source_location::current(), msg); } while(0);
 
 #define AV_ATTRIB_MAYBE_UNUSED  [[maybe_unused]]

@@ -86,6 +86,9 @@ namespace avion::core::engine
     // m_backend->SetProjection(Projection::kPerspective, 45.f, width_w, height_w, 0.1f, 100.f);
 
     m_scene_renderer->Init(width_w, height_w);
+
+    m_scene.AddModel("dancing.fbx");
+    m_scene.AddSourceLight(core::LightType::kPointLight);
   }
 
   void Engine::Render()
@@ -179,4 +182,18 @@ namespace avion::core::engine
     }
     m_backend->ReloadChangedShaders(events);
   }
+
+  auto Engine::SaveSceneToJson() -> void
+  {
+    serialization::SceneSerialization::Save(m_scene.Export());
+  }
+
+  auto Engine::LoadSceneFromJson(const std::string& name) -> void
+  {
+    m_scene.DeleteScene();
+    auto result = serialization::SceneSerialization::Load();
+
+    m_scene.Import(result);
+  }
+
 } // namespace avion::core

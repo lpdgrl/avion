@@ -17,6 +17,8 @@
   #include "AvionEngineCore/core/Common/EventQueue.hpp"
   #include "AvionEngineCore/core/ResourceManager/FileWatcher.hpp"
 
+  #include "AvionEngineCore/core/Serialization/SceneSerialization.hpp"
+
   #include <vector>
 
   namespace avion::core::engine
@@ -58,7 +60,9 @@
         void Shutdown();
 
         void AddRenderApp(std::unique_ptr<IRenderApp> u_ptr);
-        void ProcessEvents() noexcept;
+
+        auto SaveSceneToJson() -> void;
+        auto LoadSceneFromJson(const std::string& name = "scene.json") -> void;
  
         ResManager&     GetResourceManager();
         SceneRenderer&  GetSceneRenderer();
@@ -71,6 +75,7 @@
       private:
         void Loop();
         void SettingInternalCallbacks();
+        void ProcessEvents() noexcept;
   
         static constexpr int kObjectsCreate = 1000;
         

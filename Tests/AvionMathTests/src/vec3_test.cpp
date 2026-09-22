@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../AvionMath/include/Vector3.hpp"
+#include "../../../AvionMath/include/Vector3.hpp"
 
 using Vec3f = avion::math::Vector3<float>;
 

@@ -30,11 +30,12 @@ namespace avion::core::resman
   ResourceManager::ResourceManager(std::string_view path)
   : m_path_exe(NormalizePath(path))
   {
-    RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
-    RegisterResource(core::resman::ResourceType::kShader,  "assets/shaders");
-    RegisterResource(core::resman::ResourceType::kModel,   "assets/models");
-    RegisterResource(core::resman::ResourceType::kConfig,  "assets/config");
-    RegisterResource(core::resman::ResourceType::kSprite,  "assets/sprites");
+    RegisterResource(ResourceType::kTexture, "assets/textures");
+    RegisterResource(ResourceType::kShader,  "assets/shaders");
+    RegisterResource(ResourceType::kModel,   "assets/models");
+    RegisterResource(ResourceType::kConfig,  "assets/config");
+    RegisterResource(ResourceType::kSprite,  "assets/sprites");
+    RegisterResource(ResourceType::kConfig, "assets/scenes");
   }
 
   const ResourceManager::ListTexture& ResourceManager::GetListTexture() const noexcept

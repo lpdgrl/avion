@@ -32,6 +32,7 @@ namespace avion::editor::panel
     RenderModelTab();
     RenderPrimitiveTab();
     RenderLightTab();
+    RenderSceneControl();
   }
 
   void AssetPanel::RenderModelTab() const noexcept
@@ -121,6 +122,24 @@ namespace avion::editor::panel
       }
 
       std::ranges::fill(selection, false);
+    }
+  }
+
+  auto AssetPanel::RenderSceneControl() const noexcept -> void
+  {
+    TabItem item("SceneControl");
+    if (item.IsOpen())
+    {
+      auto& engine = m_context.engine;
+      if (ImGui::Button("Save"))
+      {
+        engine.SaveSceneToJson();
+      }
+
+      if (ImGui::Button("Load"))
+      {
+        engine.LoadSceneFromJson();
+      }
     }
   }
 

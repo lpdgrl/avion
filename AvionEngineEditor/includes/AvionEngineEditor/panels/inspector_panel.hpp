@@ -29,6 +29,8 @@
         void RenderTabSelectItem() const noexcept;
         void RenderTabLight() const noexcept;
 
+        auto DeleteFromScene(std::uint32_t id) const noexcept -> void;
+
         size_t DrawComboTexture
         (
           const char* label, 

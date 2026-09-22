@@ -35,18 +35,20 @@ namespace avion::core::assimp::detail
     model_data.duration = animation->mDuration;
     model_data.ticks_per_second = animation->mTicksPerSecond;
 
-    for (std::size_t i = 0; i < std::min<std::size_t>(20, model_data.vertices.size()); ++i)
-    {
-      const auto& v = model_data.vertices[i];
-      AV_LOG_DEBUG("vertex[" + std::to_string(i) + "]");
-
-      for (int j = 0; j < 4; ++j)
+    #if(AV_DEBUG_MODE)
+      for (std::size_t i = 0; i < std::min<std::size_t>(20, model_data.vertices.size()); ++i)
       {
-        AV_LOG_DEBUG("bone[" + std::to_string(j) + "] = " + std::to_string(v.bone_ids[j]));
-        AV_LOG_DEBUG("weight[" + std::to_string(j) + "] = " + std::to_string(v.weights[j]));
+        const auto& v = model_data.vertices[i];
+        AV_LOG_DEBUG("vertex[" + std::to_string(i) + "]");
+
+        for (int j = 0; j < 4; ++j)
+        {
+          AV_LOG_DEBUG("bone[" + std::to_string(j) + "] = " + std::to_string(v.bone_ids[j]));
+          AV_LOG_DEBUG("weight[" + std::to_string(j) + "] = " + std::to_string(v.weights[j]));
+        }
+        AV_LOG_DEBUG("weight sum =" + std::to_string(v.weights[0] + v.weights[1] + v.weights[2] + v.weights[3]));
       }
-      AV_LOG_DEBUG("weight sum =" + std::to_string(v.weights[0] + v.weights[1] + v.weights[2] + v.weights[3]));
-    }
+    #endif
 
     ReadHeirarchyData(model_data.root_node, scene->mRootNode);
     ReadMissingBones(animation, model_data);

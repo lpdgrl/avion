@@ -29,45 +29,54 @@ namespace avion::editor::panel
   {
     ImGui::Text("Item:");
 
-    auto&& item = m_editor_ctx.engine.GetScene().GetItem(m_editor_ctx.selection_ctx.item.id);
-    auto& transform = item.ptr_model->GetTransform();
-    auto& color = item.ptr_model->GetMaterial().color;
-    auto& material = item.ptr_model->GetMaterial();
+    auto id = m_editor_ctx.selection_ctx.item.id;
+    auto&& opt = m_editor_ctx.engine.GetScene().GetItem(id);
 
-    ImGui::Text("Position");
-    ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);
-    ui::utils::InputFloat3V("inp_position", transform.position, 0.25f, 0.5f);
-
-    ImGui::Text("Size");
-    ui::utils::SliderFloat3V("size", transform.size, 0.f, 10.f);
-    ui::utils::InputFloat3V("inp_size", transform.size, 0.25f, 0.5f);
-
-    ImGui::Text("Color");
-    ImGui::ColorEdit3("##color", &color.x);
-
-    if (item.item_type != core::ItemType::kSourceLight)
+    if (opt.has_value())
     {
-      ImGui::Text("Shininess");
-      ImGui::DragFloat("##shininess", &material.shininess);
+      auto&& item = opt.value();
+      auto& transform = item.ptr_model->GetTransform();
+      auto& color = item.ptr_model->GetMaterial().color;
+      auto& material = item.ptr_model->GetMaterial();
+
+      ImGui::Text("Position");
+      ui::utils::SliderFloat3V("position", transform.position, -10.f, 10.f);
+      ui::utils::InputFloat3V("inp_position", transform.position, 0.25f, 0.5f);
+
+      ImGui::Text("Size");
+      ui::utils::SliderFloat3V("size", transform.size, 0.f, 10.f);
+      ui::utils::InputFloat3V("inp_size", transform.size, 0.25f, 0.5f);
+
+      ImGui::Text("Color");
+      ImGui::ColorEdit3("##color", &color.x);
+
+      if (item.item_type != core::ItemType::kSourceLight)
+      {
+        ImGui::Text("Shininess");
+        ImGui::DragFloat("##shininess", &material.shininess);
+      }
+      ImGui::Text("Rotate");
+      ImGui::SliderFloat3("##rotate", &transform.rotation.x, -180.f, 180.f);
+
+      if (item.item_type == core::ItemType::kSourceLight)
+      {
+        RenderTabLight();
+        return;
+      }
+
+      auto& textures = m_editor_ctx.engine.GetResourceManager().GetListTexture();
+
+      ImGui::Text("Diffuse texture");
+      static size_t index_item_diffuse_selected = 0;
+      index_item_diffuse_selected = DrawComboTexture("diffuse", index_item_diffuse_selected, textures, material);
+
+      ImGui::Text("Specular texture");
+      static size_t index_item_specular_selected = 0;
+      index_item_specular_selected = DrawComboTexture("specular", index_item_specular_selected, textures, material);
+
+      DeleteFromScene(id);
     }
-    ImGui::Text("Rotate");
-    ImGui::SliderFloat3("##rotate", &transform.rotation.x, -180.f, 180.f);
-
-    if (item.item_type == core::ItemType::kSourceLight)
-    {
-      RenderTabLight();
-      return;
-    }
-
-    auto& textures = m_editor_ctx.engine.GetResourceManager().GetListTexture();
-
-    ImGui::Text("Diffuse texture");
-    static size_t index_item_diffuse_selected = 0;
-    index_item_diffuse_selected = DrawComboTexture("diffuse", index_item_diffuse_selected, textures, material);
-
-    ImGui::Text("Specular texture");
-    static size_t index_item_specular_selected = 0;
-    index_item_specular_selected = DrawComboTexture("specular", index_item_specular_selected, textures, material);
+  
   }
 
   void InspectorPanel::RenderTabSelectObject() const noexcept
@@ -88,81 +97,88 @@ namespace avion::editor::panel
     using namespace core;
 
     ImGui::Text("Light");
-    auto& item = static_cast<core::LightItem&>(m_editor_ctx.engine.GetScene().GetItem(m_editor_ctx.selection_ctx.item.id));
-    // auto& position = item.light->GetGeometry();
-    // ImGui::Text("Position");
-    // ui::utils::SliderFloat3V("position", position, -30.f, 30.f);
-    // ui::utils::InputFloat3V("inp_position", position, 0.25f, 0.5f);
-
-    auto diffuse  = item.light->GetDiffuse();
-    auto ambient  = item.light->GetAmbient();
-    auto specular = item.light->GetSpecular();
-    ImGui::Text("Ambient");
-    ImGui::ColorEdit3("##ambient_point_light", &ambient.x);
-    ImGui::Text("Diffuse");
-    ImGui::ColorEdit3("##diffuse_point_light", &diffuse.x);
-    ImGui::Text("Specular");
-    ImGui::ColorEdit3("##specular_point_light", &specular.x);
-
-    switch (item.light_type)
+    auto id = m_editor_ctx.selection_ctx.item.id;
+    auto&& opt = m_editor_ctx.engine.GetScene().GetItem(id);
+    if (opt.has_value())
     {
-      case LightType::kPointLight:
+      auto& item = static_cast<core::LightItem&>(opt.value());
+      // auto& position = item.light->GetGeometry();
+      // ImGui::Text("Position");
+      // ui::utils::SliderFloat3V("position", position, -30.f, 30.f);
+      // ui::utils::InputFloat3V("inp_position", position, 0.25f, 0.5f);
+
+      auto diffuse  = item.light->GetDiffuse();
+      auto ambient  = item.light->GetAmbient();
+      auto specular = item.light->GetSpecular();
+      ImGui::Text("Ambient");
+      ImGui::ColorEdit3("##ambient_point_light", &ambient.x);
+      ImGui::Text("Diffuse");
+      ImGui::ColorEdit3("##diffuse_point_light", &diffuse.x);
+      ImGui::Text("Specular");
+      ImGui::ColorEdit3("##specular_point_light", &specular.x);
+
+      switch (item.light_type)
       {
-        auto *ptr = static_cast<PointLight*>(item.light.get());
-        float constant = ptr->GetConstant();
-        float linear = ptr->GetLinear();
-        float quadratic = ptr->GetQuadratic();
+        case LightType::kPointLight:
+        {
+          auto *ptr = static_cast<PointLight*>(item.light.get());
+          float constant = ptr->GetConstant();
+          float linear = ptr->GetLinear();
+          float quadratic = ptr->GetQuadratic();
 
-        ImGui::Text("Constant value");
-        ImGui::InputFloat("##constant", &constant, 0.25f, 0.5f);
-        ImGui::Text("Linear value");
-        ImGui::InputFloat("##linear", &linear, 0.25f, 0.5f);
-        ImGui::Text("Quadratic value");
-        ImGui::InputFloat("##quadratic", &quadratic, 0.25f, 0.5f);
+          ImGui::Text("Constant value");
+          ImGui::InputFloat("##constant", &constant, 0.25f, 0.5f);
+          ImGui::Text("Linear value");
+          ImGui::InputFloat("##linear", &linear, 0.25f, 0.5f);
+          ImGui::Text("Quadratic value");
+          ImGui::InputFloat("##quadratic", &quadratic, 0.25f, 0.5f);
 
-        ptr->SetConstant(constant);
-        ptr->SetLinear(linear);
-        ptr->SetQuadratic(quadratic);
-        break;
+          ptr->SetConstant(constant);
+          ptr->SetLinear(linear);
+          ptr->SetQuadratic(quadratic);
+          break;
+        }
+
+        case LightType::kDirLight:
+        {
+          break;
+        }
+
+        case LightType::kSpotLight:
+        {
+          auto *ptr = static_cast<SpotLight*>(item.light.get());
+          float constant = ptr->GetConstant();
+          float linear = ptr->GetLinear();
+          float quadratic = ptr->GetQuadratic();
+          float cutoff = ptr->GetCutOff();
+          float outer_cutoff = ptr->GetOuterCutOff();
+
+          ImGui::Text("Constant value");
+          ImGui::InputFloat("##constant", &constant, 0.25f, 0.5f);
+          ImGui::Text("Linear value");
+          ImGui::InputFloat("##linear", &linear, 0.25f, 0.5f);
+          ImGui::Text("Quadratic value");
+          ImGui::InputFloat("##quadratic", &quadratic, 0.25f, 0.5f);
+          ImGui::Text("Cutoff value");
+          ImGui::InputFloat("##cutoff", &cutoff, 0.25f, 0.5f);
+          ImGui::Text("Outer cutoff value");
+          ImGui::InputFloat("##outer_cutoff", &outer_cutoff, 0.25f, 0.5f);
+
+          ptr->SetConstant(constant);
+          ptr->SetLinear(linear);
+          ptr->SetQuadratic(quadratic);
+          ptr->SetCutOff(cutoff);
+          ptr->SetOuterCutOff(outer_cutoff);
+          break;
+        }
       }
 
-      case LightType::kDirLight:
-      {
-        break;
-      }
-
-      case LightType::kSpotLight:
-      {
-        auto *ptr = static_cast<SpotLight*>(item.light.get());
-        float constant = ptr->GetConstant();
-        float linear = ptr->GetLinear();
-        float quadratic = ptr->GetQuadratic();
-        float cutoff = ptr->GetCutOff();
-        float outer_cutoff = ptr->GetOuterCutOff();
-
-        ImGui::Text("Constant value");
-        ImGui::InputFloat("##constant", &constant, 0.25f, 0.5f);
-        ImGui::Text("Linear value");
-        ImGui::InputFloat("##linear", &linear, 0.25f, 0.5f);
-        ImGui::Text("Quadratic value");
-        ImGui::InputFloat("##quadratic", &quadratic, 0.25f, 0.5f);
-        ImGui::Text("Cutoff value");
-        ImGui::InputFloat("##cutoff", &cutoff, 0.25f, 0.5f);
-        ImGui::Text("Outer cutoff value");
-        ImGui::InputFloat("##outer_cutoff", &outer_cutoff, 0.25f, 0.5f);
-
-        ptr->SetConstant(constant);
-        ptr->SetLinear(linear);
-        ptr->SetQuadratic(quadratic);
-        ptr->SetCutOff(cutoff);
-        ptr->SetOuterCutOff(outer_cutoff);
-        break;
-      }
+      item.light->SetAmbient(ambient);
+      item.light->SetDiffuse(diffuse);
+      item.light->SetSpecular(specular);
     }
 
-    item.light->SetAmbient(ambient);
-    item.light->SetDiffuse(diffuse);
-    item.light->SetSpecular(specular);
+    DeleteFromScene(id);
   }
 
   size_t InspectorPanel::DrawComboTexture
@@ -254,6 +270,19 @@ namespace avion::editor::panel
         material.specular_texture.emplace_back(core::texturemanager::detail::TextureType::kSpecular, result.id);
     }
     return index_selected_texture;
+  }
+
+  auto InspectorPanel::DeleteFromScene(std::uint32_t id) const noexcept -> void
+  {
+    if (ImGui::Button("Delete item from scene"))
+    {
+      if (auto result = m_editor_ctx.engine.GetScene().DeleteItem(id); !result)
+      {
+        AV_LOG_ERROR(std::format("The item with id = {} isn't deleted from scene!", id));
+      }
+      m_editor_ctx.selection_ctx.item.id = 0;
+      m_editor_ctx.selection_ctx.item.is_select = false;
+    }
   }
 
 } // namespace avion::editor::paneldww

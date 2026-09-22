@@ -29,6 +29,7 @@
         void RenderModelTab()     const noexcept;
         void RenderPrimitiveTab() const noexcept;
         void RenderLightTab()     const noexcept;
+        auto RenderSceneControl() const noexcept -> void;
       private:
         EditorContext m_context;
     };

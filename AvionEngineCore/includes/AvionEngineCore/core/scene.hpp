@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <type_traits>
 #include <deque>
+#include <ranges>
+#include <optional>
 
 #include "AvionEngineCore/core/object.hpp"
 #include "AvionEngineCore/core/ISceneItem.hpp"
@@ -12,6 +14,8 @@
 #include "AvionEngineCore/core/Common/CameraProxy.hpp"
 
 #include "AvionEngineCore/core/ModelManager/ModelManager.hpp"
+
+#include "AvionEngineCore/core/Serialization/Detail/EntitySerialize.hpp"
 
 // Forward declaration
 namespace avion::core::resman
@@ -31,6 +35,7 @@ namespace avion::core {
     using CameraData    = gfx::CameraData;
     using CameraProxy   = common::CameraProxy;
     using PrimitiveType = modelmanager::detail::PrimitiveType;
+    using EntitySerialize = serialization::detail::EntitySerialize;
 
     Scene() = default;
     explicit Scene(size_t number_object, ModelManager& model_manager);
@@ -46,10 +51,16 @@ namespace avion::core {
     void AddSourceLight(LightType type);
     bool AddModel(const std::string& name_model);
     bool AddPrimitive(PrimitiveType type); 
+    
+    auto DeleteScene() noexcept -> void;
+    auto DeleteItem(std::uint32_t id) noexcept -> bool;
+    
+    auto Import(const std::vector<EntitySerialize>& entities) noexcept -> void;
+    auto Export() const -> std::vector<EntitySerialize>;
 
     SceneItems& GetSceneItems();
     const SceneItems&  GetSceneItems() const noexcept;
-    ISceneItem& GetItem(std::uint32_t id) noexcept;
+    std::optional<ISceneItem&> GetItem(std::uint32_t id) noexcept;
 
     CacheLightItems& GetCacheLightItems() noexcept { return m_cache_light_items; }
     std::uint32_t GetNumberPointLight() const noexcept { return m_number_point_light; }

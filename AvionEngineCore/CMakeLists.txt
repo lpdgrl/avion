@@ -73,6 +73,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/core/material.cpp
   src/AvionEngineCore/core/resource_manager.cpp
 
+  src/AvionEngineCore/core/Serialization/SceneSerialization.cpp
+
   src/AvionEngineCore/core/Assimp/AssimpModelLoader.cpp
   src/AvionEngineCore/core/Assimp/AssimpModelLoaderImpl.cpp
 
@@ -81,6 +83,7 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
 
   src/AvionEngineCore/core/ModelManager/ModelManager.cpp
   src/AvionEngineCore/core/ModelManager/PrimitiveModel.cpp
+  src/AvionEngineCore/core/ModelManager/Detail/Utils.cpp
 
   src/AvionEngineCore/core/TextureManager/TextureManager.cpp
 
@@ -110,7 +113,7 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
 )
 
 target_link_libraries(${ENGINE_PROJECT_NAME}
-  PRIVATE
+  PUBLIC
     glaze::glaze
 )
 

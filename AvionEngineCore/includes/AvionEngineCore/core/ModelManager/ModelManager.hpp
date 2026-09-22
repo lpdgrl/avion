@@ -6,10 +6,12 @@
   #include <unordered_map>
   #include <string>
   #include <optional>
+  #include <queue>
 
   #include "AvionEngineCore/core/Assimp/AssimpModelLoader.hpp"
   #include "AvionEngineCore/core/resource_manager.hpp"
   #include "AvionEngineCore/renderer/model.hpp"
+  #include "AvionEngineCore/core/ModelManager/Detail/Utils.hpp"
   #include "AvionEngineCore/core/TextureManager/TextureHandler.hpp"
   #include "AvionEngineCore/core/ModelManager/PrimitiveModel.hpp"
 
@@ -32,8 +34,12 @@
         using TextureHandler          = texturemanager::detail::TextureHandler;
         using TextureType             = texturemanager::detail::TextureType;
         using PrimitiveType           = detail::PrimitiveType;
-        using ModelHandleStorage      = std::unordered_map<FileName, ModelHandler>;
-        using ModelStorage            = std::unordered_map<FileName, ModelPtr>;
+        using GpuBufferHandle         = std::uint32_t;
+        // using ModelHandleStorage      = std::unordered_map<FileName, ModelHandler>;
+        // using ModelStorage            = std::unordered_map<FileName, ModelPtr>;
+
+        using Cache                   = std::unordered_map<FileName, ModelItem&>;
+        using Storage                 = std::deque<ModelItem>; 
         using ResmanCallback          = std::function<FsPath*(std::string_view filename_model)>;  
         using TextureManagerCallback  = std::function<std::optional<TextureHandler>(const FsPath& path)>;
         using BackendCallback         = std::function<ModelHandler(CpuModelData& model_data)>;
@@ -41,8 +47,10 @@
 
         struct ModelItem
         {
-          ModelHandler model_handler;
           ModelPtr model;
+          FileName name;
+          std::uint32_t id{};
+          GpuBufferHandle gpu_buffer_handle{};
         };
 
         ModelManager() = default;
@@ -85,8 +93,9 @@
         ResmanCallback          m_cb_resman;
         BackendCallback         m_cb_backend;
         TextureManagerCallback  m_cb_texture;
-        ModelStorage            m_storage;
-        ModelHandleStorage      m_handle_storage;
+        Storage                 m_storage;
+        Cache                   m_cache;
+        // ModelHandleStorage      m_handle_storage;
         std::uint32_t           m_number_copy_models{};
     };
 
@@ -105,9 +114,9 @@
         Model*
       >;
       
-      if (auto it_model = self.m_storage.find(filename); it_model != self.m_storage.end())
+      if (auto it_model = self.m_cache.find(filename); it_model != self.m_cache.end())
       {
-        return static_cast<ReturnType>(it_model->second.get());
+        return static_cast<ReturnType>(it_model->second.model.get());
       }
       return ReturnType{nullptr};
     }

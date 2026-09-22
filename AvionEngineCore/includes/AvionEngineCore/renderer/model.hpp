@@ -2,6 +2,7 @@
 #define AVION_GFX_MODEL_H
 
   #include <span>
+  #include <string_view>
 
   #include "AvionEngineCore/macro.h"
   #include "AvionEngineCore/core/material.hpp"
@@ -33,8 +34,8 @@
         using AnimationId     = core::animation::AnimationId;
 
         Model() = delete;
-        Model(const std::string& filename, CpuModelData& cpu_model_data, const Material& material, bool has_animation);
-        Model(const std::string& filename, const Model& other);
+        Model(std::string_view filename, CpuModelData& cpu_model_data, const Material& material, bool has_animation, std::string_view extension = {});
+        Model(std::string_view filename, const Model& other);
         Model(const Model& other);
         Model(Model&& other);
 
@@ -42,6 +43,7 @@
         Model& operator=(Model&& other) noexcept;
 
         std::string   GetFileName() const noexcept;
+        auto          GetFileExtension() const noexcept -> std::string;
         Transform&    GetTransform() noexcept;
         CpuModelData& GetCpuModelData() noexcept;
         MeshRange     GetMeshRange() noexcept;
@@ -62,6 +64,7 @@
       private:
         // std::unordered_map<int, Animation> m_animation_set;
         std::string m_filename;
+        std::string m_file_extension;
         CpuModelData m_cpu_model_data;
         Transform m_transform;
         Material m_material;

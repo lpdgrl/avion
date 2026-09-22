@@ -71,9 +71,11 @@ namespace avion::editor::panel
     {
       text.append(std::to_string(item->id));
       text.append(":");
-      text.append(item->item_type == core::ItemType::kSourceLight 
-        ? core::detail::TypeObjectToString<core::LightType>(static_cast<core::LightItem*>(item.get())->light_type) 
-        : item->ptr_model->GetFileName());
+      if (item->item_type == core::ItemType::kSourceLight)
+      {
+        text.append("Light");
+      }
+      text.append("Object");
 
       TreeNode node(text.c_str(), ImGuiTreeNodeFlags_Leaf | ui::utils::CheckSelectableTreeNode(selection_mask, selection_index));
       if (node.IsOpen())

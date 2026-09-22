@@ -82,7 +82,7 @@
 
     struct ModelHandler
     {
-      std::uint32_t id;
+      std::uint32_t id{};
     };
 
     enum class PrimitiveType : std::uint8_t

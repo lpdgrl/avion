@@ -29,11 +29,12 @@
     struct ISceneItem 
     {
         using ModelHandler = modelmanager::detail::ModelHandler;
+        using GpuBufferHandler = std::uint32_t;
         using ModelPtr     = modelmanager::ModelManager::ModelPtr;
         using ItemId       = std::uint32_t;
 
-        ISceneItem(ModelHandler&& handler, ModelPtr&& ptr, ItemId id, ItemType type)
-        : model_handler(std::move(handler))
+        ISceneItem(GpuBufferHandler handler, ModelPtr&& ptr, ItemId id, ItemType type)
+        : model_handler(ModelHandler(handler))
         , ptr_model(std::move(ptr))
         , id(id)
         , item_type(type)
@@ -50,7 +51,7 @@
 
     struct ObjectItem : ISceneItem
     { 
-      ObjectItem(ModelHandler&& handler, ModelPtr&& ptr, ItemId id, ItemType type)
+      ObjectItem(GpuBufferHandler handler, ModelPtr&& ptr, ItemId id, ItemType type)
       : ISceneItem(std::move(handler), std::move(ptr), id, type)
       {}
     };
@@ -59,7 +60,7 @@
     {
       LightItem
       (
-        ModelHandler&& handler, 
+        GpuBufferHandler handler, 
         ModelPtr&& ptr, 
         ItemId id, 
         ItemType item_type, 

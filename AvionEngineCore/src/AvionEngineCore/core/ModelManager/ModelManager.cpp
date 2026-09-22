@@ -20,6 +20,18 @@ namespace avion::core::modelmanager
       return std::nullopt;
     }
 
+    std::string extension_file;
+    std::string name_file;
+    if (p_fs_path->has_extension())
+    {
+      extension_file = p_fs_path->extension().c_str();
+      name_file = detail::GetFileName(p_fs_path->filename().c_str());
+    }
+    else
+    {
+      name_file = filename;
+    }
+
     auto assimp_result = AssimpModelLoader::Load(p_fs_path->c_str());
     if (!assimp_result.has_value())
     {
@@ -29,7 +41,7 @@ namespace avion::core::modelmanager
 
     auto& model_data = assimp_result.value();
     // Create Buffer in GPU
-    auto model_handler = m_cb_backend(model_data);
+    auto gpu_buffer_handle = m_cb_backend(model_data);
 
     // loading and create opengl texture for model
     Material material;
@@ -55,9 +67,29 @@ namespace avion::core::modelmanager
     }
 
     // TODO: Model data moving to model
-    auto [it, success] = m_storage.emplace(filename, std::make_shared<Model>(filename, model_data, material, model_data.has_animation));
-    auto [it_handle, _] = m_handle_storage.emplace(filename, model_handler);
-    model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
+    std::uint32_t id{};
+    if (m_storage.empty())
+    {
+      id = 0U;
+    }
+    else 
+    {
+      id = m_storage.back().id;
+      ++id;
+    }
+
+    auto& result = m_storage.emplace_back(std::make_shared<Model>(filename, model_data, material, 
+      model_data.has_animation, extension_file), filename, id, gpu_buffer_handle.id);
+    // Added to cache
+    m_cache.try_emplace(filename, result);
+    // auto [it_handle, _] = m_handle_storage.emplace(filename, model_handler);
+    model_load_result = ModelItem
+    {
+      .model = result.model,
+      .name = result.name,
+      .id = result.id,
+      .gpu_buffer_handle = result.gpu_buffer_handle
+    };
 
     AV_LOG_INFO("ModelManager::Load: model " + filename + " is loading success");
     return model_load_result;
@@ -77,17 +109,34 @@ namespace avion::core::modelmanager
     }
 
     auto model_data = detail::PrimitiveModel::Make(type);
-    auto model_handler = m_cb_backend(model_data);
+    auto gpu_buffer_handle = m_cb_backend(model_data);
 
     Material material;
     material.type  = MaterialType::kRegular;
     material.color = glm::vec3(0.5f, 0.5f, 0.5f);
 
-    auto [it_handle, _] = m_handle_storage.emplace(filename, model_handler);
-    auto [it, success] = m_storage.emplace(filename,
-      std::make_shared<Model>(filename, model_data, material, false));
+    // auto [it_handle, _] = m_handle_storage.emplace(filename, model_handler);
+    std::uint32_t id{};
+    if (m_storage.empty())
+    {
+      id = 0U;
+    }
+    else 
+    {
+      id = m_storage.back().id;
+      ++id;
+    }
 
-    model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
+
+    auto& result = m_storage.emplace_back(
+      std::make_shared<Model>(filename, model_data, material, false),
+      filename,
+      id,
+      gpu_buffer_handle.id
+    );
+
+    // model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
+    model_load_result = result;
     return model_load_result;
   }
 
@@ -110,8 +159,8 @@ namespace avion::core::modelmanager
     }
 
     auto model_data = detail::PrimitiveModel::Make(type);
-    auto model_handler = m_cb_backend(model_data);
-    auto [it_handle, _] = m_handle_storage.emplace(filename_sprite, model_handler);
+    auto gpu_buffer_handle = m_cb_backend(model_data);
+    // auto [it_handle, _] = m_handle_storage.emplace(filename_sprite, model_handler);
 
     // loading and create opengl texture for model
     Material material;
@@ -120,24 +169,35 @@ namespace avion::core::modelmanager
     material.diffuse_texture.emplace_back(TextureType::kDiffuse, texture_handler.value().id);
 
     // TODO: Model data moving to model
-    auto [it, success] = m_storage.emplace(filename_sprite, std::make_shared<Model>(filename_sprite, model_data, material, false));
-    model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
+    std::uint32_t id{};
+    if (m_storage.empty())
+    {
+      id = 0U;
+    }
+    else 
+    {
+      id = m_storage.back().id;
+      ++id;
+    }
 
+    auto& result = m_storage.emplace_back(
+      std::make_shared<Model>(filename_sprite, model_data, material, false),
+      filename_sprite,
+      id, 
+      gpu_buffer_handle.id
+    );
+
+    // model_load_result = ModelItem{.model_handler = model_handler, .model = it->second};
+    model_load_result = result;
     AV_LOG_INFO("ModelManager::Load: sprite " + filename_sprite + " is loading success");
     return model_load_result;
   }
 
   ModelManager::LoadModelResult ModelManager::CreateModelCopy(const std::string& filename) noexcept
   {
-    LoadModelResult result;
+    LoadModelResult load_model_result;
 
     auto *model = Get(filename);
-
-    std::string name;
-    name.append(model->GetFileName());
-    name.append("_copy");
-    name.append(std::to_string(++m_number_copy_models));
-    auto [it, _] = m_storage.emplace(name, std::make_shared<Model>(name, *model));
 
     auto opt_model_handle = GetModelHandle(filename);
     if (!opt_model_handle.has_value())
@@ -145,10 +205,30 @@ namespace avion::core::modelmanager
       AV_LOG_ERROR("ModelManager::Load: model " + filename + " isn't has model handle!");
       return std::nullopt;
     }
+    auto gpu_buffer_handle = opt_model_handle.value();
 
-    auto model_handle = opt_model_handle.value();
-    result = ModelItem{.model_handler = model_handle, .model = it->second};
-    return result;
+    std::uint32_t id{};
+    if (m_storage.empty())
+    {
+      id = 0U;
+    }
+    else 
+    {
+      id = m_storage.back().id;
+      ++id;
+    }
+
+    auto& result = m_storage.emplace_back(
+      std::make_shared<Model>(filename, *model),
+      filename, 
+      id, 
+      gpu_buffer_handle.id
+    );
+
+    // auto model_handle = opt_model_handle.value();
+    // result = ModelItem{.model_handler = model_handle, .m\odel = it->second};
+    load_model_result = result;
+    return load_model_result;
   }
 
   bool ModelManager::Remove(const std::string& filename) noexcept
@@ -180,14 +260,14 @@ namespace avion::core::modelmanager
   std::optional<ModelManager::ModelHandler> ModelManager::GetModelHandle(const std::string& filename) noexcept
   {
     std::optional<ModelHandler> result;
-    auto it = m_handle_storage.find(filename);
+    auto it = m_cache.find(filename);
 
-    if (it == m_handle_storage.end())
+    if (it == m_cache.end())
     {
       return std::nullopt;
     }
 
-    result = it->second;
+    result = {it->second.gpu_buffer_handle};
     return result;
   }
 

@@ -4,8 +4,9 @@
 namespace avion::gfx
 {
 
-  Model::Model(const std::string& filename, CpuModelData& cpu_model_data, const Material& material, bool has_animation)
+  Model::Model(std::string_view filename, CpuModelData& cpu_model_data, const Material& material, bool has_animation,  std::string_view extension)
   : m_filename(filename)
+  , m_file_extension(extension)
   , m_cpu_model_data(cpu_model_data)
   , m_transform{.position{0.f, 0.f, 0.f}, .size{0.005f}, .value_rotate{0.f}, .axis = AxisRotate::NONE}
   , m_material(material)
@@ -15,8 +16,9 @@ namespace avion::gfx
 
   }
 
-  Model::Model(const std::string& filename, const Model& other)
+  Model::Model(std::string_view filename, const Model& other)
   : m_filename(filename)
+  , m_file_extension(other.m_file_extension)
   , m_cpu_model_data(other.m_cpu_model_data)
   , m_transform(other.m_transform)
   , m_material(other.m_material)
@@ -28,6 +30,7 @@ namespace avion::gfx
 
   Model::Model(const Model& other)
   : m_filename(other.m_filename)
+  , m_file_extension(other.m_file_extension)
   , m_cpu_model_data(other.m_cpu_model_data)
   , m_transform(other.m_transform)
   , m_material(other.m_material)
@@ -39,6 +42,7 @@ namespace avion::gfx
 
   Model::Model(Model&& other)
   : m_filename(std::move(other.m_filename))
+  , m_file_extension(std::move(other.m_file_extension))
   , m_cpu_model_data(std::move(other.m_cpu_model_data))
   , m_transform(std::move(other.m_transform))
   , m_material(std::move(other.m_material))
@@ -83,6 +87,7 @@ namespace avion::gfx
     // Swap Idiom (ADL lookup)
     using std::swap;
     swap(m_filename, other.m_filename);
+    swap(m_file_extension, other.m_file_extension);
     swap(m_cpu_model_data, other.m_cpu_model_data);
     swap(m_transform, other.m_transform);
     swap(m_material, other.m_material);
@@ -92,6 +97,11 @@ namespace avion::gfx
   std::string Model::GetFileName() const noexcept
   {
     return m_filename;
+  }
+
+  auto Model::GetFileExtension() const noexcept -> std::string
+  {
+    return m_file_extension;
   }
 
   Transform& Model::GetTransform() noexcept

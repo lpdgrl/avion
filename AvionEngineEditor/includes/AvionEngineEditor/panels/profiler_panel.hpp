@@ -23,10 +23,12 @@
         void Render();
         
         ~ProfilerPanel() = default;
+
       private:
-      void ProfilerTab() const noexcept;
-      void CameraTab()  const noexcept;
-      void RenderStatTab() const noexcept;
+        void ProfilerTab() const noexcept;
+        void CameraTab()  const noexcept;
+        void RenderStatTab() const noexcept;
+        void SceneControl() const noexcept;
       
       private:
         ProfilerContext m_context;

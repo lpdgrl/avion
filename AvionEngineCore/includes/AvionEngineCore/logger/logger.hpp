@@ -4,6 +4,7 @@
 #include <chrono>
 #include <format>
 #include <string>
+#include <source_location>
 
 namespace avion::logger {
   enum class LogLevel {
@@ -28,8 +29,17 @@ namespace avion::logger {
       Logger()  = delete;
       ~Logger() = delete;
       
-      static constexpr void Log(LogLevel level, const std::string& arg) noexcept {
-          switch (level) {
+      static constexpr void Log(std::source_location src_loc, 
+        const std::string& msg
+      ) noexcept
+      {
+        LogDebug(src_loc, msg);
+      }
+
+      static constexpr void Log(LogLevel level, const std::string& arg) noexcept 
+      {
+          switch (level) 
+          {
               case LogLevel::kInformation:
                   LogInfo(arg);
                   break;
@@ -55,7 +65,14 @@ namespace avion::logger {
         std::cout << FormatMessage(GREEN_CLR, "info", arg); 
       }
 
-      static constexpr void LogDebug(const std::string& arg) noexcept 
+      static constexpr void LogDebug(const std::source_location& src_loc,
+        const std::string& arg
+      ) noexcept 
+      {
+        std::cout << FormatDebugMessage(src_loc, YELLOW_CLR, "debug", arg);
+      }
+
+      static constexpr void LogDebug(const std::string& arg) noexcept
       {
         std::cout << FormatMessage(YELLOW_CLR, "debug", arg);
       }
@@ -88,6 +105,23 @@ namespace avion::logger {
           std::chrono::system_clock::now()
         }};
         return std::format("{:%F %H:%M:%OS}", zt);
+      }
+      
+      static std::string FormatDebugMessage(const std::source_location& src_loc,
+        const std::string color,
+        const std::string& log_level,
+        const std::string& msg
+      ) noexcept
+      {
+        // 1 - date, 2 - color of level log, 3 - log level, 4 - reset color, 5 - argument
+        return std::format("{}[{}] [{}] [{}]{}: {}\n",  
+          color, 
+          GetCurrentTimeAndDate(), 
+          log_level, 
+          src_loc.function_name(),
+          RESET_CLR, 
+          msg
+        );
       }
 
       static std::string FormatMessage(
