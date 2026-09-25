@@ -89,6 +89,12 @@ namespace avion::core::engine
 
     auto res_model = m_scene.AddItem("dancing.fbx");
     auto res_light = m_scene.AddItem(core::LightType::kPointLight);
+
+    // for (std::size_t i = 0; i < 1000UL; ++i)
+    // {
+      // auto res = m_scene.AddItem("dancing.fbx");
+      // auto res = m_scene.AddItem("backpack.obj");
+    // }
   }
 
   void Engine::Render()
@@ -185,15 +191,12 @@ namespace avion::core::engine
 
   auto Engine::SaveSceneToJson() -> void
   {
-    serialization::SceneSerialization::Save(m_scene.Export());
+    auto result = m_scene.Export();
   }
 
   auto Engine::LoadSceneFromJson(const std::string& name) -> void
   {
-    m_scene.DeleteScene();
-    auto result = serialization::SceneSerialization::Load();
-
-    m_scene.Import(result);
+    auto result = m_scene.Import();
   }
 
 } // namespace avion::core

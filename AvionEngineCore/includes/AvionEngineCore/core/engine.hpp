@@ -17,8 +17,6 @@
   #include "AvionEngineCore/core/Common/EventQueue.hpp"
   #include "AvionEngineCore/core/ResourceManager/FileWatcher.hpp"
 
-  #include "AvionEngineCore/core/Serialization/SceneSerialization.hpp"
-
   #include <vector>
 
   namespace avion::core::engine

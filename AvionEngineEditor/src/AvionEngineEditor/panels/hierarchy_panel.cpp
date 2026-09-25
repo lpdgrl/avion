@@ -86,9 +86,7 @@ namespace avion::editor::panel
           selection_mask = selection_index;
           m_editor_ctx.selection_ctx.item.is_select = true;
           m_editor_ctx.selection_ctx.item.id = item->id;
-          // m_editor_ctx.selection_ctx.primitive.is_select = true;
-          // m_editor_ctx.selection_ctx.primitive.id = item.id;
-          // object.is_selectable = true;
+          AV_LOG_SCDEBUG(std::format("{}", item->id));
         }
       }
       selection_index++;

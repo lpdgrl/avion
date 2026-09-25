@@ -35,14 +35,14 @@
         using TextureType             = texturemanager::detail::TextureType;
         using PrimitiveType           = detail::PrimitiveType;
         using GpuBufferHandle         = std::uint32_t;
-        // using ModelHandleStorage      = std::unordered_map<FileName, ModelHandler>;
-        // using ModelStorage            = std::unordered_map<FileName, ModelPtr>;
 
         using Cache                   = std::unordered_map<FileName, ModelItem&>;
         using Storage                 = std::deque<ModelItem>; 
+
         using ResmanCallback          = std::function<FsPath*(std::string_view filename_model)>;  
         using TextureManagerCallback  = std::function<std::optional<TextureHandler>(const FsPath& path)>;
         using BackendCallback         = std::function<ModelHandler(CpuModelData& model_data)>;
+        
         using LoadModelResult         = std::optional<ModelItem>;
 
         struct ModelItem
@@ -95,7 +95,6 @@
         TextureManagerCallback  m_cb_texture;
         Storage                 m_storage;
         Cache                   m_cache;
-        // ModelHandleStorage      m_handle_storage;
         std::uint32_t           m_number_copy_models{};
     };
 

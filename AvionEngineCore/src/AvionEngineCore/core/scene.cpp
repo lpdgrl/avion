@@ -1,5 +1,5 @@
 #include "AvionEngineCore/core/scene.hpp"
-#include "AvionEngineCore/renderer/pipeline_queue.hpp"
+#include "AvionEngineCore/core/Serialization/SceneSerialization.hpp"
 
 namespace avion::core {  
   Scene::Scene(size_t number_objects, ModelManager& model_manager) 
@@ -148,7 +148,7 @@ namespace avion::core {
         std::move(model_item.gpu_buffer_handle), 
         std::move(model_item.model), 
         ++m_last_scene_item_id, 
-        ItemType::kObject
+        ItemType::kPrimitiveObject
       )
     );
 
@@ -190,15 +190,22 @@ namespace avion::core {
     return data;
   }
 
-  auto Scene::Export() const -> std::vector<EntitySerialize>
+  auto Scene::Export() const -> bool
   {
-    std::vector<EntitySerialize> entities;
-    // TODO: In future need add optimization
-    // entities.reserve()
+    serialization::detail::SceneSerialize scene_serialize;
 
+    auto&& entities = scene_serialize.entities;
+    std::vector<serialization::detail::DirLightSerialize> dir_light_entities;
+    std::vector<serialization::detail::PointLightSerialize> point_light_entities;
+    std::vector<serialization::detail::SpotLightSerialize> spot_light_entities;
+
+    point_light_entities.reserve(m_number_point_light);
+    spot_light_entities.reserve(m_number_spot_light);
+    entities.reserve(m_storage_items.size() - (m_number_point_light + m_number_spot_light));
+ 
     for (const auto& item : m_storage_items)
     {
-      if (item->item_type == ItemType::kObject)
+      if (item->item_type == ItemType::kObject || item->item_type == ItemType::kPrimitiveObject)
       {
         auto& transform = item->ptr_model->GetTransform();
         auto& material = item->ptr_model->GetMaterial();
@@ -229,44 +236,226 @@ namespace avion::core {
         };
         entities.push_back(entity);
       }
+
+      else if (item->item_type == ItemType::kSourceLight)
+      {
+        auto&& transform = item->ptr_model->GetTransform();
+        serialization::detail::Transform t
+        {
+          .position = {transform.position.x, transform.position.y, transform.position.z},
+          .rotation = {transform.rotation.x, transform.rotation.y, transform.rotation.z},
+          .size = {transform.size.x, transform.size.y, transform.size.z},
+          .rotate_value = transform.value_rotate,
+          .axis_rotate = static_cast<int>(transform.axis)
+        };
+
+        const auto* item_light = static_cast<LightItem*>(item.get());
+        std::string filename(detail::TypeObjectToString(item_light->light_type));
+        std::array<float, 3> ambient = item_light->light->GetAmbientArray();
+        std::array<float, 3> diffuse = item_light->light->GetDiffuseArray();
+        std::array<float, 3> specular = item_light->light->GetSpecularArray();
+
+        if (item_light->light_type == LightType::kDirLight)
+        {
+          const auto* dir_light = static_cast<DirLight*>(item_light->light.get());
+          auto direction = dir_light->GetDirection();
+          serialization::detail::DirLightSerialize entity
+          {
+            .transform = t,
+            .filename = filename,
+            .direction = {direction.x, direction.y, direction.z},
+            .ambient = ambient,
+            .diffuse = diffuse,
+            .specular = specular,
+            .type = static_cast<std::uint8_t>(item_light->light_type)
+          };
+          dir_light_entities.push_back(entity);
+        }
+
+        else if (item_light->light_type == LightType::kPointLight)
+        {
+          const auto& point = static_cast<PointLight*>(item_light->light.get());
+          auto position = point->GetGeometry();
+          serialization::detail::PointLightSerialize entity
+          {
+            .transform = t,
+            .filename = filename,
+            .position = {position.x, position.y, position.z},
+            .ambient = ambient,
+            .diffuse = diffuse,
+            .specular = specular,
+            .constant = point->GetConstant(),
+            .linear = point->GetLinear(),
+            .quadratic = point->GetQuadratic(),
+            .type = static_cast<std::uint8_t>(item_light->light_type)
+          };
+          point_light_entities.push_back(entity);
+        }
+
+        else if (item_light->light_type == LightType::kSpotLight)
+        {
+          const auto& spot = static_cast<SpotLight*>(item_light->light.get());
+          auto position = spot->GetPosition();
+          auto direction = spot->GetDirection();
+          serialization::detail::SpotLightSerialize entity
+          {
+            .transform = t,
+            .filename = filename,
+            .position = {position.x, position.y, position.z},
+            .direction = {direction.x, direction.y, direction.z},
+            .ambient = ambient,
+            .diffuse = diffuse,
+            .specular = specular,
+            .constant = spot->GetConstant(),
+            .linear = spot->GetLinear(),
+            .quadratic = spot->GetQuadratic(),
+            .cutoff = spot->GetCutOff(),
+            .outer_cutoff = spot->GetOuterCutOff(),
+            .type = static_cast<std::uint8_t>(item_light->light_type)
+          };
+          spot_light_entities.push_back(entity);
+        }
+      }
     }
-    return entities;
+    scene_serialize.dir_light_entities = std::move(dir_light_entities);
+    scene_serialize.point_light_entities = std::move(point_light_entities);
+    scene_serialize.spot_light_entities = std::move(spot_light_entities);
+
+    serialization::SceneSerialization::Save(scene_serialize);
+    return true;
   }
 
-  auto Scene::Import(const std::vector<EntitySerialize>& entities) noexcept -> void
+  auto Scene::Import() noexcept -> bool
   {
-    if (entities.empty())
+    DeleteScene();
+
+    auto scene = serialization::SceneSerialization::Load();
+    auto&& entities = scene.entities;
+    auto&& dir_light_entities = scene.dir_light_entities;
+    auto&& point_light_entities = scene.point_light_entities;
+    auto&& spot_light_entities = scene.spot_light_entities;
+
+    auto transform_lambda = [](gfx::Transform& lhs, const serialization::detail::Transform& rhs)
     {
-      AV_LOG_ERROR("Scene::Import(const std::vector<EntitySerialize>& entities): vector of entities is empty!");
-      return;
-    }
+      lhs.position.x = rhs.position[0];
+      lhs.position.y = rhs.position[1];
+      lhs.position.z = rhs.position[2];
+
+      lhs.rotation.x = rhs.rotation[0];
+      lhs.rotation.y = rhs.rotation[1];
+      lhs.rotation.z = rhs.rotation[2];
+
+      lhs.size.x = rhs.size[0];
+      lhs.size.y = rhs.size[1];
+      lhs.size.z = rhs.size[2];
+
+      lhs.value_rotate = rhs.rotate_value;
+      lhs.axis = static_cast<gfx::AxisRotate>(rhs.axis_rotate);
+    };
+
+    auto array_to_vec3_light = [](const std::array<float, 3>& rhs) -> glm::vec3
+    {
+      return {rhs[0], rhs[1], rhs[2]};
+    };
+
+    auto array_to_vec3_pos = [](const std::array<float, 3>& rhs) -> glm::vec3
+    {
+      return {rhs[0], rhs[1], rhs[2]};
+    };
 
     for (const auto& entity : entities)
     {
-      AddItem(entity.filename_model);
+      if (static_cast<ItemType>(entity.type) == ItemType::kObject)
+      {
+        auto result = AddItem(entity.filename_model);
+      }
+      // else if (static_cast<ItemType>(entity.type) == ItemType::kPrimitiveObject)
+      // {
+      //   AddItem(static_cast<ItemType>(entity.type));
+      // }
+      
       auto& added_item = m_storage_items.back();
       auto&& transform = added_item->ptr_model->GetTransform();
       auto&& material = added_item->ptr_model->GetMaterial();
-      transform.position.x = entity.transform.position[0];
-      transform.position.y = entity.transform.position[1];
-      transform.position.z = entity.transform.position[2];
 
-      transform.rotation.x = entity.transform.rotation[0];
-      transform.rotation.y = entity.transform.rotation[1];
-      transform.rotation.z = entity.transform.rotation[2];
-
-      transform.size.x = entity.transform.size[0];
-      transform.size.y = entity.transform.size[1];
-      transform.size.z = entity.transform.size[2];
-
-      transform.value_rotate = entity.transform.rotate_value;
-      transform.axis = static_cast<gfx::AxisRotate>(entity.transform.axis_rotate);
+      transform_lambda(transform, entity.transform);
 
       material.shininess = entity.material.shininess;
       material.color.r = entity.material.color.red;
       material.color.g = entity.material.color.green;
       material.color.b = entity.material.color.blue;
     }
+
+    // TODO: Work is terrible with items light!!!!!!!!
+    if (dir_light_entities.has_value())
+    {
+      const auto& dir_lights = dir_light_entities.value();
+      for (const auto& light_ser : dir_lights)
+      {
+        auto result = AddItem(static_cast<LightType>(light_ser.type));
+
+        
+        auto* last_light = static_cast<LightItem*>(m_storage_items.back().get());
+        auto& transform = last_light->ptr_model->GetTransform();
+
+        transform_lambda(transform, light_ser.transform);
+        last_light->light->SetAmbient(array_to_vec3_light(light_ser.ambient));
+        last_light->light->SetDiffuse(array_to_vec3_light(light_ser.diffuse));
+        last_light->light->SetSpecular(array_to_vec3_light(light_ser.specular));
+        auto* dir_light = static_cast<DirLight*>(last_light->light.get());
+
+        dir_light->SetDirection(array_to_vec3_pos(light_ser.direction));
+      }
+    }
+
+    if (point_light_entities.has_value())
+    {
+      const auto& point_lights = point_light_entities.value();
+      for (const auto& light_ser : point_lights)
+      {
+        auto result = AddItem(static_cast<LightType>(light_ser.type));
+        auto* last_light = static_cast<LightItem*>(m_storage_items.back().get());
+        auto& transform = last_light->ptr_model->GetTransform();
+
+        transform_lambda(transform, light_ser.transform);
+        last_light->light->SetAmbient(array_to_vec3_light(light_ser.ambient));
+        last_light->light->SetDiffuse(array_to_vec3_light(light_ser.diffuse));
+        last_light->light->SetSpecular(array_to_vec3_light(light_ser.specular));
+        auto* point = static_cast<PointLight*>(last_light->light.get());
+
+        point->SetPosition(array_to_vec3_pos(light_ser.position));
+        point->SetConstant(light_ser.constant);
+        point->SetLinear(light_ser.linear);
+        point->SetQuadratic(light_ser.quadratic);
+      }
+    }
+
+    if (spot_light_entities.has_value())
+    {
+      const auto& spot_lights = spot_light_entities.value();
+      for (const auto& serialize : spot_lights)
+      {
+        auto result = AddItem(static_cast<LightType>(serialize.type));
+        auto* last_light = static_cast<LightItem*>(m_storage_items.back().get());
+        auto& transform = last_light->ptr_model->GetTransform();
+
+        transform_lambda(transform, serialize.transform);
+        last_light->light->SetAmbient(array_to_vec3_light(serialize.ambient));
+        last_light->light->SetDiffuse(array_to_vec3_light(serialize.diffuse));
+        last_light->light->SetSpecular(array_to_vec3_light(serialize.specular));
+        auto* spot = static_cast<SpotLight*>(last_light->light.get());
+
+        spot->SetPosition(array_to_vec3_pos(serialize.position));
+        spot->SetDirection(array_to_vec3_pos(serialize.direction));
+        spot->SetConstant(serialize.constant);
+        spot->SetLinear(serialize.linear);
+        spot->SetQuadratic(serialize.quadratic);
+        spot->SetCutOff(serialize.cutoff);
+        spot->SetOuterCutOff(serialize.outer_cutoff);
+      }
+    }
+
+    return true;
   }
 
   auto Scene::DeleteItem(std::uint32_t id) noexcept -> bool
@@ -287,10 +476,9 @@ namespace avion::core {
       m_storage_items.erase(it_item);
 
       // Delete item from cache
-      if (item_type == ItemType::kObject)
+      if (item_type == ItemType::kObject || item_type == ItemType::kPrimitiveObject)
       {
         m_cache_items.erase(id);
-        m_last_scene_item_id--;
       }
       // Delete light item from cache
       else if (item_type == ItemType::kSourceLight)
@@ -304,9 +492,8 @@ namespace avion::core {
         if (it_light_item != m_cache_light_items.end())
         {
           m_cache_light_items.erase(it_light_item);
-          m_number_point_light = 0;
-          m_number_spot_light = 0;
-          m_last_scene_item_id--;
+          m_number_point_light--;
+          m_number_spot_light--;
         }
       }
       AV_LOG_INFO(std::format("Scene::DeleteItem(std::uint32_t id): The item with id = {} is deleted", id));
@@ -320,6 +507,9 @@ namespace avion::core {
   {
     // TODO: Is it good?
     m_last_scene_item_id = 0;
+    m_number_point_light = 0;
+    m_number_spot_light  = 0;
+
     m_storage_items.clear();
     m_cache_items.clear();
     m_cache_light_items.clear();

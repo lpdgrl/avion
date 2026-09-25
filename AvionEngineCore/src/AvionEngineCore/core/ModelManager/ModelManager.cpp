@@ -104,6 +104,7 @@ namespace avion::core::modelmanager
     if (Contains(filename))
     {
       AV_LOG_INFO("ModelManager::Load(PrimitiveType type): model " + filename + " already loaded");
+      // TODO: is needs std::move here? Is NRVO(RVO) not broken?
       model_load_result = std::move(CreateModelCopy(filename));
       return model_load_result;
     }

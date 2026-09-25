@@ -2,6 +2,8 @@
 #define AVION_CORE_SERIALIZATION_ENTITY_SERIALIZE_H 1
 
 #include <cstdint>
+#include <optional>
+#include <vector>
 
 namespace avion::core::serialization::detail
 {
@@ -36,6 +38,68 @@ namespace avion::core::serialization::detail
 
     std::string filename_model;
     std::uint8_t type{};
+  };
+
+  struct DirLightSerialize
+  {
+    Transform transform;
+
+    std::string filename;
+
+    std::array<float, 3> direction;
+    std::array<float, 3> ambient;
+    std::array<float, 3> diffuse;
+    std::array<float, 3> specular;
+    
+    std::uint8_t type{};
+  };
+
+  struct PointLightSerialize
+  {
+    Transform transform;
+
+    std::string filename;
+
+    std::array<float, 3> position;
+    std::array<float, 3> ambient;
+    std::array<float, 3> diffuse;
+    std::array<float, 3> specular;
+
+    float constant{};
+    float linear{};
+    float quadratic{};
+
+    std::uint8_t type{};
+  };
+
+  struct SpotLightSerialize
+  {
+    Transform transform;
+
+    std::string filename;
+
+
+    std::array<float, 3> position;
+    std::array<float, 3> direction;
+    std::array<float, 3> ambient;
+    std::array<float, 3> diffuse;
+    std::array<float, 3> specular;
+
+    float constant{};
+    float linear{};
+    float quadratic{};
+    float cutoff{};
+    float outer_cutoff;
+
+    std::uint8_t type{};
+  };
+
+  struct SceneSerialize
+  {
+    std::vector<EntitySerialize>                    entities;
+    std::optional<std::vector<DirLightSerialize>>   dir_light_entities;
+    std::optional<std::vector<PointLightSerialize>> point_light_entities;
+    std::optional<std::vector<SpotLightSerialize>>  spot_light_entities;
   };
 
 } // namespace avion::core::serialization::detail

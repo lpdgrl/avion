@@ -20,8 +20,8 @@ namespace avion::core::serialization
   class SceneSerialization
   {
     public:
-      static auto Save(std::vector<detail::EntitySerialize> entities) -> void; 
-      static auto Load(const std::string& filename = "scene.json") -> std::vector<detail::EntitySerialize>;
+      static auto Save(const detail::SceneSerialize& scene) -> void; 
+      static auto Load(const std::string& filename = "scene.json") -> detail::SceneSerialize;
     protected:
 
     private:

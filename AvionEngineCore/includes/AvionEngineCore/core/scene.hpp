@@ -55,8 +55,8 @@ namespace avion::core {
     auto DeleteScene() noexcept -> void;
     auto DeleteItem(std::uint32_t id) noexcept -> bool;
     
-    auto Import(const std::vector<EntitySerialize>& entities) noexcept -> void;
-    auto Export() const -> std::vector<EntitySerialize>;
+    [[nodiscard]] auto Import() noexcept -> bool;
+    [[nodiscard]] auto Export() const -> bool;
 
     SceneItems& GetSceneItems();
     const SceneItems&  GetSceneItems() const noexcept;

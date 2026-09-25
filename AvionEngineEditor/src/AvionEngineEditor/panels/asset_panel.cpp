@@ -53,7 +53,7 @@ namespace avion::editor::panel
 
       if (index_select != -1)
       {
-        m_context.engine.GetScene().AddItem(model[index_select]);
+        auto res = m_context.engine.GetScene().AddItem(model[index_select]);
         index_select = -1;
       }
     }

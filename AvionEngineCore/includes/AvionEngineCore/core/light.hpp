@@ -4,6 +4,7 @@
   #include "../../glm/glm.hpp"
   #include "AvionEngineCore/core/object.hpp"
 
+  #include <array>
   #include <memory>
 
   namespace avion::core  {
@@ -38,6 +39,10 @@
           glm::vec3 GetAmbient() const;
           glm::vec3 GetDiffuse() const;
           glm::vec3 GetSpecular() const;
+
+          std::array<float, 3> GetAmbientArray() const;
+          std::array<float, 3> GetDiffuseArray() const;
+          std::array<float, 3> GetSpecularArray() const;
           
           glm::vec3& GetGeometry();
 
@@ -52,6 +57,10 @@
           virtual glm::vec3 GetAmbientImpl() const = 0;
           virtual glm::vec3 GetDiffuseImpl() const = 0;
           virtual glm::vec3 GetSpecularImpl() const = 0;
+
+          virtual std::array<float, 3> GetAmbientArrayImpl() const = 0;
+          virtual std::array<float, 3> GetDiffuseArrayImpl() const = 0;
+          virtual std::array<float, 3> GetSpecularArrayImpl() const = 0;
 
           virtual void SetAmbientImpl(glm::vec3 ambient) = 0;
           virtual void SetDiffuseImpl(glm::vec3 diffuse) = 0;
@@ -71,6 +80,10 @@
           glm::vec3 GetAmbientImpl() const override; 
           glm::vec3 GetDiffuseImpl() const override;
           glm::vec3 GetSpecularImpl() const override;
+
+          std::array<float, 3> GetAmbientArrayImpl() const override;
+          std::array<float, 3> GetDiffuseArrayImpl() const override;
+          std::array<float, 3> GetSpecularArrayImpl() const override;
           
           void SetAmbientImpl(glm::vec3 ambient) override;
           void SetDiffuseImpl(glm::vec3 diffuse) override;
@@ -111,6 +124,10 @@
           void SetAmbientImpl(glm::vec3 ambient) override;
           void SetDiffuseImpl(glm::vec3 diffuse) override;
           void SetSpecularImpl(glm::vec3 specular) override;
+
+          std::array<float, 3> GetAmbientArrayImpl() const override;
+          std::array<float, 3> GetDiffuseArrayImpl() const override;
+          std::array<float, 3> GetSpecularArrayImpl() const override;
 
           void SetParamsImpl() override;
 

@@ -24,6 +24,7 @@
       kObject       = 1,
       kSourceLight  = 2,
       kCamera       = 3,
+      kPrimitiveObject = 4,
     };
 
     struct ISceneItem 

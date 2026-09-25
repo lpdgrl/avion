@@ -33,6 +33,21 @@ namespace avion::core {
       return GetGeometryImpl();
   }
 
+  std::array<float, 3> ILight::GetAmbientArray() const
+  {
+    return GetAmbientArrayImpl();
+  }
+
+  std::array<float, 3> ILight::GetDiffuseArray() const
+  {
+    return GetDiffuseArrayImpl();
+  }
+
+  std::array<float, 3> ILight::GetSpecularArray() const
+  {
+    return GetSpecularArrayImpl();
+  }
+
   DirLight::DirLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular)
   : direction_(direction)
   , ambient_(ambient)
@@ -80,6 +95,21 @@ namespace avion::core {
 
   glm::vec3 DirLight::GetDirection() const noexcept {
       return direction_;
+  }
+
+  std::array<float, 3> DirLight::GetAmbientArrayImpl() const
+  {
+    return {ambient_.r, ambient_.g, ambient_.b};
+  }
+
+  std::array<float, 3> DirLight::GetDiffuseArrayImpl() const
+  {
+    return {diffuse_.r, diffuse_.g, diffuse_.b};
+  }
+
+  std::array<float, 3> DirLight::GetSpecularArrayImpl() const
+  {
+    return {specular_.r, specular_.g, specular_.b};
   }
 
   DirLight::~DirLight() 
@@ -162,6 +192,21 @@ namespace avion::core {
 
   float PointLight::GetQuadratic() const noexcept {
       return m_quadratic;
+  }
+
+  std::array<float, 3> PointLight::GetAmbientArrayImpl() const
+  {
+    return {m_ambient.r, m_ambient.g, m_ambient.b};
+  }
+
+  std::array<float, 3> PointLight::GetDiffuseArrayImpl() const
+  {
+    return {m_diffuse.r, m_diffuse.g, m_diffuse.b};
+  }
+
+  std::array<float, 3> PointLight::GetSpecularArrayImpl() const
+  {
+    return {m_specular.r, m_specular.g, m_specular.b};
   }
 
   PointLight::~PointLight() 
