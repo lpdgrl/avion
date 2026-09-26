@@ -107,18 +107,33 @@ namespace avion::gfx {
           renderable_item.render_item_option |= g_MaskRenderOption &
             static_cast<std::uint8_t>(RenderOption::kTextureMaterial);
 
-          if (material.diffuse_texture.size() > 0)
+          if (material.material_diffuse_override.has_value())
           {
-            renderable_item.diffuse_range = {material.diffuse_texture.data(), material.diffuse_texture.size()};
+            auto& mat = material.material_diffuse_override.value();
+            renderable_item.material_diffuse_override = mat;
+            renderable_item.is_material_override = true;
+            if (material.material_specular_override.has_value())
+            {
+              auto& mat = material.material_specular_override.value();
+              renderable_item.material_specular_override = mat;
+              renderable_item.is_material_override = true;
+            }
           }
-          if (material.specular_texture.size() > 0)
+          else 
           {
-            renderable_item.specular_range = {material.specular_texture.data(), material.specular_texture.size()};
-          }
-          if (material.opacity == core::material::Transparency::kSemiTransparency)
-          {
-            renderable_item.render_item_option |= g_MaskRenderOption &
-              static_cast<std::uint8_t>(RenderOption::kSemiTransparency);
+            if (material.diffuse_texture.size() > 0)
+            {
+              renderable_item.diffuse_range = {material.diffuse_texture.data(), material.diffuse_texture.size()};
+            }
+            if (material.specular_texture.size() > 0)
+            {
+              renderable_item.specular_range = {material.specular_texture.data(), material.specular_texture.size()};
+            }
+            if (material.opacity == core::material::Transparency::kSemiTransparency)
+            {
+              renderable_item.render_item_option |= g_MaskRenderOption &
+                static_cast<std::uint8_t>(RenderOption::kSemiTransparency);
+            }
           }
         }
         else

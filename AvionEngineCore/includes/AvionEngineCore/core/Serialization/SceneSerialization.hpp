@@ -21,7 +21,7 @@ namespace avion::core::serialization
   {
     public:
       static auto Save(const detail::SceneSerialize& scene) -> void; 
-      static auto Load(const std::string& filename = "scene.json") -> detail::SceneSerialize;
+      static auto Load(const std::string& filename = "scene1.json") -> detail::SceneSerialize;
     protected:
 
     private:

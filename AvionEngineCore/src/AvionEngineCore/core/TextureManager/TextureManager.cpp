@@ -34,7 +34,8 @@ namespace avion::core::texturemanager
     assert(result.has_value() && "TextureManager::Load: backend isn't created opengl texture");
     p_texture->SetUploadOpenGL();
 
-    m_texture_storage.try_emplace(filename.filename().c_str(), result.value().id, p_texture);
+    auto [it, result_emplace] = m_texture_storage.try_emplace(filename.filename().c_str(), result.value().id, p_texture);
+    m_texture_cache.try_emplace(result.value().id, result.value().id, it->second.item);
 
     return result;
   }
@@ -61,6 +62,19 @@ namespace avion::core::texturemanager
     auto it = m_texture_storage.find(filename);
 
     if (it == m_texture_storage.end())
+    {
+      return std::nullopt;
+    }
+
+    result = it->second;
+    return result;
+  }
+
+  auto TextureManager::Get(TextureId id) const noexcept -> std::optional<TextureItem>
+  {
+    std::optional<TextureItem> result;
+    auto it = m_texture_cache.find(id);
+    if (it == m_texture_cache.end())
     {
       return std::nullopt;
     }

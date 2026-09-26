@@ -50,6 +50,11 @@ namespace avion::core::resman
 
   std::optional<Texture*> ResourceManager::CreateAndLoadTexture(const std::string& filename, const FsPath& path)
   {
+    if (filename.empty())
+    {
+      AV_LOG_ERROR("ResourceManager:: filename is empty!!");
+      return std::nullopt;
+    }
     if (auto it = m_resources.find(filename); it != m_resources.cend())
     {
       AV_LOG_INFO("ResourceManager::CreateAndLoadTexture: texture " + filename + " is exists!");

@@ -24,16 +24,16 @@
         using TextureHandler    = detail::TextureHandler;
         using LoadTextureResult = std::optional<TextureHandler>;
         using TextureData       = detail::TextureData;
+        using TextureId         = std::uint32_t;
 
         struct TextureItem
         {
-          using TextureId = std::uint32_t;
-
           TextureId id;
           Texture* item = nullptr;
         };
 
         using TextureStorage = std::unordered_map<FileName, TextureItem>;
+        using TextureCache   = std::unordered_map<TextureId, TextureItem>;
         
         using ResmanCallback  = std::function<std::optional<Texture*>(const FsPath& path)>;  
         using BackendCallback = std::function<TextureHandler(const TextureData& data)>;
@@ -53,6 +53,7 @@
         
         bool Contains(const std::string& filename) const noexcept;
         std::optional<TextureItem> Get(const std::string& filename) noexcept;
+        auto Get(TextureId id) const noexcept -> std::optional<TextureItem>;
 
         void SetResmanCallback(ResmanCallback callback);
         void SetBackendCallback(BackendCallback callback);
@@ -62,6 +63,7 @@
         ResmanCallback m_cb_resman;
         BackendCallback m_cb_backend;
         TextureStorage m_texture_storage;
+        TextureCache m_texture_cache;
     };
   } // namespace avion::core::texturemanager
 

@@ -5,7 +5,7 @@ namespace avion::core::engine
 {
   Engine::Engine()
   : m_resman(std::make_unique<ResManager>(std::filesystem::canonical("/proc/self/exe").c_str()))
-  , m_scene(kObjectsCreate, m_model_manager)
+  , m_scene(kObjectsCreate, m_model_manager, m_texture_manager)
   , m_scene_renderer(std::make_unique<SceneRenderer>(m_scene, *m_resman.get()))
   , m_window(std::make_unique<Window>("Sandbox", 1920, 1080, m_profiler, m_scene.GetCameraProxy()))
   , m_backend(std::make_unique<Backend>(RenderAPI::kOpengl, *m_resman.get(), m_profiler.render_state.render_stat))

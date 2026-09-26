@@ -232,42 +232,25 @@ namespace avion::editor::panel
       if (texture_manager.Contains(textures[index_selected_texture]))
       {
         auto texture_item = texture_manager.Get(textures[index_selected_texture]).value();
-        if (material.diffuse_texture.size() > 0)
-        {
-         material.diffuse_texture[0] = {core::texturemanager::detail::TextureType::kDiffuse, texture_item.id};
-          return index_selected_texture;
-        }
-        material.diffuse_texture.emplace_back(core::texturemanager::detail::TextureType::kDiffuse, texture_item.id);
+        // TODO: Pontetial leak texture ptr
+        material.material_diffuse_override = {core::texturemanager::detail::TextureType::kDiffuse, texture_item.id};
         return index_selected_texture;
       }
+
       auto result = texture_manager.Load(textures[index_selected_texture]).value();
-      if (material.diffuse_texture.size() > 0)
-      {
-        material.diffuse_texture[0] = {core::texturemanager::detail::TextureType::kDiffuse, result.id};
-        return index_selected_texture;
-      }
-        material.diffuse_texture.emplace_back(core::texturemanager::detail::TextureType::kDiffuse, result.id);
+      material.material_diffuse_override = {core::texturemanager::detail::TextureType::kDiffuse, result.id};
     }
     else if (label == "specular")
     {
       if (texture_manager.Contains(textures[index_selected_texture]))
       {
         auto texture_item = texture_manager.Get(textures[index_selected_texture]).value();
-        if (material.specular_texture.size() > 0)
-        {
-         material.specular_texture[0] = {core::texturemanager::detail::TextureType::kSpecular, texture_item.id};
-          return index_selected_texture;
-        }
-        material.specular_texture.emplace_back(core::texturemanager::detail::TextureType::kSpecular, texture_item.id);
+        material.material_specular_override = {core::texturemanager::detail::TextureType::kSpecular, texture_item.id};
         return index_selected_texture;
       }
+
       auto result = texture_manager.Load(textures[index_selected_texture]).value();
-      if (material.specular_texture.size() > 0)
-      {
-        material.specular_texture[0] = {core::texturemanager::detail::TextureType::kSpecular, result.id};
-        return index_selected_texture;
-      }
-        material.specular_texture.emplace_back(core::texturemanager::detail::TextureType::kSpecular, result.id);
+      material.material_specular_override = {core::texturemanager::detail::TextureType::kSpecular, result.id};
     }
     return index_selected_texture;
   }

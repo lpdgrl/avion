@@ -77,6 +77,10 @@
       MaterialRange diffuse_range;
       MaterialRange specular_range;
 
+      bool is_material_override{};
+      TextureHandler material_diffuse_override;
+      TextureHandler material_specular_override;
+
       LightSrcRenderable light_src_renderable;
       RenderState render_state;
 

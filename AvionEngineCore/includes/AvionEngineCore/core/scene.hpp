@@ -27,6 +27,7 @@ namespace avion::core {
   class Scene {
   public:
     using ModelManager  = modelmanager::ModelManager;
+    using TextureManager = texturemanager::TextureManager;
     using SceneItems    = std::deque<std::unique_ptr<ISceneItem>>;
     using CacheItems    = std::unordered_map<std::uint32_t, ISceneItem&>;
     using CacheLightItems = std::vector<LightItem*>;
@@ -38,7 +39,7 @@ namespace avion::core {
     using EntitySerialize = serialization::detail::EntitySerialize;
 
     Scene() = default;
-    explicit Scene(size_t number_object, ModelManager& model_manager);
+    explicit Scene(size_t number_object, ModelManager& model_manager, TextureManager& texture_manager);
 
     Scene(const Scene& scene) = delete;
     Scene(Scene&& scene) = delete;
@@ -91,6 +92,7 @@ namespace avion::core {
 
   private:
     ModelManager& m_model_manager;
+    TextureManager& m_texture_manager;
     SceneItems    m_storage_items;
     CacheItems    m_cache_items;
     CacheLightItems m_cache_light_items; 

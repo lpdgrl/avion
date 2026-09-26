@@ -35,6 +35,7 @@
         using RenderState         = backend::detail::RenderState;
         using MeshData            = backend::detail::MeshData;
         using MaterialRange       = backend::detail::RenderItem::MaterialRange;
+        using TextureHandler      = core::texturemanager::detail::TextureHandler;
         using TextureType         = core::texturemanager::detail::TextureType;
         using ShaderStorage       = gfx::ShaderStorage;
         using BufferId            = std::uint32_t;
@@ -82,8 +83,11 @@
         void ApplyColorState()    const noexcept;
 
         void SubmitProjectionMatrixToShader() const noexcept;
+
         void BindTexture2D(const MaterialRange& range, int& number) const noexcept;
+        auto BindTexture2D(const TextureHandler handler, int& num_texture) const noexcept -> void;
         void UnBindTexture2D(const MaterialRange& range) const noexcept;
+        auto UnBindTexture2D(const TextureHandler handler) const noexcept -> void;
 
       private:
         DepthState    m_depth_state;

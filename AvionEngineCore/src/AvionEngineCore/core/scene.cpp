@@ -2,8 +2,9 @@
 #include "AvionEngineCore/core/Serialization/SceneSerialization.hpp"
 
 namespace avion::core {  
-  Scene::Scene(size_t number_objects, ModelManager& model_manager) 
+  Scene::Scene(size_t number_objects, ModelManager& model_manager, TextureManager& texture_manager) 
   : m_model_manager(model_manager)
+  , m_texture_manager(texture_manager)
   , m_camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f))
   {
   }
@@ -210,6 +211,28 @@ namespace avion::core {
         auto& transform = item->ptr_model->GetTransform();
         auto& material = item->ptr_model->GetMaterial();
 
+        std::optional<std::string> diffuse_texture;
+        std::optional<std::string> specular_texture;
+
+        if (material.material_diffuse_override.has_value())
+        {
+          auto id = material.material_diffuse_override.value().id;
+          auto texture = m_texture_manager.Get(id);
+          if (texture.has_value())
+          {
+            diffuse_texture = texture.value().item->GetPath();
+          }
+        }
+        if (material.material_specular_override.has_value())
+        {
+          auto id = material.material_specular_override.value().id;
+          auto texture = m_texture_manager.Get(id);
+          if (texture.has_value())
+          {
+            specular_texture = texture.value().item->GetPath();
+          }
+        }
+
         EntitySerialize entity
         {
           .transform
@@ -228,6 +251,8 @@ namespace avion::core {
               .green = material.color.g,
               .blue = material.color.b,
             },
+            .diffuse_texture = diffuse_texture,
+            .specular_texture = specular_texture,
             .shininess = material.shininess,
             .material_type = static_cast<std::uint8_t>(material.type)
           },
@@ -365,9 +390,10 @@ namespace avion::core {
 
     for (const auto& entity : entities)
     {
+      bool result_add_item{};
       if (static_cast<ItemType>(entity.type) == ItemType::kObject)
       {
-        auto result = AddItem(entity.filename_model);
+        result_add_item = AddItem(entity.filename_model);
       }
       else if (static_cast<ItemType>(entity.type) == ItemType::kPrimitiveObject)
       {
@@ -385,12 +411,38 @@ namespace avion::core {
         {
           type = PrimitiveType::kPlane;
         }
-        auto result = AddItem(type);
+        result_add_item = AddItem(type);
       }
       
+      if (!result_add_item) 
+      {
+        AV_LOG_ERROR(std::format("{} isn't loaded to scene from json!", entity.filename_model));
+        return false;
+      }
+
       auto& added_item = m_storage_items.back();
       auto&& transform = added_item->ptr_model->GetTransform();
       auto&& material = added_item->ptr_model->GetMaterial();
+
+      if (entity.material.diffuse_texture.has_value())
+      {
+        auto&& mat = entity.material.diffuse_texture.value();
+        auto result = m_texture_manager.Load(mat);
+        if (result.has_value())
+        {
+          material.material_diffuse_override  = result.value();
+        }
+      }
+
+      if (entity.material.specular_texture.has_value())
+      {
+        auto&& mat = entity.material.specular_texture.value();
+        auto result = m_texture_manager.Load(mat);
+        if (result.has_value())
+        {
+          material.material_specular_override  = result.value();
+        }
+      }
 
       transform_lambda(transform, entity.transform);
 
@@ -398,6 +450,7 @@ namespace avion::core {
       material.color.r = entity.material.color.red;
       material.color.g = entity.material.color.green;
       material.color.b = entity.material.color.blue;
+      material.type = static_cast<material::MaterialType>(entity.material.material_type);
     }
 
     // TODO: Work is terrible with items light!!!!!!!!

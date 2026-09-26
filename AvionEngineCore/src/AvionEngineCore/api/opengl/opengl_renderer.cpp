@@ -89,6 +89,9 @@ namespace avion::api::backend::opengl
     auto&& render_state   = item.render_state;
     auto&& has_animation  = item.has_animation;
     auto&& final_bones_matrices = item.final_bones_matrices;
+    auto&& is_material_override = item.is_material_override;
+    auto&& material_diffuse_override = item.material_diffuse_override;
+    auto&& material_specular_override = item.material_specular_override;
 
     m_shader_storage.PutData(shader, "material.fl_shininess", light_src.shininess);
 
@@ -156,6 +159,7 @@ namespace avion::api::backend::opengl
     m_shader_storage.PutData(shader, "view_pos", view_position);
     m_shader_storage.PutData(shader, "model", model_matrix);
     m_shader_storage.PutData(shader, "has_animation", (has_animation ? true : false));
+
     if (has_animation)
     {
       for (int i = 0; i < final_bones_matrices.size(); ++i)
@@ -166,15 +170,30 @@ namespace avion::api::backend::opengl
     if (render_option & static_cast<std::uint8_t>(RenderOption::kTextureMaterial))
     { 
       int num_tex_unit = 0;
-      if (!diffuse_range.empty())
+      if (is_material_override)
       {
-        BindTexture2D(diffuse_range, num_tex_unit);
+        if (material_diffuse_override.id > 0)
+        {
+          BindTexture2D(material_diffuse_override, num_tex_unit);
+        }
+        if (material_specular_override.id > 0)
+        {
+          BindTexture2D(material_specular_override, num_tex_unit);
+        }
       }
-      
-      if (!specular_range.empty())
+      else 
       {
-        BindTexture2D(specular_range, num_tex_unit);
+        if (!diffuse_range.empty())
+        {
+          BindTexture2D(diffuse_range, num_tex_unit);
+        }
+        
+        if (!specular_range.empty())
+        {
+          BindTexture2D(specular_range, num_tex_unit);
+        }
       }
+
     }
     m_shader_storage.UseShader(shader);
 
@@ -199,8 +218,16 @@ namespace avion::api::backend::opengl
 
     if (render_option & static_cast<std::uint8_t>(RenderOption::kTextureMaterial))
     {
-      UnBindTexture2D(diffuse_range);
-      UnBindTexture2D(specular_range);
+      if (is_material_override)
+      {
+        UnBindTexture2D(material_diffuse_override);
+        UnBindTexture2D(material_diffuse_override);
+      }
+      else 
+      {
+        UnBindTexture2D(diffuse_range);
+        UnBindTexture2D(specular_range);
+      }
     }
 
     glBindVertexArray(0);
@@ -240,6 +267,33 @@ namespace avion::api::backend::opengl
       m_texture2d_storage.find(material.id)->second.Bind();
       shader_num_texture++;
     }
+  }
+
+  auto OpenglRenderer::BindTexture2D(const TextureHandler handler, int& num_texture) const noexcept -> void
+  {
+    std::string name_texture("material.");
+    switch(handler.type)
+    {
+      case TextureType::kDiffuse:
+      {
+        name_texture.append("diffuse1");
+        break;
+      }
+      case TextureType::kSpecular:
+      {
+        name_texture.append("specular1");
+        break;
+      }
+    }
+
+    glActiveTexture(GL_TEXTURE0 + num_texture);
+    m_shader_storage.PutData("model", name_texture, num_texture++);
+    m_texture2d_storage.find(handler.id)->second.Bind();
+  }
+
+  auto OpenglRenderer::UnBindTexture2D(const TextureHandler handler) const noexcept -> void
+  {
+    m_texture2d_storage.find(handler.id)->second.UnBind();
   }
 
   void OpenglRenderer::UnBindTexture2D(const MaterialRange& range) const noexcept

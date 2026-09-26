@@ -2,6 +2,7 @@
 #define AVION_CORE_MATERIAL_H 1
 
   #include <vector>
+  #include <optional>
 
   #include "glm/glm.hpp"
   
@@ -69,6 +70,9 @@
       std::vector<TextureHandler> specular_texture;
       std::vector<TextureHandler> emission_texture;
       
+      std::optional<TextureHandler> material_diffuse_override;
+      std::optional<TextureHandler> material_specular_override;
+
       // for regular model
       glm::vec3 color{0.729f, 0.729f, 0.729f};
 
@@ -78,7 +82,7 @@
       // glm::vec3 specular{};
 
       float shininess{};
-
+      
       MaterialType type = MaterialType::kUnSpecified;
       Transparency opacity = Transparency::kOpaque;
     };

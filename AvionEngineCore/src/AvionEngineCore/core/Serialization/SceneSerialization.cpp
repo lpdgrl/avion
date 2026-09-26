@@ -8,7 +8,7 @@ namespace avion::core::serialization
     // TODO: Check error by when write json
     auto ec = glz::write_json(scene, json);
     AV_LOG_SCDEBUG(std::format("SceneSerialization::Save: {}", json));
-    filesystem::FileReader::WriteFile("scene.json", json);
+    filesystem::FileReader::WriteFile("scene1.json", json);
   }
 
   auto SceneSerialization::Load(const std::string& filename) -> detail::SceneSerialize

@@ -37,7 +37,7 @@ namespace avion::core::filesystem
     file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
     try 
     {
-      file.open(path / name, std::ios::app);
+      file.open(path / name, std::ios::ate);
       if (!file.is_open())
       {
         AV_LOG_ERROR(std::format("FileReader::WriteFile: File {} isn't open", name));

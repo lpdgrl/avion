@@ -27,6 +27,9 @@ namespace avion::core::serialization::detail
   struct Material
   {
     Color color;
+    std::optional<std::string> diffuse_texture;
+    std::optional<std::string> specular_texture;
+    
     float shininess{};
     std::uint8_t material_type{};
   };
