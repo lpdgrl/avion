@@ -111,6 +111,10 @@ Core-функционал собирается в динамическую би�
 
 ## Demo
 
+### Animation of models
+
+<img src="./img/animation.gif>
+
 <img src="./img/demo.gif"/>
 
 <img src="./img/avion_2026.png"/>
