@@ -369,10 +369,24 @@ namespace avion::core {
       {
         auto result = AddItem(entity.filename_model);
       }
-      // else if (static_cast<ItemType>(entity.type) == ItemType::kPrimitiveObject)
-      // {
-      //   AddItem(static_cast<ItemType>(entity.type));
-      // }
+      else if (static_cast<ItemType>(entity.type) == ItemType::kPrimitiveObject)
+      {
+        // TODO: This is temporary way!!!
+        PrimitiveType type;
+        if (entity.filename_model == "cube")
+        {
+          type = PrimitiveType::kCube;
+        }
+        else if (entity.filename_model == "pyramid")
+        {
+          type = PrimitiveType::kPyramid;
+        }
+        else if (entity.filename_model == "plane")
+        {
+          type = PrimitiveType::kPlane;
+        }
+        auto result = AddItem(type);
+      }
       
       auto& added_item = m_storage_items.back();
       auto&& transform = added_item->ptr_model->GetTransform();
