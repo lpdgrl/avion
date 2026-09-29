@@ -142,6 +142,7 @@ namespace avion::api::backend
     std::string select_single_color("select_single_color");
     std::string select_single_model("select_single_model");
     std::string grass("grass");
+    std::string normals("normals");
 
     m_shader_storage.RegisterShader(
       grass,
@@ -171,6 +172,12 @@ namespace avion::api::backend
       simple_light,
       m_resman.GetResource<ResManager::FsPath>("simple_light.vert")->c_str(),
       m_resman.GetResource<ResManager::FsPath>("simple_light.frag")->c_str()
+    );
+
+    m_shader_storage.RegisterShader(
+      normals,
+      m_resman.GetResource<ResManager::FsPath>("normals.vert")->c_str(),
+      m_resman.GetResource<ResManager::FsPath>("normals.frag")->c_str()
     );
   }
 

@@ -231,6 +231,7 @@ namespace avion::api::backend::opengl
     }
 
     glBindVertexArray(0);
+
     return std::make_tuple(num_vertex, num_indice, num_draw_calls);
   }
 

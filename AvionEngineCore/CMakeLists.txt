@@ -96,6 +96,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
 
   src/AvionEngineCore/controller/controller.cpp
 
+  # src/AvionEngineCore/core/Memory/MemoryUtils.cpp
+
   src/AvionEngineCore/external/glad.c
   src/AvionEngineCore/external/stb.c
 )

@@ -1,5 +1,7 @@
 #ifndef AVION_CORE_ENGINE_H 
-#define AVION_CORE_ENGINE_H
+#define AVION_CORE_ENGINE_H 1
+
+  // #include "AvionEngineCore/core/Memory/MemoryUtils.hpp"
 
   #include "AvionEngineCore/core/scene.hpp"
   #include "AvionEngineCore/core/profiler.hpp"

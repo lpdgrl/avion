@@ -166,13 +166,14 @@ vec3 CalculateDirLight(DirLight light, vec3 normal, vec3 frag_pos, vec3 view_dir
 
 vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view_dir)
 {
+
   vec3 result;
   vec3 light_dir = normalize(light.position - frag_pos);
   vec3 half_way_dir = normalize(light_dir + view_dir);
   float diff = max(dot(normal, light_dir), 0.0);
 
   vec3 reflect_dir = reflect(-light_dir, normal);
-  float spec = pow(max(dot(view_dir, reflect_dir), 0.0), material.fl_shininess);
+  float spec = pow(max(dot(view_dir, half_way_dir), 0.0), material.fl_shininess);
 
   float attenuation = CalculateAttenuation(light, frag_pos);
   
