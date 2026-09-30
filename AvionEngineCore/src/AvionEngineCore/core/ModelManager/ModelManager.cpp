@@ -13,8 +13,8 @@ namespace avion::core::modelmanager
       return model_load_result;
     }
 
-    auto* p_fs_path = m_cb_resman(filename);
-    if (!p_fs_path)
+    auto p_fs_path = m_cb_resman(filename);
+    if (!p_fs_path.has_value())
     {
       AV_LOG_ERROR("ModelManager::Load: model isn't load to resman!");
       return std::nullopt;
@@ -22,17 +22,18 @@ namespace avion::core::modelmanager
 
     std::string extension_file;
     std::string name_file;
-    if (p_fs_path->has_extension())
+    auto path = p_fs_path.value();
+    if (path->has_extension())
     {
-      extension_file = p_fs_path->extension().c_str();
-      name_file = detail::GetFileName(p_fs_path->filename().c_str());
+      extension_file = path->extension().c_str();
+      name_file = detail::GetFileName(path->filename().c_str());
     }
     else
     {
       name_file = filename;
     }
 
-    auto assimp_result = AssimpModelLoader::Load(p_fs_path->c_str());
+    auto assimp_result = AssimpModelLoader::Load(path->c_str());
     if (!assimp_result.has_value())
     {
       AV_LOG_ERROR("ModelManager::Load: model " + filename + " isn't loading!");
@@ -49,8 +50,8 @@ namespace avion::core::modelmanager
     material.type = (model_data.texture_source.empty()) ? MaterialType::kRegular : MaterialType::kTexture;
     for (const auto& texture : model_data.texture_source)
     {
-      auto path = p_fs_path->parent_path() / texture.path;
-      auto texture_handler = m_cb_texture(path);
+      auto path_texture = path->parent_path() / texture.path;
+      auto texture_handler = m_cb_texture(path_texture);
       switch (texture.type)
       {
         case TextureType::kDiffuse:
@@ -152,8 +153,8 @@ namespace avion::core::modelmanager
       return model_load_result;
     }
 
-    auto* p_fs_path = m_cb_resman(filename_sprite);
-    if (!p_fs_path)
+    auto p_fs_path = m_cb_resman(filename_sprite);
+    if (!p_fs_path.has_value())
     {
       AV_LOG_ERROR("ModelManager::Load: sprite isn't load to resman!");
       return std::nullopt;
@@ -166,7 +167,7 @@ namespace avion::core::modelmanager
     // loading and create opengl texture for model
     Material material;
     material.type = MaterialType::kTexture;
-    auto texture_handler = m_cb_texture(p_fs_path->c_str());
+    auto texture_handler = m_cb_texture(p_fs_path.value()->c_str());
     material.diffuse_texture.emplace_back(TextureType::kDiffuse, texture_handler.value().id);
 
     // TODO: Model data moving to model

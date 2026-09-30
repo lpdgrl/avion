@@ -39,7 +39,7 @@
         using Cache                   = std::unordered_map<FileName, ModelItem&>;
         using Storage                 = std::deque<ModelItem>; 
 
-        using ResmanCallback          = std::function<FsPath*(std::string_view filename_model)>;  
+        using ResmanCallback          = std::function<std::optional<FsPath*>(std::string_view filename_model)>;  
         using TextureManagerCallback  = std::function<std::optional<TextureHandler>(const FsPath& path)>;
         using BackendCallback         = std::function<ModelHandler(CpuModelData& model_data)>;
         

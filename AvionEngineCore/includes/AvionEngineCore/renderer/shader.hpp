@@ -102,7 +102,10 @@ namespace avion::gfx {
 
     ShaderStorage() = default;
     
-    void RegisterShader(const std::string& name_shader, const Path& vertex, const Path& fragment); 
+    void RegisterShader(const std::string& name_shader, 
+      const std::optional<Path*> vertex, const std::optional<Path*> fragment
+    ); 
+
     void UnRegisterShader();
     
     void UseShader(const std::string& key);

@@ -180,13 +180,21 @@ namespace avion::gfx {
     executor->ExecuteAfterUse();
   }
 
-  void ShaderStorage::RegisterShader(const std::string& name_shader, const Path& vertex, const Path& fragment)
+  void ShaderStorage::RegisterShader(const std::string& name_shader, 
+    const std::optional<Path*> vertex, 
+    const std::optional<Path*> fragment
+  )
   {
+    if (!vertex.has_value() || !fragment.has_value())
+    {
+      AV_LOG_ERROR(std::format("Vertex is empty or Fragment is empty!"));
+      return;
+    }
     auto it_sh = m_storage_shaders.find(name_shader);
     if (it_sh == m_storage_shaders.end()) 
     {
-      auto vertex_code = core::filesystem::FileReader::ReadFile(vertex);
-      auto fragment_code = core::filesystem::FileReader::ReadFile(fragment);
+      auto vertex_code = core::filesystem::FileReader::ReadFile(vertex.value()->c_str());
+      auto fragment_code = core::filesystem::FileReader::ReadFile(fragment.value()->c_str());
       if (vertex_code.empty() || fragment_code.empty())
       {
         AV_LOG_ERROR("ShaderStorage::RegisterShader: name shader " + name_shader + " is not register! Vertex or fragment code empty!");

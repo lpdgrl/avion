@@ -12,6 +12,15 @@ namespace avion::editor::app
 
   bool EditorApp::Init()
   {
+    auto& resman = m_engine.GetResourceManager();
+
+    resman.RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
+    resman.RegisterResource(core::resman::ResourceType::kShader,  "assets/shaders");
+    resman.RegisterResource(core::resman::ResourceType::kModel,   "assets/models");
+    resman.RegisterResource(core::resman::ResourceType::kConfig,  "assets/config");
+    resman.RegisterResource(core::resman::ResourceType::kSprite,  "assets/sprites");
+    resman.RegisterResource(core::resman::ResourceType::kConfig, "assets/scenes");
+
     m_engine.Init();
     m_gui_context.Init(m_engine.GetWindow().GetPointer());
     m_engine.AddRenderApp(std::make_unique<RenderEditorApp>(*this));

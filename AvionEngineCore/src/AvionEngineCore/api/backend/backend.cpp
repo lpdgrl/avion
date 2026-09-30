@@ -146,38 +146,38 @@ namespace avion::api::backend
 
     m_shader_storage.RegisterShader(
       grass,
-      m_resman.GetResource<ResManager::FsPath>("grass.vert")->c_str(),
-      m_resman.GetResource<ResManager::FsPath>("grass.frag")->c_str()
+      m_resman.GetResource<ResManager::FsPath>("grass.vert"),
+      m_resman.GetResource<ResManager::FsPath>("grass.frag")
     );
 
     m_shader_storage.RegisterShader(
       select_single_model,
-      m_resman.GetResource<ResManager::FsPath>("select_single_model.vert")->c_str(),
-      m_resman.GetResource<ResManager::FsPath>("select_single_model.frag")->c_str()
+      m_resman.GetResource<ResManager::FsPath>("select_single_model1.vert"),
+      m_resman.GetResource<ResManager::FsPath>("select_single_model.frag")
     );
 
     m_shader_storage.RegisterShader(
       select_single_color,
-      m_resman.GetResource<ResManager::FsPath>("select_single_color.vert")->c_str(),
-      m_resman.GetResource<ResManager::FsPath>("select_single_color.frag")->c_str()
+      m_resman.GetResource<ResManager::FsPath>("select_single_color.vert"),
+      m_resman.GetResource<ResManager::FsPath>("select_single_color.frag")
     );
 
     m_shader_storage.RegisterShader(
       model,
-      m_resman.GetResource<ResManager::FsPath>("model.vert")->c_str(),
-      m_resman.GetResource<ResManager::FsPath>("model.frag")->c_str()
+      m_resman.GetResource<ResManager::FsPath>("model.vert"),
+      m_resman.GetResource<ResManager::FsPath>("model.frag")
     );
 
     m_shader_storage.RegisterShader(
       simple_light,
-      m_resman.GetResource<ResManager::FsPath>("simple_light.vert")->c_str(),
-      m_resman.GetResource<ResManager::FsPath>("simple_light.frag")->c_str()
+      m_resman.GetResource<ResManager::FsPath>("simple_light.vert"),
+      m_resman.GetResource<ResManager::FsPath>("simple_light.frag")
     );
 
     m_shader_storage.RegisterShader(
       normals,
-      m_resman.GetResource<ResManager::FsPath>("normals.vert")->c_str(),
-      m_resman.GetResource<ResManager::FsPath>("normals.frag")->c_str()
+      m_resman.GetResource<ResManager::FsPath>("normals.vert"),
+      m_resman.GetResource<ResManager::FsPath>("normals.frag")
     );
   }
 

@@ -8,6 +8,7 @@
   #include <unordered_map>
   #include <type_traits>
   #include <vector>
+  #include <optional>
 
   #include "AvionEngineCore/macro.h"
 
@@ -58,7 +59,7 @@
       Texture*  RegisterTexture(const FsPath& path_to_resource);
       
       template <typename T>
-      T* GetResource(std::string_view resource) const;
+      std::optional<T*> GetResource(std::string_view resource) const;
 
       const ListTexture& GetListTexture() const noexcept;
       const ModelList&   GetModelLoadedList() const noexcept;
@@ -96,7 +97,7 @@
     };
 
     template<typename T>
-    T* ResourceManager::GetResource(std::string_view resource) const 
+    std::optional<T*> ResourceManager::GetResource(std::string_view resource) const 
     {
       if (resource.empty()) {
         std::string err(resource);
@@ -110,7 +111,7 @@
       if (it_res == m_resources.end()) {
         std::string err(resource);
         AV_LOG_ERROR("ResourceManager::GetResource: The resource " + err + " isn't loaded.");
-        return nullptr;
+        return std::nullopt;
       }
       
       ResourceHolder<T>* holder_observer = static_cast<ResourceHolder<T>*>(it_res->second.get());

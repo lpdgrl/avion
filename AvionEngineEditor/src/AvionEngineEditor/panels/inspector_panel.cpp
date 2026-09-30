@@ -217,8 +217,8 @@ namespace avion::editor::panel
       return index_selected_texture;
     }
 
-    auto* texture = m_editor_ctx.engine.GetResourceManager().GetResource<core::Texture>(textures[index_selected_texture]);
-    if (texture == nullptr)
+    auto texture = m_editor_ctx.engine.GetResourceManager().GetResource<core::Texture>(textures[index_selected_texture]);
+    if (!texture.has_value())
     {
       assert(texture);
       AV_LOG_ERROR("InspectorPanel::DrawComboTexture: texture is nullptr!");

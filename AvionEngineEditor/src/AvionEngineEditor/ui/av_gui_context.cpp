@@ -19,7 +19,12 @@ namespace avion::ui::avguicontext
     IMGUI_CHECKVERSION();
     m_io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     m_io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    m_io->IniFilename = m_resman.GetResource<std::filesystem::path>("imgui.ini")->c_str(); 
+    auto ini_file = m_resman.GetResource<std::filesystem::path>("imgui.ini"); 
+    if (ini_file.has_value())
+    {
+      m_io->IniFilename = ini_file.value()->c_str();
+    }
+    
 
     ImGui::StyleColorsDark();
 

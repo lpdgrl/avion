@@ -86,15 +86,6 @@ namespace avion::core::engine
     // m_backend->SetProjection(Projection::kPerspective, 45.f, width_w, height_w, 0.1f, 100.f);
 
     m_scene_renderer->Init(width_w, height_w);
-
-    auto res_model = m_scene.AddItem("dancing.fbx");
-    auto res_light = m_scene.AddItem(core::LightType::kPointLight);
-
-    // for (std::size_t i = 0; i < 1000UL; ++i)
-    // {
-      // auto res = m_scene.AddItem("dancing.fbx");
-      // auto res = m_scene.AddItem("backpack.obj");
-    // }
   }
 
   void Engine::Render()
