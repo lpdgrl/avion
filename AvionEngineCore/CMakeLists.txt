@@ -102,6 +102,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/external/stb.c
 )
 
+add_library(Avion::Engine ALIAS ${ENGINE_PROJECT_NAME})
+
 target_include_directories(${ENGINE_PROJECT_NAME} 
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/includes
     # PUBLIC ${FREETYPE_INCLUDE_DIRS}
