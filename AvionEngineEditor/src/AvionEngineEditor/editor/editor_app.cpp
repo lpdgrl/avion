@@ -14,12 +14,12 @@ namespace avion::editor::app
   {
     auto& resman = m_engine.GetResourceManager();
 
-    resman.RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
-    resman.RegisterResource(core::resman::ResourceType::kShader,  "assets/shaders");
-    resman.RegisterResource(core::resman::ResourceType::kModel,   "assets/models");
-    resman.RegisterResource(core::resman::ResourceType::kConfig,  "assets/config");
-    resman.RegisterResource(core::resman::ResourceType::kSprite,  "assets/sprites");
-    resman.RegisterResource(core::resman::ResourceType::kConfig, "assets/scenes");
+    resman.RegisterResource(core::resman::ResourceType::kTexture, "textures");
+    resman.RegisterResource(core::resman::ResourceType::kShader,  "shaders");
+    resman.RegisterResource(core::resman::ResourceType::kModel,   "models");
+    resman.RegisterResource(core::resman::ResourceType::kConfig,  "config");
+    resman.RegisterResource(core::resman::ResourceType::kSprite,  "sprites");
+    resman.RegisterResource(core::resman::ResourceType::kConfig,  "scenes");
 
     m_engine.Init();
     m_gui_context.Init(m_engine.GetWindow().GetPointer());

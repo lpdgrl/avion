@@ -146,7 +146,6 @@ namespace avion::core::resman
     using namespace std::literals;
 
     FsPath path = m_path_exe / path_to_resource;
-    AV_LOG_ERROR(std::format("{}", m_path_exe.c_str()));
 
     // TODO: Simple way to control resources
     for (const auto& it_entry : std::filesystem::directory_iterator(path)) {
