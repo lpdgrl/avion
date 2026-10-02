@@ -8,7 +8,7 @@ namespace avion::core::engine
   , m_scene_renderer(std::make_unique<SceneRenderer>(m_scene, *m_resman.get()))
   , m_window(std::make_unique<Window>("Sandbox", 1920, 1080, m_profiler, m_scene.GetCameraProxy()))
   , m_backend(std::make_unique<Backend>(RenderAPI::kOpengl, *m_resman.get(), m_profiler.render_state.render_stat))
-  , m_file_watcher(m_event_queue, m_resman->GetShaderPaths())
+  , m_file_watcher(m_event_queue, *m_resman.get())
   {
     AV_LOG_INFO("Running avion engine v. " + m_version_engine);
     SettingInternalCallbacks();

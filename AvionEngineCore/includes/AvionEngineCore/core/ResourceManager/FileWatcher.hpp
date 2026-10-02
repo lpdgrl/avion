@@ -10,6 +10,11 @@
   #include "AvionEngineCore/macro.h"
   #include "AvionEngineCore/core/Common/EventQueue.hpp"
 
+  namespace avion::core::resman
+  {
+    class ResourceManager;
+  }
+
   namespace avion::core::resman::filewatcher
   {
     struct FileTimeStamp
@@ -25,7 +30,7 @@
         using FsPath = std::filesystem::path;
 
         FileWatcher() = delete;
-        FileWatcher(EventQueue& event_queue, const std::vector<FsPath>& paths);
+        FileWatcher(EventQueue& event_queue, ResourceManager& resman);
 
         FileWatcher(const FileWatcher& other) = delete;
         FileWatcher(FileWatcher&& other) = delete;
@@ -43,6 +48,7 @@
 
       protected:
       private:
+        ResourceManager& m_resman;
         EventQueue& m_queue;
         std::deque<FileTimeStamp*> m_indices_queue;
         std::vector<FileTimeStamp> m_paths;

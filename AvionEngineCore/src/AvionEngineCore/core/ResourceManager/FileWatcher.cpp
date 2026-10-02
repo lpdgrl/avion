@@ -1,13 +1,15 @@
 #include "AvionEngineCore/core/ResourceManager/FileWatcher.hpp"
+#include "AvionEngineCore/core/resource_manager.hpp"
 
 namespace avion::core::resman::filewatcher
 {
 
-  FileWatcher::FileWatcher(EventQueue& event_queue, const std::vector<FsPath>& paths)
+  FileWatcher::FileWatcher(EventQueue& event_queue, ResourceManager& resman)
   : m_queue(event_queue)
+  , m_resman(resman)
   , m_worker(std::thread(&FileWatcher::Running, &(*this)))
   {
-    PathToFileStamp(paths);
+    
   }
 
   FileWatcher::~FileWatcher() 
@@ -38,6 +40,10 @@ namespace avion::core::resman::filewatcher
             m_indices_queue.pop_front();
           }
         }
+      }
+      if (m_paths.empty())
+      {
+        PathToFileStamp(m_resman.GetShaderPaths());
       }
       std::this_thread::sleep_for(5000ms);
     }
