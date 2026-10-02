@@ -7,6 +7,7 @@
   #include <vector>
 
   #include "AvionEngineCore/api/backend/RenderItem.hpp"
+  #include "AvionEngineCore/api/backend/RenderItem2D.hpp"
   #include "AvionEngineCore/api/backend/renderstate.hpp"
   #include "AvionEngineCore/api/opengl/opengl_renderer.hpp"
 
@@ -49,6 +50,7 @@
         using RenderAPI       = detail::RenderAPI; 
         using Projection      = detail::Projection;
         using RenderItem      = detail::RenderItem;
+        using RenderItem2D    = detail::RenderItem2D;
         using LightSource     = detail::LightSrcRenderable;
         using RenderStatistics = core::RenderStatistics;
 
@@ -66,6 +68,7 @@
         using FrameBufferId   = std::uint32_t;
 
         using EventChangedFiles = core::common::EventQueue::EventChangedFiles;
+
 
         Backend() = delete;
         explicit Backend(RenderAPI api, ResManager& resman, RenderStatistics& rnd_stat);
@@ -86,6 +89,7 @@
         void ApplyDefaultRenderState();
 
         void Draw();
+        auto DrawTiles(const std::vector<RenderItem2D>& tiles) -> void;
         void SubmitRenderableItem(RenderItem item) noexcept;
 
         // GPU Objects
@@ -107,9 +111,11 @@
         bool SetViewportState(ViewportState viewport) noexcept;
         bool SetRenderState() noexcept;
 
-        // Change projection
-        template <typename... Args>
-        void SetProjection(Projection projection, Args&&... args);
+        // // Change projection
+        // template <typename... Args>
+        // void SetProjection(Projection projection, Args&&... args);
+        auto SetOrthoProjection(const detail::OrthoProjection& ortho) const noexcept -> void;
+        auto SetPerspectiveProjection(detail::PerspectiveProjection perspective) noexcept -> void;
 
         std::string GetNameApi() const noexcept;
         auto ReloadChangedShaders(const std::vector<EventChangedFiles>& events) noexcept -> void;
@@ -136,32 +142,32 @@
         bool m_is_dirty_state = false;
     };
 
-    template <typename... Args>
-    void Backend::SetProjection(Projection projection, Args&&... args)
-    {
-      switch (projection)
-      {
-        case Projection::kOrthographic:
-        {
-          detail::OrthoProjection projection(std::forward<Args>(args)...);
-          m_renderer->SetOrthoProjection(projection);
+    // template <typename... Args>
+    // void Backend::SetProjection(Projection projection, Args&&... args)
+    // {
+    //   switch (projection)
+    //   {
+    //     case Projection::kOrthographic:
+    //     {
+    //       detail::OrthoProjection projection(std::forward<Args>(args)...);
+    //       m_renderer->SetOrthoProjection(projection);
 
-          break;
-        }
-        case Projection::kPerspective:
-        {
-          detail::PerspectiveProjection projection(std::forward<Args>(args)...);
-          m_renderer->SetPerspectiveProjection(projection);
+    //       break;
+    //     }
+    //     case Projection::kPerspective:
+    //     {
+    //       // detail::PerspectiveProjection projection(std::forward<Args>(args)...);
+    //       // m_renderer->SetPerspectiveProjection(projection);
           
-          break;
-        }
-        case Projection::kUnknown:
-        {
-          AV_LOG_ERROR("Backend::SetProjection: projection is unknown");
-          break;
-        }
-      }
-    }
+    //       // break;
+    //     }
+    //     case Projection::kUnknown:
+    //     {
+    //       AV_LOG_ERROR("Backend::SetProjection: projection is unknown");
+    //       break;
+    //     }
+    //   }
+    // }
   } 
 
 #endif 

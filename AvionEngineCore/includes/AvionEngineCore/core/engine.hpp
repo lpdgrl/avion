@@ -71,6 +71,7 @@
         Window&         GetWindow() noexcept;
         Backend&        GetBackend();
         TextureManager& GetTextureManager() noexcept;
+        ModelManager&  GetModelManager() noexcept;
 
       private:
         void Loop();

@@ -61,8 +61,9 @@
         void PrepareDraw() const noexcept override;
         // TODO: THIS WAY IS TMP!!
         std::tuple<std::size_t, std::size_t, std::size_t> Draw(const RenderItem& item) const noexcept override; 
+        void DrawItem2D(const RenderItem2D& item) const noexcept override;
 
-        void SetOrthoProjection(OrthoProjection& projection) noexcept override;
+        void SetOrthoProjection(const OrthoProjection& projection) noexcept override;
         void SetPerspectiveProjection(PerspectiveProjection& projection) noexcept override;
 
         // GPU Primitives
@@ -84,7 +85,7 @@
 
         void SubmitProjectionMatrixToShader() const noexcept;
 
-        void BindTexture2D(const MaterialRange& range, int& number) const noexcept;
+        void BindTexture2D(const std::string& shader, const MaterialRange& range, int& number) const noexcept;
         auto BindTexture2D(const TextureHandler handler, int& num_texture) const noexcept -> void;
         void UnBindTexture2D(const MaterialRange& range) const noexcept;
         auto UnBindTexture2D(const TextureHandler handler) const noexcept -> void;

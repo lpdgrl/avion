@@ -118,6 +118,12 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
 
 target_link_libraries(${ENGINE_PROJECT_NAME}
   PUBLIC
+    AvionMath
+)
+
+
+target_link_libraries(${ENGINE_PROJECT_NAME}
+  PUBLIC
     glaze::glaze
 )
 

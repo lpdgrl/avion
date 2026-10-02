@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(Tests VERSION 0.0.1 LANGUAGES C CXX)
 
 option(BUILD_AVION_MATH_TESTS "Build avion math tests" ON)
-option(BUILD_AVION_CORE_SERIALIZATION_TESTS "Build avion core serialization tests" ON)
+option(BUILD_AVION_CORE_TESTS "Build avion core tests" ON)
 
 set(PROJECT_NAME Tests)
 
@@ -21,14 +21,14 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+if (BUILD_AVION_CORE_TESTS)
+  add_subdirectory(AvionCoreTests)
+endif()
+
 if (BUILD_AVION_MATH) 
   if (BUILD_AVION_MATH_TESTS)
     add_subdirectory(AvionMathTests)
   endif()
-endif()
-
-if (BUILD_AVION_CORE_SERIALIZATION_TESTS)
-  add_subdirectory(AvionSerializationTests)
 endif()
 
 add_custom_target(avion_tests

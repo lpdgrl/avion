@@ -127,15 +127,18 @@ namespace avion::core::resman
     return result;
   }
 
-  std::string ResourceManager::NormalizePath(std::string_view path) const
+  auto NormalizePath(std::string_view path) -> std::string
   {
-    std::string msg("ResourceManager::NormalizePath: ");
+    ResourceManager::FsPath curr_path(path);
+    std::string asset_folder("assets");
+    std::string result;
 
-    FsPath curr_path(path);
-    std::string res(curr_path.parent_path().parent_path().parent_path());
-
-    AV_LOG_DEBUG(msg + " " + res);
-    return res;
+    while (!std::filesystem::is_directory(curr_path / asset_folder))
+    {
+      curr_path = curr_path.parent_path();
+    }
+    result = curr_path / asset_folder;
+    return result;
   }
 
   bool ResourceManager::RegisterResource(ResourceType resource, std::string_view path_to_resource)
@@ -143,10 +146,7 @@ namespace avion::core::resman
     using namespace std::literals;
 
     FsPath path = m_path_exe / path_to_resource;
-
-    // auto create_load_texture = [&](const std::string& filename, FsPath& path) {
-
-    // };
+    AV_LOG_ERROR(std::format("{}", m_path_exe.c_str()));
 
     // TODO: Simple way to control resources
     for (const auto& it_entry : std::filesystem::directory_iterator(path)) {

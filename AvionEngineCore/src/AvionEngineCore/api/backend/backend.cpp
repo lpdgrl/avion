@@ -107,6 +107,14 @@ namespace avion::api::backend
     }
   }
 
+  auto Backend::DrawTiles(const std::vector<RenderItem2D>& items) -> void
+  {
+    for (const auto& item : items)
+    {
+      m_renderer->DrawItem2D(item);
+    }
+  }
+
   void Backend::SubmitRenderableItem(RenderItem item) noexcept
   {
     m_renderable_queue.emplace_back(std::move(item));
@@ -143,6 +151,13 @@ namespace avion::api::backend
     std::string select_single_model("select_single_model");
     std::string grass("grass");
     std::string normals("normals");
+    std::string blocks("block");
+
+    m_shader_storage.RegisterShader(
+      blocks,
+      m_resman.GetResource<ResManager::FsPath>("block.vert"),
+      m_resman.GetResource<ResManager::FsPath>("block.frag")
+    );
 
     m_shader_storage.RegisterShader(
       grass,
@@ -249,6 +264,16 @@ namespace avion::api::backend
   std::string Backend::GetNameApi() const noexcept
   {
     return detail::ApiToString(m_api);
+  }
+
+  auto Backend::SetOrthoProjection(const detail::OrthoProjection& ortho) const noexcept -> void
+  {
+    m_renderer->SetOrthoProjection(ortho);
+  }
+
+  auto Backend::SetPerspectiveProjection(detail::PerspectiveProjection perspective) noexcept -> void
+  {
+    m_renderer->SetPerspectiveProjection(perspective);
   }
 } // namespace avion::api::backend
 

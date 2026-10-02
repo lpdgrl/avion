@@ -38,8 +38,8 @@ namespace avion::core::resman::filewatcher
             m_indices_queue.pop_front();
           }
         }
-        std::this_thread::sleep_for(5000ms);
       }
+      std::this_thread::sleep_for(5000ms);
     }
   }
 

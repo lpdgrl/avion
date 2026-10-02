@@ -185,12 +185,12 @@ namespace avion::api::backend::opengl
       {
         if (!diffuse_range.empty())
         {
-          BindTexture2D(diffuse_range, num_tex_unit);
+          BindTexture2D(shader, diffuse_range, num_tex_unit);
         }
         
         if (!specular_range.empty())
         {
-          BindTexture2D(specular_range, num_tex_unit);
+          BindTexture2D(shader, specular_range, num_tex_unit);
         }
       }
 
@@ -235,7 +235,64 @@ namespace avion::api::backend::opengl
     return std::make_tuple(num_vertex, num_indice, num_draw_calls);
   }
 
-  void OpenglRenderer::BindTexture2D(const MaterialRange& range, int& number) const noexcept
+  void OpenglRenderer::DrawItem2D(const RenderItem2D& item) const noexcept
+  {
+     m_shader_storage.UpdateStateShadersReloaded("projection", m_projection);
+    
+    std::string shader("block");
+    auto&& buffer_id      = item.model_handler.id;
+    auto&& mesh_range     = item.mesh_range;
+    auto&& diffuse_range  = item.diffuse_range;
+    auto&& view_matrix    = item.view_matrix;
+    auto&& view_position  = item.view_position;
+    auto&& position = item.position;
+    auto&& base_color = item.base_color;
+    auto&& transform = item.transform;
+    // auto&& model_matrix = transform.GetMatrix();
+    // gfx::Transform tr;
+    // tr.position.x = position.x;
+    // tr.position.y = position.y;
+    // auto&& model_matrix = tr.GetMatrix();
+    glm::mat4 model_matrix = glm::mat4(1.f);
+    float x = position.x * 32.0f;
+    float y = position.y * 32.0f;
+    
+    model_matrix = glm::translate(model_matrix, glm::vec3(x, y, 0.f));
+    model_matrix = glm::scale(model_matrix, glm::vec3(32.0f, 32.0f, 0.f));
+
+    // m_shader_storage.PutData(shader, "projection", m_projection);
+    // m_shader_storage.PutData(shader, "view_matrix", view_matrix);
+    // m_shader_storage.PutData(shader, "view_pos", vp);
+
+    m_shader_storage.PutData(shader, "model_matrix", model_matrix);
+
+    int num_tex_unit = 0;
+
+    if (!diffuse_range.empty())
+    {
+      BindTexture2D(shader, diffuse_range, num_tex_unit);
+    }
+
+    m_shader_storage.UseShader(shader);
+
+    auto it = m_buffer_storage.find(buffer_id);
+    assert(!(it == m_buffer_storage.end()) && "OpenglRenderer::Draw(RenderItem item): buffer id isn't exists");
+
+    auto&& buffer = it->second;
+    glBindVertexArray(buffer.GetIdVao());
+
+    for (auto& m : mesh_range)
+    {
+      glDrawElements(GL_TRIANGLES, m.index_count, GL_UNSIGNED_INT, 
+        std::bit_cast<void*>(m.first_index * sizeof(std::uint32_t))
+      );
+    }
+    glBindVertexArray(0);
+  }
+
+
+  void OpenglRenderer::BindTexture2D(const std::string& shader, 
+    const MaterialRange& range, int& number) const noexcept
   {
     int shader_num_texture = 1;
     for (auto& material : range)
@@ -264,7 +321,7 @@ namespace avion::api::backend::opengl
       }
 
       glActiveTexture(GL_TEXTURE0 + number);
-      m_shader_storage.PutData("model", name_texture, number++);
+      m_shader_storage.PutData(shader, name_texture, number++);
       m_texture2d_storage.find(material.id)->second.Bind();
       shader_num_texture++;
     }
@@ -399,10 +456,10 @@ namespace avion::api::backend::opengl
 
   }
 
-  void OpenglRenderer::SetOrthoProjection(OrthoProjection& projection) noexcept
+  void OpenglRenderer::SetOrthoProjection(const OrthoProjection& projection) noexcept
   {
     m_projection = glm::ortho(projection.left,
-      projection.width, projection.bottom, projection.height, projection.z_near, projection.z_far);
+      projection.right, projection.bottom, projection.top, projection.z_near, projection.z_far);
 
     SubmitProjectionMatrixToShader();
   }

@@ -5,6 +5,7 @@
 
   #include "AvionEngineCore/api/backend/renderstate.hpp"
   #include "AvionEngineCore/api/backend/RenderItem.hpp"
+  #include "AvionEngineCore/api/backend/RenderItem2D.hpp"
 
   namespace avion::api::backend
   {
@@ -13,6 +14,7 @@
       public: 
         using RenderState = backend::detail::RenderState;
         using RenderItem  = backend::detail::RenderItem;
+        using RenderItem2D = backend::detail::RenderItem2D;
         using OrthoProjection = backend::detail::OrthoProjection;
         using PerspectiveProjection = backend::detail::PerspectiveProjection;
         using MeshData = backend::detail::MeshData;
@@ -26,8 +28,9 @@
         virtual void ApplyCurrentState(RenderState& render_state) noexcept = 0;
         virtual void PrepareDraw() const noexcept = 0;
         virtual std::tuple<std::size_t, std::size_t, std::size_t> Draw(const RenderItem& item) const noexcept = 0;
+        virtual void DrawItem2D(const RenderItem2D& item) const noexcept = 0;
 
-        virtual void SetOrthoProjection(OrthoProjection& projection) noexcept = 0;
+        virtual void SetOrthoProjection(const OrthoProjection& projection) noexcept = 0;
         virtual void SetPerspectiveProjection(PerspectiveProjection& projection) noexcept = 0;
 
         // Interface for interact with graphics objects

@@ -13,17 +13,17 @@ namespace av::math::vec
     T y{};
     T z{};
 
-    constexpr Vector3() = default;
-    explicit constexpr Vector3(const T& value) : x(value), y(value), z(value) {}
-    explicit constexpr Vector3(T xx, T yy, T zz) : x(xx), y(yy), z(zz) {} 
+    Vector3() = default;
+    explicit  Vector3(const T& value) : x(value), y(value), z(value) {}
+    explicit  Vector3(T xx, T yy, T zz) : x(xx), y(yy), z(zz) {} 
     
-    explicit constexpr Vector3(const Vector3<T>& other) = default;
-    explicit constexpr Vector3(Vector3<T>&& other) noexcept = default;
+    constexpr Vector3(const Vector3<T>& other) = default;
+    Vector3(Vector3<T>&& other) noexcept = default;
 
-    constexpr Vector3<T>& operator=(const Vector3<T>& other) = default;
-    constexpr Vector3<T>& operator=(Vector3<T>& other) noexcept = default;
+    Vector3<T>& operator=(const Vector3<T>& other) = default;
+    Vector3<T>& operator=(Vector3<T>& other) noexcept = default;
 
-    constexpr Vector3<T>& operator+=(const Vector3<T>& other) noexcept
+    Vector3<T>& operator+=(const Vector3<T>& other) noexcept
     {
       if (&other == this)
       {

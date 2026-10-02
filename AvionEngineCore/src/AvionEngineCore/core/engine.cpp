@@ -1,6 +1,5 @@
 #include "AvionEngineCore/core/engine.hpp"
 
-
 namespace avion::core::engine
 {
   Engine::Engine()
@@ -136,6 +135,11 @@ namespace avion::core::engine
   Engine::Backend& Engine::GetBackend() 
   { 
     return *m_backend.get(); 
+  }
+
+  Engine::ModelManager& Engine::GetModelManager() noexcept
+  {
+    return m_model_manager;
   }
 
   void Engine::Loop()

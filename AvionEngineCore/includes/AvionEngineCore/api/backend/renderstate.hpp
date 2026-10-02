@@ -10,9 +10,9 @@
     struct OrthoProjection
     {
       float left{};
-      float width{};
+      float right{};
       float bottom{};
-      float height{};
+      float top{};
       float z_near{};
       float z_far{};
     };
