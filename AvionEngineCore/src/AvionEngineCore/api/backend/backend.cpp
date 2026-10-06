@@ -15,8 +15,13 @@ namespace avion::api::backend
     AV_LOG_DEBUG("Backend::Init()");
     if (m_api == RenderAPI::kOpengl)
     {
+      auto font_path = m_resman.GetResource<ResManager::FsPath>("dejavusans.ttf");
+      if (!font_path.has_value())
+      {
+        assert(false);
+      }
       m_renderer = std::make_unique<opengl::OpenglRenderer>(m_shader_storage);
-      m_renderer->Init(render_state);
+      m_renderer->Init(render_state, font_path.value()->c_str());
       m_current_state = render_state;
       m_default_state = render_state;
     }
@@ -115,6 +120,23 @@ namespace avion::api::backend
     }
   }
 
+  auto Backend::DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) -> void
+  {
+    RenderState state = m_current_state;
+    state.depth_state.enabled = false;
+    ApplyRenderState(state);
+
+    m_renderer->DrawText(text, x, y, scale, color);
+
+    state.depth_state.enabled = true;
+    ApplyRenderState(state);
+  }
+
+  auto Backend::ApplyRenderState(const RenderState& state) const noexcept -> void
+  {
+    m_renderer->ApplyCurrentState(state);
+  }
+
   void Backend::SubmitRenderableItem(RenderItem item) noexcept
   {
     m_renderable_queue.emplace_back(std::move(item));
@@ -152,6 +174,7 @@ namespace avion::api::backend
     std::string grass("grass");
     std::string normals("normals");
     std::string blocks("block");
+    std::string text("text");
 
     m_shader_storage.RegisterShader(
       blocks,
@@ -193,6 +216,12 @@ namespace avion::api::backend
       normals,
       m_resman.GetResource<ResManager::FsPath>("normals.vert"),
       m_resman.GetResource<ResManager::FsPath>("normals.frag")
+    );
+
+    m_shader_storage.RegisterShader(
+      text,
+      m_resman.GetResource<ResManager::FsPath>("text.vert"),
+      m_resman.GetResource<ResManager::FsPath>("text.frag")
     );
   }
 

@@ -20,6 +20,7 @@ namespace avion::editor::app
     resman.RegisterResource(core::resman::ResourceType::kConfig,  "config");
     resman.RegisterResource(core::resman::ResourceType::kSprite,  "sprites");
     resman.RegisterResource(core::resman::ResourceType::kConfig,  "scenes");
+    resman.RegisterResource(core::resman::ResourceType::kFont,    "fonts");
 
     m_engine.Init();
     m_gui_context.Init(m_engine.GetWindow().GetPointer());

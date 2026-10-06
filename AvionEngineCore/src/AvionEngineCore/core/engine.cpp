@@ -75,14 +75,13 @@ namespace avion::core::engine
     Backend::RenderState render_state{
       .depth_state{.enabled = true, .depth_mask = true},
       .stencil_state{.enabled = true, .stencil_ref = 1, .stencil_func_mask = 0xFF },
-      .blend_state{},
+      .blend_state{.enabled = true, .blend_source_factor = BlendingFunc::SourceAlpha, .blend_destination_factor = BlendingFunc::OneMinusSourceAlpha},
       .viewport_state{0, 0, static_cast<std::size_t>(width_w), static_cast<std::size_t>(height_w)},
       .color_state{0.0f, 0.0f, 0.0f, 1.f},
     };
 
     m_window->Init();
     m_backend->Init(render_state);
-    // m_backend->SetProjection(Projection::kPerspective, 45.f, width_w, height_w, 0.1f, 100.f);
 
     m_scene_renderer->Init(width_w, height_w);
   }
@@ -186,12 +185,17 @@ namespace avion::core::engine
 
   auto Engine::SaveSceneToJson() -> void
   {
-    auto result = m_scene.Export();
+    [[maybe_unused]] auto result = m_scene.Export();
   }
 
   auto Engine::LoadSceneFromJson(const std::string& name) -> void
   {
-    auto result = m_scene.Import();
+    [[maybe_unused]] auto result = m_scene.Import();
+  }
+
+  auto Engine::GetController() noexcept -> controller::Controller&
+  {
+    return m_window->GetController();
   }
 
 } // namespace avion::core

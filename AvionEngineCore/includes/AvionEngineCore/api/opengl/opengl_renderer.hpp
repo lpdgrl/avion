@@ -15,6 +15,7 @@
     #include "AvionEngineCore/api/opengl/types/OpenglBuffer.hpp"
     #include "AvionEngineCore/api/opengl/types/OpenglTexture2D.hpp"
     #include "AvionEngineCore/api/opengl/types/OpenglFrameBuffer.hpp"
+    #include "AvionEngineCore/api/opengl/types/GLText.hpp"
 
     // TODO: Moving shader to opengl types 
     #include "AvionEngineCore/renderer/shader.hpp"
@@ -56,12 +57,13 @@
 
         ~OpenglRenderer() = default;
 
-        void Init(RenderState state) override;
-        void ApplyCurrentState(RenderState& render_state) noexcept override;
+        void Init(RenderState state, const std::string& font) override;
+        void ApplyCurrentState(const RenderState& render_state) noexcept override;
         void PrepareDraw() const noexcept override;
         // TODO: THIS WAY IS TMP!!
         std::tuple<std::size_t, std::size_t, std::size_t> Draw(const RenderItem& item) const noexcept override; 
         void DrawItem2D(const RenderItem2D& item) const noexcept override;
+        void DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) noexcept override;
 
         void SetOrthoProjection(const OrthoProjection& projection) noexcept override;
         void SetPerspectiveProjection(PerspectiveProjection& projection) noexcept override;
@@ -106,6 +108,12 @@
         Texture2dStorage m_texture2d_storage;
 
         FrameBufferStorage m_framebuffer_storage;
+        
+        struct TextHandle
+        {
+          GLText gl_text;
+          unsigned int buffer_id;
+        } m_text_handle;
 
         glm::mat4 m_projection;
       };
@@ -113,8 +121,10 @@
 
     namespace avion::api::backend::opengl::detail
     {
-      GLenum ToOpenglCompareFunc(backend::detail::CompareFunc func);
-      GLenum ToOpenglStencilAction(backend::detail::StencilAction action);
+      GLenum ToOpenGLCompareFunc(backend::detail::CompareFunc func);
+      GLenum ToOpenGLStencilAction(backend::detail::StencilAction action);
+      GLenum ToOpenGLBlendingFunc(backend::detail::BlendingFunc func);
+      GLenum ToOpenGLBlendEquation(backend::detail::BlendEquation equation);
     } // namespace avion::backend::opengl::detail
 
 #endif

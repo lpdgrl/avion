@@ -96,6 +96,12 @@ namespace avion::logger {
       {
         std::cout << FormatMessage(MAGENTA_CLR, "todo", arg);
       }
+      
+      template <typename T>
+      static constexpr void PrintVar(const char* name_var, const T& value) noexcept
+      {
+        LogDebug(std::format("{} = {}", name_var, value));
+      }
 
     private:
       static std::string GetCurrentTimeAndDate()

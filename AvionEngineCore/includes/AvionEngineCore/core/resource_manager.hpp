@@ -42,6 +42,7 @@
       kModel   =  3,
       kConfig  =  4,
       kSprite =  5,
+      kFont   = 6,
     };
 
     class ResourceManager {

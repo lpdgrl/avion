@@ -59,7 +59,7 @@
         using ShaderStorage   = gfx::ShaderStorage;
 
         using ResManager      = core::resman::ResourceManager;
-        using CpuModelData       = core::modelmanager::detail::CpuModelData;
+        using CpuModelData    = core::modelmanager::detail::CpuModelData;
         using ModelHandler    = core::modelmanager::detail::ModelHandler;
         using VertexModel     = core::modelmanager::detail::Vertex;
 
@@ -90,6 +90,7 @@
 
         void Draw();
         auto DrawTiles(const std::vector<RenderItem2D>& tiles) -> void;
+        auto DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) -> void;
         void SubmitRenderableItem(RenderItem item) noexcept;
 
         // GPU Objects
@@ -124,6 +125,7 @@
 
       private:
         void CompileAndLoadShaders();
+        auto ApplyRenderState(const RenderState& state) const noexcept -> void;
 
       private:
         ResManager& m_resman;

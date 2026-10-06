@@ -120,6 +120,7 @@ namespace avion::core::resman
       case ResourceType::kTexture:
       case ResourceType::kUnknown:
       case ResourceType::kSprite:
+      case ResourceType::kFont:
       {
         break;
       }
@@ -174,6 +175,11 @@ namespace avion::core::resman
           break;
         }
         case ResourceType::kConfig:
+        {
+          [[maybe_unused]] auto result = LoadTextFile(filename, path_canonical_resource, resource);
+          break;
+        }
+        case ResourceType::kFont:
         {
           [[maybe_unused]] auto result = LoadTextFile(filename, path_canonical_resource, resource);
           break;

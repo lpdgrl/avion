@@ -50,19 +50,16 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/api/opengl/types/OpenglFrameBuffer.cpp
   src/AvionEngineCore/api/opengl/types/GLShaderProgram.cpp
   src/AvionEngineCore/api/opengl/types/GLShader.cpp
+  src/AvionEngineCore/api/opengl/types/GLText.cpp
   src/AvionEngineCore/api/opengl/OpenglUtils.cpp
 
   src/AvionEngineCore/logger/logger.cpp
 
-  # src/AvionEngineCore/renderer/text_rendering.cpp
   src/AvionEngineCore/renderer/scene_renderer.cpp
   src/AvionEngineCore/renderer/shader.cpp
   src/AvionEngineCore/renderer/camera.cpp
   src/AvionEngineCore/renderer/model.cpp
   src/AvionEngineCore/renderer/mesh.cpp
-  src/AvionEngineCore/renderer/pipeline_queue.cpp
-  src/AvionEngineCore/renderer/framebuffer.cpp
-  src/AvionEngineCore/renderer/renderer_command.cpp
 
   src/AvionEngineCore/core/engine.cpp
   src/AvionEngineCore/core/scene.cpp
@@ -108,10 +105,11 @@ target_include_directories(${ENGINE_PROJECT_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/includes
     # PUBLIC ${FREETYPE_INCLUDE_DIRS}
 )
+find_package(Freetype)
 
 target_link_libraries(${ENGINE_PROJECT_NAME} 
     PUBLIC
-        ${FREETYPE_LIBRARIES}
+        Freetype::Freetype
         glfw
         assimp
 )
@@ -120,7 +118,6 @@ target_link_libraries(${ENGINE_PROJECT_NAME}
   PUBLIC
     AvionMath
 )
-
 
 target_link_libraries(${ENGINE_PROJECT_NAME}
   PUBLIC

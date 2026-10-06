@@ -55,18 +55,17 @@
       Zero                      = 0,
       One                       = 1,
       SourceColor               = 2,
-      OneMinusColor             = 3,
-      OneMinusSourceColor       = 4,
-      DestinationColor          = 5,
-      OneMinusDestinationColor  = 6,
-      SourceAlpha               = 7,
-      OneMinusSourceAlpha       = 8,
-      DestinationAlpha          = 9,
-      OneMinusDestinationAlpha  = 10,
-      ConstantColor             = 11,
-      OneMinusConstantColor     = 12,
-      ConstantAlpha             = 13,
-      OneMinusConstantAlpha     = 14,
+      OneMinusSourceColor       = 3,
+      DestinationColor          = 4,
+      OneMinusDestinationColor  = 5,
+      SourceAlpha               = 6,
+      OneMinusSourceAlpha       = 7,
+      DestinationAlpha          = 8,
+      OneMinusDestinationAlpha  = 9,
+      ConstantColor             = 10,
+      OneMinusConstantColor     = 11,
+      ConstantAlpha             = 12,
+      OneMinusConstantAlpha     = 13,
     };
 
     enum class BlendEquation
@@ -103,7 +102,7 @@
       StencilAction stencil_depth_fail = StencilAction::Keep;
       StencilAction stencil_depth_pass = StencilAction::Keep;
 
-      std::int32_t stencil_ref        = 0x00;
+      std::int32_t  stencil_ref        = 0x00;
       std::uint32_t stencil_func_mask = 0x00;
       std::uint32_t stencil_mask      = 0x00;
 

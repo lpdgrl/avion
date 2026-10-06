@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <concepts>
+#include <initializer_list>
 
 namespace av::math::vec
 {

@@ -30,6 +30,20 @@ namespace avion::controller {
         }
     }
 
+    void Controller::MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+    {
+      Controller* self = static_cast<Controller*>(glfwGetWindowUserPointer(window));
+      if (self != nullptr)
+      {
+        self->OnScrollProcess(xoffset, yoffset);
+      }
+    }
+
+    void Controller::OnScrollProcess([[maybe_unused]] double xoffset, double yoffset) noexcept
+    {
+      m_scroll_yoffset = yoffset;
+    }
+
     void Controller::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         Controller* self = static_cast<Controller*>(glfwGetWindowUserPointer(window));
         if (self) {
@@ -107,6 +121,12 @@ namespace avion::controller {
 
     double Controller::GetLastYposCursor() const noexcept {
         return last_ypos_cursor_;
+    }
+
+    auto Controller::GetLastScrollYoffset() noexcept -> double
+    {
+      auto tmp = std::exchange(m_scroll_yoffset, 0);
+      return tmp;
     }
 
     void Controller::SetCoordinate(double xpos_cursor, double ypos_cursor) {

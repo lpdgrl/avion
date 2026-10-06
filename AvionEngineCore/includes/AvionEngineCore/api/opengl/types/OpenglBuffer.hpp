@@ -22,6 +22,7 @@
       const GLvoid  *pointer;
     };
 
+    // TODO:
     // Что делает????
     // Создает буфферы в памяти гпу
     // Хранит индексы буфферов
@@ -34,6 +35,8 @@
 
         template <typename MeshData>
         void SetupBuffer(MeshData& mesh_data);
+
+        auto SetupTextBuffer() -> void;
 
         OpenglBuffer(const OpenglBuffer&) = delete("Copy constructor deleted for OpengBuffer");
         OpenglBuffer(OpenglBuffer&&) noexcept;

@@ -30,4 +30,20 @@ namespace avion::api::backend::opengl
     glDeleteBuffers(1, &m_ebo);
   }
 
+  auto OpenglBuffer::SetupTextBuffer() -> void
+  {
+    glGenVertexArrays(1, &m_vao);
+    glGenBuffers(1, &m_vbo);
+
+    glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+    
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+    glBindVertexArray(0);
+  }
+
 } // namespace avion::api::backend

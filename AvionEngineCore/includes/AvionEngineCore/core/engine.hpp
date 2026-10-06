@@ -71,7 +71,8 @@
         Window&         GetWindow() noexcept;
         Backend&        GetBackend();
         TextureManager& GetTextureManager() noexcept;
-        ModelManager&  GetModelManager() noexcept;
+        ModelManager&   GetModelManager() noexcept;
+        auto            GetController() noexcept -> controller::Controller&;
 
       private:
         void Loop();

@@ -24,11 +24,12 @@
         IRenderer()  = default;
         ~IRenderer() = default;
 
-        virtual void Init(RenderState state) = 0;
-        virtual void ApplyCurrentState(RenderState& render_state) noexcept = 0;
+        virtual void Init(RenderState state, const std::string& font) = 0;
+        virtual void ApplyCurrentState(const RenderState& render_state) noexcept = 0;
         virtual void PrepareDraw() const noexcept = 0;
         virtual std::tuple<std::size_t, std::size_t, std::size_t> Draw(const RenderItem& item) const noexcept = 0;
         virtual void DrawItem2D(const RenderItem2D& item) const noexcept = 0;
+        virtual void DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) noexcept = 0;
 
         virtual void SetOrthoProjection(const OrthoProjection& projection) noexcept = 0;
         virtual void SetPerspectiveProjection(PerspectiveProjection& projection) noexcept = 0;

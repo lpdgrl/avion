@@ -26,19 +26,17 @@
       // std::uint8_t render_item_option{};
 
       glm::mat4 view_matrix{};
-      av::math::vec::Vector3<float> view_position{};
+      av::math::vec::Vector2<float> view_position{};
       av::math::vec::Vector2<float> position;
-      av::math::vec::Vector3<float> base_color;
 
       Transform     transform;
       ModelHandler  model_handler;
       MeshRange     mesh_range;
       MaterialRange diffuse_range;
-      // MaterialRange specular_range;
 
-      // bool is_material_override{};
-      // TextureHandler material_diffuse_override;
-      // TextureHandler material_specular_override;
+      float ratio_light{};
+      float ratio_scale{};
+      bool is_inside_light_radius{};
     };
   } // namespace avion::api::backend::detail
 
