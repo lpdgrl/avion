@@ -1,5 +1,7 @@
 #include "AvionEngineEditor/panels/profiler_panel.hpp"
 
+// TODO: BAD INCLUDES!!!
+#include "AvionEngineCore/core/profiler.hpp"
 
 namespace avion::editor::panel
 {

@@ -1,5 +1,9 @@
 #include "AvionEngineEditor/panels/asset_panel.hpp"
 
+// TODO: BAD INCLUDES!!!
+#include "AvionEngineCore/core/resource_manager.hpp"
+#include "AvionEngineCore/core/scene.hpp"
+
 namespace avion::editor::panel
 {
 

@@ -1,5 +1,9 @@
 #include "AvionEngineEditor/editor/editor_app.hpp"
 
+// TODO: BAD INCLUDES!!!
+#include "AvionEngineCore/api/backend/backend.hpp"
+#include "AvionEngineCore/renderer/scene_renderer.hpp"
+
 namespace avion::editor::app
 {
 

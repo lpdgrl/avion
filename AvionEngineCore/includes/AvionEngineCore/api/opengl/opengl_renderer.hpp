@@ -65,6 +65,9 @@
         void DrawItem2D(const RenderItem2D& item) const noexcept override;
         void DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) noexcept override;
 
+        // TODO: Bad interface
+        auto DrawOutliner2D(const RenderItem2D& item) const noexcept -> void;
+
         void SetOrthoProjection(const OrthoProjection& projection) noexcept override;
         void SetPerspectiveProjection(PerspectiveProjection& projection) noexcept override;
 

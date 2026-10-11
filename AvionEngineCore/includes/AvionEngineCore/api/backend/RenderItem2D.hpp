@@ -27,15 +27,17 @@
 
       glm::mat4 view_matrix{};
       av::math::vec::Vector2<float> view_position{};
-      av::math::vec::Vector2<float> position;
+      av::math::vec::Vector3<float> position;
 
       Transform     transform;
       ModelHandler  model_handler;
       MeshRange     mesh_range;
       MaterialRange diffuse_range;
-
+      
+      float utime{};
       float ratio_light{};
       float ratio_scale{};
+      bool is_flip_x{};
       bool is_inside_light_radius{};
     };
   } // namespace avion::api::backend::detail

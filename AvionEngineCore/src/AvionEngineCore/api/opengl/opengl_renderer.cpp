@@ -240,7 +240,7 @@ namespace avion::api::backend::opengl
 
   void OpenglRenderer::DrawItem2D(const RenderItem2D& item) const noexcept
   {
-     m_shader_storage.UpdateStateShadersReloaded("projection", m_projection);
+    m_shader_storage.UpdateStateShadersReloaded("projection", m_projection);
     
     std::string shader("block");
     auto&& buffer_id      = item.model_handler.id;
@@ -253,13 +253,15 @@ namespace avion::api::backend::opengl
     auto&& ratio_light = item.ratio_light;
     auto&& ratio_scale = item.ratio_scale;
     auto&& is_inside_light_radius = item.is_inside_light_radius;
+    auto&& is_flip_x = item.is_flip_x;
 
     glm::mat4 model_matrix = glm::mat4(1.f);
     float x = position.x * ratio_scale;
     float y = position.y * ratio_scale;
+    float z = position.z * ratio_scale;
     
-    model_matrix = glm::translate(model_matrix, glm::vec3(x, y, 0.f));
-    model_matrix = glm::scale(model_matrix, glm::vec3(ratio_scale, ratio_scale, 0.f));
+    model_matrix = glm::translate(model_matrix, glm::vec3(x, y, z));
+    model_matrix = glm::scale(model_matrix, glm::vec3(ratio_scale, ratio_scale, z));
 
     glm::vec3 view = glm::vec3(view_position.x, view_position.y, 0);
 
@@ -270,6 +272,7 @@ namespace avion::api::backend::opengl
     m_shader_storage.PutData(shader, "model_matrix", model_matrix);
     m_shader_storage.PutData(shader, "is_inside_light", is_inside_light_radius);
     m_shader_storage.PutData(shader, "ratio_light", ratio_light);
+    m_shader_storage.PutData(shader, "flip_x", is_flip_x);
 
     int num_tex_unit = 0;
 
@@ -340,6 +343,46 @@ namespace avion::api::backend::opengl
       glDrawArrays(GL_TRIANGLES, 0, 6);
       // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
       x += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+    glBindVertexArray(0);
+  }
+
+  auto OpenglRenderer::DrawOutliner2D(const RenderItem2D& item) const noexcept -> void
+  {
+    m_shader_storage.UpdateStateShadersReloaded("projection", m_projection);
+    
+    std::string shader("outliner");
+    auto&& buffer_id      = item.model_handler.id;
+    auto&& mesh_range     = item.mesh_range;
+    auto&& position = item.position;
+    auto&& transform = item.transform;
+    auto&& ratio_scale = item.ratio_scale;
+    auto&& utime = item.utime;
+    
+    glm::mat4 model_matrix = glm::mat4(1.f);
+    float x = position.x * ratio_scale;
+    float y = position.y * ratio_scale;
+    float z = position.z * ratio_scale;
+    
+    model_matrix = glm::translate(model_matrix, glm::vec3(x, y, z));
+    model_matrix = glm::scale(model_matrix, glm::vec3(ratio_scale, ratio_scale, z));
+
+    m_shader_storage.PutData(shader, "model_matrix", model_matrix);
+    m_shader_storage.PutData(shader, "utime", utime);
+
+    m_shader_storage.UseShader(shader);
+
+    auto it = m_buffer_storage.find(buffer_id);
+    assert(!(it == m_buffer_storage.end()) && "OpenglRenderer::DrawOutliner(const RenderItem2D& item): buffer id isn't exists");
+
+    auto&& buffer = it->second;
+    glBindVertexArray(buffer.GetIdVao());
+
+    for (auto& m : mesh_range)
+    {
+      glDrawElements(GL_TRIANGLES, m.index_count, GL_UNSIGNED_INT, 
+        std::bit_cast<void*>(m.first_index * sizeof(std::uint32_t))
+      );
     }
     glBindVertexArray(0);
   }

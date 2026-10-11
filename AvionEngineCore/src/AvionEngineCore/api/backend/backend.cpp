@@ -122,14 +122,15 @@ namespace avion::api::backend
 
   auto Backend::DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) -> void
   {
-    RenderState state = m_current_state;
-    state.depth_state.enabled = false;
-    ApplyRenderState(state);
-
     m_renderer->DrawText(text, x, y, scale, color);
+  }
 
-    state.depth_state.enabled = true;
-    ApplyRenderState(state);
+  auto Backend::DrawOutliner(const RenderItem2D& item) noexcept -> void
+  {
+    if (auto* ptr = dynamic_cast<opengl::OpenglRenderer*>(m_renderer.get()))
+    {
+      ptr->DrawOutliner2D(item);
+    }
   }
 
   auto Backend::ApplyRenderState(const RenderState& state) const noexcept -> void
@@ -175,6 +176,7 @@ namespace avion::api::backend
     std::string normals("normals");
     std::string blocks("block");
     std::string text("text");
+    std::string outliner("outliner");
 
     m_shader_storage.RegisterShader(
       blocks,
@@ -222,6 +224,12 @@ namespace avion::api::backend
       text,
       m_resman.GetResource<ResManager::FsPath>("text.vert"),
       m_resman.GetResource<ResManager::FsPath>("text.frag")
+    );
+
+    m_shader_storage.RegisterShader(
+      outliner,
+      m_resman.GetResource<ResManager::FsPath>("outliner.vert"),
+      m_resman.GetResource<ResManager::FsPath>("outliner.frag")
     );
   }
 

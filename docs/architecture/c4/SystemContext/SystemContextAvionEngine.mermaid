@@ -1,0 +1,21 @@
+C4Context
+  title System context for Avion Engine
+    Person(Developer, "Developer", "A user of avion engine, who it developing games with use it ")
+
+    System_Ext("Game", "2D/3D Game", "A custom game using the capabilities of the game engine")
+
+    System_Boundary(b1, "Avion Engine")
+    {
+       System(AvionEngine, "Avion Engine", "The avion engine. It represents environment for developed game.")
+    }
+   
+    Rel(Developer, Game, "Developing game")
+    Rel(Developer, AvionEngine, "It uses editor and avion engine environment")
+    Rel(Game, AvionEngine, "Game it uses runtime part of avion engine")
+
+    UpdateRelStyle(Developer, Game, $offsetX="-50", $offsetY="-10")
+    UpdateRelStyle(Developer, AvionEngine, $offsetX="-100", $offsetY="-50")
+    UpdateRelStyle(Game, AvionEngine, $offsetX="0", $offsetY="-50")
+
+
+  UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="2")

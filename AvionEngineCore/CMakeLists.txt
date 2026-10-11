@@ -103,8 +103,8 @@ add_library(Avion::Engine ALIAS ${ENGINE_PROJECT_NAME})
 
 target_include_directories(${ENGINE_PROJECT_NAME} 
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/includes
-    # PUBLIC ${FREETYPE_INCLUDE_DIRS}
 )
+
 find_package(Freetype)
 
 target_link_libraries(${ENGINE_PROJECT_NAME} 

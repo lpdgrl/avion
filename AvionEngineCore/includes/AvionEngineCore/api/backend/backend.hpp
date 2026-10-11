@@ -91,6 +91,7 @@
         void Draw();
         auto DrawTiles(const std::vector<RenderItem2D>& tiles) -> void;
         auto DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) -> void;
+        auto DrawOutliner(const RenderItem2D& item) noexcept -> void;
         void SubmitRenderableItem(RenderItem item) noexcept;
 
         // GPU Objects
