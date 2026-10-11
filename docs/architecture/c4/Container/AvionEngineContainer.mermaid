@@ -1,0 +1,40 @@
+C4Container
+    title Container diagram for Avion Engine
+    Person(Developer, "Developer", "A user of avion engine, who it developing games with use it")
+
+    Container_Boundary(c1, "Avion Engine") {
+        Container(editor, "Editor", "C++ executable file", "Редактор игрового движка с UI обеспечивающий работу с игровыми сущностями (ассеты, 
+        освещение, шейдеры))")
+        Container(core, "Core (Engine Runtime)", "C++ Library", "Подсистема рендеринга и освещения, подсистема загрузки ассетов, управление сценой")
+        Container(gui, "GUI", "C++ Library", "")
+    }
+
+    System_Ext("Game", "2D/3D Game", "A custom game using the capabilities of the game engine")
+
+    Rel(Developer, editor, "Developing game")
+    %% Rel(Developer, AvionEngine, "It uses editor and avion engine environment")
+    %% Rel(Game, AvionEngine, "Game it uses runtime part of avion engine")
+
+    %% System_Ext(banking_system, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+
+    %% Rel(customer, web_app, "Uses", "HTTPS")
+    %% UpdateRelStyle(customer, web_app, $offsetY="60", $offsetX="90")
+    %% Rel(customer, spa, "Uses", "HTTPS")
+    %% UpdateRelStyle(customer, spa, $offsetY="-40")
+    %% Rel(customer, mobile_app, "Uses")
+    %% UpdateRelStyle(customer, mobile_app, $offsetY="-30")
+
+    %% Rel(web_app, spa, "Delivers")
+    %% UpdateRelStyle(web_app, spa, $offsetX="130")
+    %% Rel(spa, backend_api, "Uses", "async, JSON/HTTPS")
+    %% Rel(mobile_app, backend_api, "Uses", "async, JSON/HTTPS")
+    %% Rel_Back(database, backend_api, "Reads from and writes to", "sync, JDBC")
+
+    %% Rel(email_system, customer, "Sends e-mails to")
+    %% UpdateRelStyle(email_system, customer, $offsetX="-45")
+    %% Rel(backend_api, email_system, "Sends e-mails using", "sync, SMTP")
+    %% UpdateRelStyle(backend_api, email_system, $offsetY="-60")
+    %% Rel(backend_api, banking_system, "Uses", "sync/async, XML/HTTPS")
+    %% UpdateRelStyle(backend_api, banking_system, $offsetY="-50", $offsetX="-140")
+
+   UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")

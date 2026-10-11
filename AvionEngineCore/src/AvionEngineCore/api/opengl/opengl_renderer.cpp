@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "AvionEngineCore/api/opengl/opengl_renderer.hpp"
 
 namespace avion::api::backend::opengl
@@ -8,7 +10,7 @@ namespace avion::api::backend::opengl
   {
   }
 
-  void OpenglRenderer::Init(RenderState state)
+  void OpenglRenderer::Init(RenderState state, const std::string& font)
   {
     m_depth_state     = state.depth_state;
     m_stencil_state   = state.stencil_state;
@@ -19,16 +21,18 @@ namespace avion::api::backend::opengl
     ApplyDepthState();
     ApplyStencilState();
     ApplyBlendingState();
+
+    // Initialization text (freetype) for render and create opengl buffer for her
+    m_text_handle.gl_text.Initialaztion(font);
+    auto [it, _] = m_buffer_storage.emplace(++m_last_buffer_id, std::move(OpenglBuffer()));
+    auto& buffer = it->second;
+    buffer.SetupTextBuffer();
+    m_text_handle.buffer_id = m_last_buffer_id;
   }
 
   // Change current opengl state
-  void OpenglRenderer::ApplyCurrentState(RenderState& render_state) noexcept
+  void OpenglRenderer::ApplyCurrentState(const RenderState& render_state) noexcept
   {
-    // ApplyDepthState();
-    // ApplyStencilState();
-    // ApplyBlendingState();
-    // m_color_state = render_state.color_state;
-    // ApplyViewportState();
     if (render_state.depth_state != m_depth_state)
     {
       m_depth_state = render_state.depth_state;
@@ -185,15 +189,14 @@ namespace avion::api::backend::opengl
       {
         if (!diffuse_range.empty())
         {
-          BindTexture2D(diffuse_range, num_tex_unit);
+          BindTexture2D(shader, diffuse_range, num_tex_unit);
         }
         
         if (!specular_range.empty())
         {
-          BindTexture2D(specular_range, num_tex_unit);
+          BindTexture2D(shader, specular_range, num_tex_unit);
         }
       }
-
     }
     m_shader_storage.UseShader(shader);
 
@@ -235,7 +238,157 @@ namespace avion::api::backend::opengl
     return std::make_tuple(num_vertex, num_indice, num_draw_calls);
   }
 
-  void OpenglRenderer::BindTexture2D(const MaterialRange& range, int& number) const noexcept
+  void OpenglRenderer::DrawItem2D(const RenderItem2D& item) const noexcept
+  {
+    m_shader_storage.UpdateStateShadersReloaded("projection", m_projection);
+    
+    std::string shader("block");
+    auto&& buffer_id      = item.model_handler.id;
+    auto&& mesh_range     = item.mesh_range;
+    auto&& diffuse_range  = item.diffuse_range;
+    auto&& view_matrix    = item.view_matrix;
+    auto&& view_position  = item.view_position;
+    auto&& position = item.position;
+    auto&& transform = item.transform;
+    auto&& ratio_light = item.ratio_light;
+    auto&& ratio_scale = item.ratio_scale;
+    auto&& is_inside_light_radius = item.is_inside_light_radius;
+    auto&& is_flip_x = item.is_flip_x;
+
+    glm::mat4 model_matrix = glm::mat4(1.f);
+    float x = position.x * ratio_scale;
+    float y = position.y * ratio_scale;
+    float z = position.z * ratio_scale;
+    
+    model_matrix = glm::translate(model_matrix, glm::vec3(x, y, z));
+    model_matrix = glm::scale(model_matrix, glm::vec3(ratio_scale, ratio_scale, z));
+
+    glm::vec3 view = glm::vec3(view_position.x, view_position.y, 0);
+
+    // m_shader_storage.PutData(shader, "projection", m_projection);
+    // m_shader_storage.PutData(shader, "view_matrix", view_matrix);
+    // m_shader_storage.PutData(shader, "view", view);
+
+    m_shader_storage.PutData(shader, "model_matrix", model_matrix);
+    m_shader_storage.PutData(shader, "is_inside_light", is_inside_light_radius);
+    m_shader_storage.PutData(shader, "ratio_light", ratio_light);
+    m_shader_storage.PutData(shader, "flip_x", is_flip_x);
+
+    int num_tex_unit = 0;
+
+    if (!diffuse_range.empty())
+    {
+      BindTexture2D(shader, diffuse_range, num_tex_unit);
+    }
+
+    m_shader_storage.UseShader(shader);
+
+    auto it = m_buffer_storage.find(buffer_id);
+    assert(!(it == m_buffer_storage.end()) && "OpenglRenderer::Draw(RenderItem item): buffer id isn't exists");
+
+    auto&& buffer = it->second;
+    glBindVertexArray(buffer.GetIdVao());
+
+    for (auto& m : mesh_range)
+    {
+      glDrawElements(GL_TRIANGLES, m.index_count, GL_UNSIGNED_INT, 
+        std::bit_cast<void*>(m.first_index * sizeof(std::uint32_t))
+      );
+    }
+    glBindVertexArray(0);
+  }
+
+  void OpenglRenderer::DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) noexcept
+  {
+    std::string shader("text");
+    m_shader_storage.PutData(shader, "text_color", color);
+    m_shader_storage.PutData(shader, "projection", m_projection);
+    m_shader_storage.UseShader(shader);
+
+    glActiveTexture(GL_TEXTURE0);
+    // TODO: Added Get method for buffer handle
+    auto& handle_buffer = m_buffer_storage.find(m_text_handle.buffer_id)->second;
+    glBindVertexArray(handle_buffer.GetIdVao());
+
+    // iterate through all characters
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) 
+    {
+      Character ch = m_text_handle.gl_text.GetCharacter(*c);
+
+      float xpos = x + ch.bearing.x * scale;
+      float ypos = y - (ch.size.y - ch.bearing.y) * scale;
+
+      float w = ch.size.x * scale;
+      float h = ch.size.y * scale;
+      // update VBO for each character
+      float vertices[6][4] = 
+      {
+        { xpos,     ypos + h,   0.0f, 0.0f },            
+        { xpos,     ypos,       0.0f, 1.0f },
+        { xpos + w, ypos,       1.0f, 1.0f },
+
+        { xpos,     ypos + h,   0.0f, 0.0f },
+        { xpos + w, ypos,       1.0f, 1.0f },
+        { xpos + w, ypos + h,   1.0f, 0.0f }           
+      };
+      // Renderer glyph texture over quad
+      glBindTexture(GL_TEXTURE_2D, ch.texture_id);
+      
+      // update content of VBO memory
+      glBindBuffer(GL_ARRAY_BUFFER, handle_buffer.GetIdVbo());
+      glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+
+      // Renderer quad
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+      x += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+    glBindVertexArray(0);
+  }
+
+  auto OpenglRenderer::DrawOutliner2D(const RenderItem2D& item) const noexcept -> void
+  {
+    m_shader_storage.UpdateStateShadersReloaded("projection", m_projection);
+    
+    std::string shader("outliner");
+    auto&& buffer_id      = item.model_handler.id;
+    auto&& mesh_range     = item.mesh_range;
+    auto&& position = item.position;
+    auto&& transform = item.transform;
+    auto&& ratio_scale = item.ratio_scale;
+    auto&& utime = item.utime;
+    
+    glm::mat4 model_matrix = glm::mat4(1.f);
+    float x = position.x * ratio_scale;
+    float y = position.y * ratio_scale;
+    float z = position.z * ratio_scale;
+    
+    model_matrix = glm::translate(model_matrix, glm::vec3(x, y, z));
+    model_matrix = glm::scale(model_matrix, glm::vec3(ratio_scale, ratio_scale, z));
+
+    m_shader_storage.PutData(shader, "model_matrix", model_matrix);
+    m_shader_storage.PutData(shader, "utime", utime);
+
+    m_shader_storage.UseShader(shader);
+
+    auto it = m_buffer_storage.find(buffer_id);
+    assert(!(it == m_buffer_storage.end()) && "OpenglRenderer::DrawOutliner(const RenderItem2D& item): buffer id isn't exists");
+
+    auto&& buffer = it->second;
+    glBindVertexArray(buffer.GetIdVao());
+
+    for (auto& m : mesh_range)
+    {
+      glDrawElements(GL_TRIANGLES, m.index_count, GL_UNSIGNED_INT, 
+        std::bit_cast<void*>(m.first_index * sizeof(std::uint32_t))
+      );
+    }
+    glBindVertexArray(0);
+  }
+
+  void OpenglRenderer::BindTexture2D(const std::string& shader, 
+    const MaterialRange& range, int& number) const noexcept
   {
     int shader_num_texture = 1;
     for (auto& material : range)
@@ -264,7 +417,7 @@ namespace avion::api::backend::opengl
       }
 
       glActiveTexture(GL_TEXTURE0 + number);
-      m_shader_storage.PutData("model", name_texture, number++);
+      m_shader_storage.PutData(shader, name_texture, number++);
       m_texture2d_storage.find(material.id)->second.Bind();
       shader_num_texture++;
     }
@@ -341,7 +494,7 @@ namespace avion::api::backend::opengl
 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(m_depth_state.depth_mask);
-    glDepthFunc(detail::ToOpenglCompareFunc(m_depth_state.depth_func));
+    glDepthFunc(detail::ToOpenGLCompareFunc(m_depth_state.depth_func));
   }
 
   void OpenglRenderer::ApplyStencilState() const noexcept
@@ -358,12 +511,12 @@ namespace avion::api::backend::opengl
 
     glEnable(GL_STENCIL_TEST);
     glStencilOp(
-      detail::ToOpenglStencilAction(stencil_fail),
-      detail::ToOpenglStencilAction(stencil_depth_fail),
-      detail::ToOpenglStencilAction(stencil_depth_pass)
+      detail::ToOpenGLStencilAction(stencil_fail),
+      detail::ToOpenGLStencilAction(stencil_depth_fail),
+      detail::ToOpenGLStencilAction(stencil_depth_pass)
     );
     glStencilFunc(
-      detail::ToOpenglCompareFunc(stencil_func),
+      detail::ToOpenGLCompareFunc(stencil_func),
       stencil_ref,
       stencil_func_mask
     );
@@ -380,8 +533,8 @@ namespace avion::api::backend::opengl
 
     auto [_, blend_source_factor, blend_destination_factor, bledn_equation] = m_blend_state;
     
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   void OpenglRenderer::ApplyViewportState() const noexcept
@@ -399,10 +552,10 @@ namespace avion::api::backend::opengl
 
   }
 
-  void OpenglRenderer::SetOrthoProjection(OrthoProjection& projection) noexcept
+  void OpenglRenderer::SetOrthoProjection(const OrthoProjection& projection) noexcept
   {
     m_projection = glm::ortho(projection.left,
-      projection.width, projection.bottom, projection.height, projection.z_near, projection.z_far);
+      projection.right, projection.bottom, projection.top, projection.z_near, projection.z_far);
 
     SubmitProjectionMatrixToShader();
   }
@@ -434,7 +587,7 @@ namespace avion::api::backend::opengl
 
 namespace avion::api::backend::opengl::detail
 {
-  GLenum ToOpenglCompareFunc(backend::detail::CompareFunc func)
+  GLenum ToOpenGLCompareFunc(backend::detail::CompareFunc func)
   {
     namespace bkd = backend::detail;
 
@@ -442,7 +595,7 @@ namespace avion::api::backend::opengl::detail
     {
       case bkd::CompareFunc::Always:
       {
-        break;
+        return GL_ALWAYS;
       }
       case bkd::CompareFunc::Equal:
       {
@@ -473,10 +626,10 @@ namespace avion::api::backend::opengl::detail
         return GL_NOTEQUAL;
       }
     }
-    return GL_ALWAYS;
+    std::unreachable();
   }
 
-  GLenum ToOpenglStencilAction(backend::detail::StencilAction action)
+  GLenum ToOpenGLStencilAction(backend::detail::StencilAction action)
   {
     namespace bkd = backend::detail;
 
@@ -492,7 +645,7 @@ namespace avion::api::backend::opengl::detail
       }
       case bkd::StencilAction::Keep:
       {
-        break;
+        return GL_KEEP;
       }
       case bkd::StencilAction::Invert:
       {
@@ -515,6 +668,101 @@ namespace avion::api::backend::opengl::detail
         return GL_DECR;
       }
     }
-    return GL_KEEP;
+    std::unreachable();
+  }
+
+  GLenum ToOpenGLBlendingFunc(backend::detail::BlendingFunc func)
+  {
+    namespace bkd = backend::detail;
+
+    switch (func)
+    {
+      case bkd::BlendingFunc::Zero:
+      {
+        return GL_ZERO;
+      }
+      case bkd::BlendingFunc::One:
+      {
+        return GL_ONE;
+      }
+      case bkd::BlendingFunc::SourceColor:
+      {
+        return GL_SRC_COLOR;
+      }
+      case bkd::BlendingFunc::OneMinusSourceColor:
+      {
+        return GL_ONE_MINUS_SRC_COLOR;
+      }
+      case bkd::BlendingFunc::DestinationColor:
+      {
+        return GL_DST_COLOR;
+      }
+      case bkd::BlendingFunc::OneMinusDestinationColor:
+      {
+        return GL_ONE_MINUS_DST_COLOR;
+      }
+      case bkd::BlendingFunc::SourceAlpha:
+      {
+        return GL_SRC_ALPHA;
+      }
+      case bkd::BlendingFunc::OneMinusSourceAlpha:
+      {
+        return GL_ONE_MINUS_SRC_ALPHA;
+      }
+      case bkd::BlendingFunc::DestinationAlpha:
+      {
+        return GL_DST_ALPHA;
+      }
+      case bkd::BlendingFunc::OneMinusDestinationAlpha:
+      {
+        return GL_ONE_MINUS_DST_ALPHA;
+      }
+      case bkd::BlendingFunc::ConstantColor:
+      {
+        return GL_CONSTANT_COLOR;
+      }
+      case bkd::BlendingFunc::OneMinusConstantColor:
+      {
+        return GL_ONE_MINUS_CONSTANT_COLOR;
+      }
+      case bkd::BlendingFunc::ConstantAlpha:
+      {
+        return GL_CONSTANT_ALPHA;
+      }
+      case bkd::BlendingFunc::OneMinusConstantAlpha:
+      {
+        return GL_ONE_MINUS_CONSTANT_ALPHA;
+      }
+    }
+    std::unreachable();
+  }
+
+  GLenum ToOpenGLBlendEquation(backend::detail::BlendEquation equation)
+  {
+    namespace bkd = backend::detail;
+    switch(equation)
+    {
+      case bkd::BlendEquation::Add:
+      {
+        return GL_FUNC_ADD;
+      }
+      case bkd::BlendEquation::Subtract:
+      {
+        return GL_FUNC_SUBTRACT;
+      }
+      case bkd::BlendEquation::ReverseSubtract:
+      {
+        return GL_FUNC_REVERSE_SUBTRACT;
+      }
+      case bkd::BlendEquation::Min:
+      {
+        return GL_MIN;
+      }
+      case bkd::BlendEquation::Max:
+      {
+        return GL_MAX;
+      }
+    }
+    std::unreachable();
   }
 } // namespace avion::api::backend::opengl

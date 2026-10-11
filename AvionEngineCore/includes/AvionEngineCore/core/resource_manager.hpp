@@ -42,6 +42,7 @@
       kModel   =  3,
       kConfig  =  4,
       kSprite =  5,
+      kFont   = 6,
     };
 
     class ResourceManager {
@@ -72,8 +73,6 @@
       void LoadModel(const std::string& path, bool result);
       bool LoadTextFile(const std::string& filename, FsPath& path, ResourceType type);
 
-      std::string NormalizePath(std::string_view path) const; 
-
     private:
       struct IResourceHolder {
         virtual ~IResourceHolder() = default;
@@ -102,7 +101,7 @@
       if (resource.empty()) {
         std::string err(resource);
         AV_LOG_ERROR("ResourceManager::GetResource: key of resource is empty");
-        return nullptr;
+        return std::nullopt;
       }
 
       std::string key(resource.data());
@@ -117,6 +116,8 @@
       ResourceHolder<T>* holder_observer = static_cast<ResourceHolder<T>*>(it_res->second.get());
       return &holder_observer->data;
     }
+
+    auto NormalizePath(std::string_view path) -> std::string;
   } // namespace avion::core::resman
 
 #endif

@@ -1,5 +1,9 @@
 #include "AvionEngineEditor/panels/hierarchy_panel.hpp"
 
+
+// TODO: BAD INCLUDES!!!
+#include "AvionEngineCore/core/scene.hpp"
+
 namespace avion::editor::panel
 {
 

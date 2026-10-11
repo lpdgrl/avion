@@ -1,5 +1,9 @@
 #include "AvionEngineEditor/editor/editor_app.hpp"
 
+// TODO: BAD INCLUDES!!!
+#include "AvionEngineCore/api/backend/backend.hpp"
+#include "AvionEngineCore/renderer/scene_renderer.hpp"
+
 namespace avion::editor::app
 {
 
@@ -14,19 +18,20 @@ namespace avion::editor::app
   {
     auto& resman = m_engine.GetResourceManager();
 
-    resman.RegisterResource(core::resman::ResourceType::kTexture, "assets/textures");
-    resman.RegisterResource(core::resman::ResourceType::kShader,  "assets/shaders");
-    resman.RegisterResource(core::resman::ResourceType::kModel,   "assets/models");
-    resman.RegisterResource(core::resman::ResourceType::kConfig,  "assets/config");
-    resman.RegisterResource(core::resman::ResourceType::kSprite,  "assets/sprites");
-    resman.RegisterResource(core::resman::ResourceType::kConfig, "assets/scenes");
+    resman.RegisterResource(core::resman::ResourceType::kTexture, "textures");
+    resman.RegisterResource(core::resman::ResourceType::kShader,  "shaders");
+    resman.RegisterResource(core::resman::ResourceType::kModel,   "models");
+    resman.RegisterResource(core::resman::ResourceType::kConfig,  "config");
+    resman.RegisterResource(core::resman::ResourceType::kSprite,  "sprites");
+    resman.RegisterResource(core::resman::ResourceType::kConfig,  "scenes");
+    resman.RegisterResource(core::resman::ResourceType::kFont,    "fonts");
 
     m_engine.Init();
     m_gui_context.Init(m_engine.GetWindow().GetPointer());
     m_engine.AddRenderApp(std::make_unique<RenderEditorApp>(*this));
 
     auto [width, height] = m_engine.GetWindow().GetSize();
-    m_engine.GetBackend().SetProjection(api::backend::detail::Projection::kPerspective, 45.f, width, height, 0.1f, 100.f);
+    m_engine.GetBackend().SetPerspectiveProjection(api::backend::detail::PerspectiveProjection(45.f, width, height, 0.1f, 100.f));
     m_engine.GetBackend().CreateFrameBuffer("scene", 1020, 700);
 
     return true;

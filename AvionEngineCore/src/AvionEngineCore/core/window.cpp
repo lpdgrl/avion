@@ -49,6 +49,7 @@ namespace avion::core {
     glfwSetKeyCallback(window_, controller::Controller::KeyCallback);
     glfwSetCursorPosCallback(window_, controller::Controller::MouseCallback);
     glfwSetMouseButtonCallback(window_, controller::Controller::MouseButtonCallback);
+    glfwSetScrollCallback(window_, controller::Controller::MouseScrollCallback);
     glfwSetCursorPos(window_, width_window_, 1.0 * height_window_ / 2.0);
 
     m_profiler.frame_state.m_lt = glfwGetTime();
@@ -207,5 +208,10 @@ namespace avion::core {
   Window::WindowSize Window::GetSize() const noexcept 
   {
     return {width_window_, height_window_};
+  }
+
+  auto Window::GetController() noexcept -> controller::Controller&
+  {
+    return controller_;
   }
 } // namespace avion::core

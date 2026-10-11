@@ -1,6 +1,10 @@
 #ifndef AVION_EDITOR_OBJECT_PANEL_H
 #define AVION_EDITOR_OBJECT_PANEL_H 1
 
+  // TODO: BAD INCLUDES!!!
+  #include "AvionEngineCore/core/resource_manager.hpp"
+  #include "AvionEngineCore/renderer/model.hpp"
+
   #include "AvionEngineEditor/editor/editor_context.hpp"
   #include "AvionEngineEditor/ui/av_gui_scoped_window.hpp"
   #include "AvionEngineEditor/ui/av_gui_combo_item.hpp"

@@ -58,14 +58,19 @@ namespace avion::controller {
         void OnKeyPress(int key, int scancode, int action, int mods);
         void OnMouseButtonPress(int button, int action, int mods);
 
+        void OnScrollProcess(double xoffset, double yoffset) noexcept;
+
         static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
         static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
         static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
         CoordOffset GetOffset();
 
         double GetLastXposCursor() const noexcept;
         double GetLastYposCursor() const noexcept;
+
+        [[nodiscard]] auto GetLastScrollYoffset() noexcept -> double;
 
         void SetCoordinate(double xpos_cursor, double ypos_cursor);
         void ClearStateKeys();
@@ -84,6 +89,8 @@ namespace avion::controller {
         double last_ypos_cursor_{};
         double xoffset_{};
         double yoffset_{};
+        // double m_scroll_xoffset{};
+        double m_scroll_yoffset{};
     };
 
 } // namespace avion::controller

@@ -22,7 +22,7 @@
 namespace avion::gfx {
   static constexpr std::size_t kSizeShaderData = 32;
 
-  using ParamType = std::variant<glm::mat4, glm::vec4, glm::vec3, float, int, bool>;
+  using ParamType = std::variant<glm::mat4, glm::vec4, glm::vec3, glm::vec2, float, int, bool>;
 
   struct ShaderParam {
     std::string name;

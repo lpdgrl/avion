@@ -15,8 +15,13 @@ namespace avion::api::backend
     AV_LOG_DEBUG("Backend::Init()");
     if (m_api == RenderAPI::kOpengl)
     {
+      auto font_path = m_resman.GetResource<ResManager::FsPath>("dejavusans.ttf");
+      if (!font_path.has_value())
+      {
+        assert(false);
+      }
       m_renderer = std::make_unique<opengl::OpenglRenderer>(m_shader_storage);
-      m_renderer->Init(render_state);
+      m_renderer->Init(render_state, font_path.value()->c_str());
       m_current_state = render_state;
       m_default_state = render_state;
     }
@@ -107,6 +112,32 @@ namespace avion::api::backend
     }
   }
 
+  auto Backend::DrawTiles(const std::vector<RenderItem2D>& items) -> void
+  {
+    for (const auto& item : items)
+    {
+      m_renderer->DrawItem2D(item);
+    }
+  }
+
+  auto Backend::DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color) -> void
+  {
+    m_renderer->DrawText(text, x, y, scale, color);
+  }
+
+  auto Backend::DrawOutliner(const RenderItem2D& item) noexcept -> void
+  {
+    if (auto* ptr = dynamic_cast<opengl::OpenglRenderer*>(m_renderer.get()))
+    {
+      ptr->DrawOutliner2D(item);
+    }
+  }
+
+  auto Backend::ApplyRenderState(const RenderState& state) const noexcept -> void
+  {
+    m_renderer->ApplyCurrentState(state);
+  }
+
   void Backend::SubmitRenderableItem(RenderItem item) noexcept
   {
     m_renderable_queue.emplace_back(std::move(item));
@@ -143,6 +174,15 @@ namespace avion::api::backend
     std::string select_single_model("select_single_model");
     std::string grass("grass");
     std::string normals("normals");
+    std::string blocks("block");
+    std::string text("text");
+    std::string outliner("outliner");
+
+    m_shader_storage.RegisterShader(
+      blocks,
+      m_resman.GetResource<ResManager::FsPath>("block.vert"),
+      m_resman.GetResource<ResManager::FsPath>("block.frag")
+    );
 
     m_shader_storage.RegisterShader(
       grass,
@@ -178,6 +218,18 @@ namespace avion::api::backend
       normals,
       m_resman.GetResource<ResManager::FsPath>("normals.vert"),
       m_resman.GetResource<ResManager::FsPath>("normals.frag")
+    );
+
+    m_shader_storage.RegisterShader(
+      text,
+      m_resman.GetResource<ResManager::FsPath>("text.vert"),
+      m_resman.GetResource<ResManager::FsPath>("text.frag")
+    );
+
+    m_shader_storage.RegisterShader(
+      outliner,
+      m_resman.GetResource<ResManager::FsPath>("outliner.vert"),
+      m_resman.GetResource<ResManager::FsPath>("outliner.frag")
     );
   }
 
@@ -249,6 +301,16 @@ namespace avion::api::backend
   std::string Backend::GetNameApi() const noexcept
   {
     return detail::ApiToString(m_api);
+  }
+
+  auto Backend::SetOrthoProjection(const detail::OrthoProjection& ortho) const noexcept -> void
+  {
+    m_renderer->SetOrthoProjection(ortho);
+  }
+
+  auto Backend::SetPerspectiveProjection(detail::PerspectiveProjection perspective) noexcept -> void
+  {
+    m_renderer->SetPerspectiveProjection(perspective);
   }
 } // namespace avion::api::backend
 

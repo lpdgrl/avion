@@ -53,7 +53,8 @@ namespace avion::core {
 
         // Callbacks OpenGL
         static void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
-
+        
+        auto GetController() noexcept -> controller::Controller&;
         GLFWwindow*      GetPointer()            const;
         WindowSize       GetSize()               const noexcept;
         int              GetWidth()              const noexcept;
