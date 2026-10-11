@@ -4,12 +4,17 @@ set(TEST_PROJECT_NAME AvionEngineTest)
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
-add_executable(${TEST_PROJECT_NAME} 
-     src/editor.cpp
-     # src/sandbox.cpp
-)
-
-target_link_libraries(${TEST_PROJECT_NAME} PUBLIC AvionEngineEditor)
+if (BUILD_EDITOR)
+  add_executable(${TEST_PROJECT_NAME} 
+      src/editor.cpp
+  )
+  target_link_libraries(${TEST_PROJECT_NAME} PUBLIC AvionEngineEditor)
+else()
+  add_executable(${TEST_PROJECT_NAME}
+    src/sandbox.cpp
+  )
+  target_link_libraries(${TEST_PROJECT_NAME} PUBLIC AvionEngineCore)
+endif()
 target_compile_features(${TEST_PROJECT_NAME} PUBLIC cxx_std_26)
 
 set_target_properties(${TEST_PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
