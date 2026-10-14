@@ -2,6 +2,9 @@
 #define AVION_CORE_ENGINE_H 1
 
 #include <memory>
+#include <string_view>
+
+#include "AvionEngineCore/macro.h"
 
 // Forward declaration
 namespace avion::api::backend
@@ -85,6 +88,9 @@ namespace avion::core::engine
 
       void AddRenderApp(std::unique_ptr<IRenderApp>&& u_ptr);
 
+      // Public API for control Scene
+      AV_ATTR_NODISCARD auto AddEntityToScene(std::string_view) -> bool;
+    
       auto SaveSceneToJson() -> void;
       auto LoadSceneFromJson(const std::string& name = "scene.json") -> void;
 

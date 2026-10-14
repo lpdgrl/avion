@@ -2,6 +2,36 @@
 
 namespace avion::core::texturemanager
 {
+
+  std::optional<TextureManager::TextureData> TextureManager::LoadTexture(const FsPath& path)
+  {
+    std::optional<TextureData> result;
+    if (Contains(path.filename()))
+    {
+      AV_LOG_ERROR(std::format("TextureManager::LoadTexture: The Texture {} is already stored!", path.filename()));
+      return std::nullopt;
+    }
+
+    auto result_resman = m_cb_resman(path);
+    if (!result_resman.has_value())
+    {
+      AV_LOG_ERROR(std::format("TextureManager::LoadTexture: The Texture {} isn't loaded to storage!", path.filename()));
+      return std::nullopt;
+    }
+    Texture *texture = result_resman.value();
+    TextureData data
+    {
+      .color_channels = texture->GetColorChannels(),
+      .width = texture->GetWidth(),
+      .height = texture->GetHeight(),
+      .buffer_size = texture->GetSize(),
+      .buffer = texture->GetBuffer()
+    };
+
+    result = data;
+    return result;
+  }
+
   TextureManager::LoadTextureResult TextureManager::Load(const FsPath& filename)
   {
     LoadTextureResult result;

@@ -7,6 +7,8 @@ set(CTEST_COLOR)
 add_executable(AvionCoreTests
   src/ResourceManagerTests.cpp
   src/SerializationTests.cpp
+  src/EngineTests.cpp
+  src/MiCounterTests.cpp
 )
 
 target_link_libraries(AvionCoreTests

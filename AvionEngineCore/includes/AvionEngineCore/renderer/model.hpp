@@ -34,7 +34,10 @@
         using AnimationId     = core::animation::AnimationId;
 
         Model() = delete;
-        Model(std::string_view filename, CpuModelData& cpu_model_data, const Material& material, bool has_animation, std::string_view extension = {});
+        Model(std::string_view filename, 
+          CpuModelData& cpu_model_data, 
+          const Material& material, 
+          bool has_animation, std::string_view extension = {});
         Model(std::string_view filename, const Model& other);
         Model(const Model& other);
         Model(Model&& other);

@@ -62,6 +62,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/renderer/mesh.cpp
 
   src/AvionEngineCore/core/engine.cpp
+  src/AvionEngineCore/core/Engine/EngineImpl.cpp
+
   src/AvionEngineCore/core/scene.cpp
   src/AvionEngineCore/core/object.cpp
   src/AvionEngineCore/core/texture.cpp
@@ -90,6 +92,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
   src/AvionEngineCore/core/FileSystem/FileReader.cpp
 
   src/AvionEngineCore/core/ResourceManager/FileWatcher.cpp
+
+  src/AvionEngineCore/core/RenderSubsystem/ResourceRenderSubsystem.cpp
 
   src/AvionEngineCore/controller/controller.cpp
 

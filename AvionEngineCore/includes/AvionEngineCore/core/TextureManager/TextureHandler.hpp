@@ -21,6 +21,7 @@
       kSolidColor
     };
 
+    // Gpu resource
     struct TextureHandler
     {
       TextureType type;

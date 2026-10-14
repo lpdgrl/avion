@@ -5,6 +5,7 @@
   #include <functional>
   #include <unordered_map>
   #include <string>
+  #include <string_view>
   #include <optional>
   #include <queue>
 
@@ -15,11 +16,20 @@
   #include "AvionEngineCore/core/TextureManager/TextureHandler.hpp"
   #include "AvionEngineCore/core/ModelManager/PrimitiveModel.hpp"
 
+  #include "AvionEngineCore/core/Common/MiCounter.hpp"
+
+  #include "AvionEngineCore/macro.h"
+
   namespace avion::core::modelmanager
   {
     class ModelManager
     {
       public:
+        // NEW API
+        using ModelId      = std::uint64_t;
+        using ModelStorage = std::unordered_map<ModelId, gfx::Model>;
+        using ModelNames   = std::unordered_map<std::string, ModelId>;
+
         struct ModelItem;
 
         using FileName                = std::string;
@@ -63,8 +73,16 @@
 
         ~ModelManager() = default;
 
+        AV_ATTR_NODISCARD 
+        auto Load(std::string_view name) -> std::optional<CpuModelData>;
+
+        AV_ATTR_NODISCARD
+        auto CreateModel(std::string_view filename, CpuModelData& cpu_model_data, Material& material)
+          -> ModelId;
+
         LoadModelResult Load(const std::string& filename);
         LoadModelResult Load(PrimitiveType type) noexcept;
+        
         // TODO: It's TMP! Create sprite over model manager!!
         LoadModelResult Load(const std::string& filename_sprite, PrimitiveType type) noexcept;
 
@@ -90,12 +108,16 @@
         LoadModelResult CreateModelCopy(const std::string& filename) noexcept;
 
       private:
-        ResmanCallback          m_cb_resman;
-        BackendCallback         m_cb_backend;
-        TextureManagerCallback  m_cb_texture;
-        Storage                 m_storage;
-        Cache                   m_cache;
-        std::uint32_t           m_number_copy_models{};
+        common::MiCounter<ModelId>  m_mi_counter;
+        ModelStorage                m_models;
+        ModelNames                  m_models_names;
+        
+        ResmanCallback              m_cb_resman;
+        BackendCallback             m_cb_backend;
+        TextureManagerCallback      m_cb_texture;
+        Storage                     m_storage;
+        Cache                       m_cache;
+        std::uint32_t               m_number_copy_models{};
     };
 
     template <typename Self>

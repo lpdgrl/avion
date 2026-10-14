@@ -2,6 +2,30 @@
 
 namespace avion::core::modelmanager
 {
+  auto ModelManager::Load(std::string_view name) -> std::optional<CpuModelData>
+  {
+    auto assimp_result = AssimpModelLoader::Load(name.data());
+    if (!assimp_result.has_value())
+    {
+      std::string msg(name);
+      AV_LOG_ERROR("ModelManager::Load: Model by path \"" + msg + "\" isn't exists!");
+      return std::nullopt;
+    }
+    return assimp_result;
+  }
+
+  auto ModelManager::CreateModel(std::string_view filename, 
+    CpuModelData& cpu_model_data, 
+    Material& material) -> ModelId
+  {
+    auto id = m_mi_counter.GetValueAfterIncrease();
+
+    m_models.try_emplace(id, filename, cpu_model_data, material, cpu_model_data.has_animation);
+    m_models_names.try_emplace(filename.data(), id);
+
+    return id;
+  }
+
   ModelManager::LoadModelResult ModelManager::Load(const std::string& filename)
   {
     LoadModelResult model_load_result;

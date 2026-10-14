@@ -30,4 +30,5 @@
 #define AV_LOG_SCDEBUG(msg)     do { AV_LOG(std::source_location::current(), msg); } while(0);
 #define AV_LOG_PRINT_VAR(msg)   do { AV_PRINT_VAR(#msg, msg); } while(0);
 
-#define AV_ATTRIB_MAYBE_UNUSED  [[maybe_unused]]
+#define AV_ATTR_MAYBE_UNUSED [[maybe_unused]]
+#define AV_ATTR_NODISCARD    [[nodiscard]]

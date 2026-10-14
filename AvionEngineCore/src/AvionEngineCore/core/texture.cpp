@@ -1,4 +1,4 @@
-#include "../includes/AvionEngineCore/core/texture.hpp"
+#include "AvionEngineCore/core/texture.hpp"
 
 namespace avion::core {
     

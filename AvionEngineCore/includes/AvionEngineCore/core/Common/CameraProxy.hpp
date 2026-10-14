@@ -42,8 +42,6 @@
     class CameraProxy
     {
       public:
-
-
         CameraProxy() = delete;
         CameraProxy(gfx::Camera& camera);
 

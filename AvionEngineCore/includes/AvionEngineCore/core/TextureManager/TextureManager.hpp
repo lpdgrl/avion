@@ -48,6 +48,7 @@
 
         ~TextureManager() = default;
 
+        std::optional<TextureData> LoadTexture(const FsPath& filename);
         LoadTextureResult Load(const FsPath& filename);
         bool Remove(const std::string& filename) noexcept;
         
