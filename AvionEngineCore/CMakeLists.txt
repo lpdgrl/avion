@@ -95,6 +95,8 @@ add_library(${ENGINE_PROJECT_NAME} SHARED
 
   src/AvionEngineCore/core/RenderSubsystem/ResourceRenderSubsystem.cpp
 
+  src/AvionEngineCore/core/SceneSubsystem/SceneWrapper.cpp
+
   src/AvionEngineCore/controller/controller.cpp
 
   # src/AvionEngineCore/core/Memory/MemoryUtils.cpp

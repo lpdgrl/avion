@@ -188,16 +188,32 @@ namespace avion::core::engine
     m_backend->ReloadChangedShaders(events);
   }
 
-  auto Engine::EngineImpl::AddEntityToSceneImpl(std::string_view name) -> bool
+  auto Engine::EngineImpl::AddEntityToSceneImpl(std::string_view name) -> std::uint64_t
   {
-    // if (m_model_manager.Contains(name))
-    // {
-    //   auto model_id = m_model_manager.Get(name); 
-    //   m_scene.AddEntity(name, model_id);
-    //   return true;
-    // }
+    if (m_model_manager.Contains(name))
+    {
+      auto result = m_model_manager.GetModelID(name); 
+      if (result.has_value())
+      {
+        auto res = m_scene.CreateEntity(name, result.value());
+        return res;
+      }
+      return 0;
+    }
 
-    return true;
+    auto model_id = LoadResource(name);
+    auto res = m_scene.CreateEntity(name, model_id);
+    return res;
+  }
+
+  auto Engine::EngineImpl::RemoveEntityFromSceneImpl(std::uint64_t id) -> bool
+  {
+    std::unreachable();
+  }
+
+  auto Engine::EngineImpl::GetSceneWrapper() -> SceneWrapper
+  {
+    return SceneWrapper(m_scene);
   }
 
   auto Engine::EngineImpl::LoadResource(std::string_view name_resource) -> std::uint64_t

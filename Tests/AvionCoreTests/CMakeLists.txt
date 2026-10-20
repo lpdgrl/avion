@@ -9,6 +9,7 @@ add_executable(AvionCoreTests
   src/SerializationTests.cpp
   src/EngineTests.cpp
   src/MiCounterTests.cpp
+  src/SceneTests.cpp
 )
 
 target_link_libraries(AvionCoreTests

@@ -26,6 +26,20 @@ namespace avion::core::modelmanager
     return id;
   }
 
+  auto ModelManager::GetModelID(std::string_view name) const noexcept -> std::optional<ModelId>
+  {
+    if (auto it = m_models_names.find(name); it != m_models_names.cend())
+    {
+      return {it->second};
+    }
+    return std::nullopt;
+  }
+
+  auto ModelManager::Contains(std::string_view name) const noexcept -> bool
+  {
+    return m_models_names.contains(name);
+  }
+
   ModelManager::LoadModelResult ModelManager::Load(const std::string& filename)
   {
     LoadModelResult model_load_result;

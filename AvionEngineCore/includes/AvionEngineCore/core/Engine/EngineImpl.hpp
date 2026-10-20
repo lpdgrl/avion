@@ -18,6 +18,8 @@
 
 #include "AvionEngineCore/core/RenderSubsystem/ResourceRenderSubsystem.hpp"
 
+#include "AvionEngineCore/core/SceneSubsystem/SceneWrapper.hpp"
+
 
 namespace avion::core::engine
 {
@@ -33,6 +35,7 @@ namespace avion::core::engine
     using ResManager          = resman::ResourceManager;
 
     using SceneRenderer       = gfx::SceneRenderer;
+    using SceneWrapper        = scene::SceneWrapper;
 
     using Window              = core::Window;
     using ModelManager        = core::modelmanager::ModelManager;
@@ -99,10 +102,15 @@ namespace avion::core::engine
     // ************************************************* 
 
     AV_ATTR_NODISCARD 
-    auto AddEntityToSceneImpl(std::string_view) -> bool;
+    auto AddEntityToSceneImpl(std::string_view) -> std::uint64_t;
+
+    AV_ATTR_NODISCARD
+    auto RemoveEntityFromSceneImpl(std::uint64_t id) -> bool;
 
     auto SaveSceneToJsonImpl() -> void;
     auto LoadSceneFromJsonImpl(const std::string& name) -> void;
+
+    auto GetSceneWrapper() -> SceneWrapper;
 
 
     // *************************************************

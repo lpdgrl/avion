@@ -7,6 +7,7 @@ namespace avion::core {
   , m_texture_manager(texture_manager)
   , m_camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f))
   {
+    m_entities.reserve(number_objects);
   }
 
   Scene::~Scene() 
@@ -582,4 +583,50 @@ namespace avion::core {
     m_cache_light_items.clear();
   }
 
+  auto Scene::CreateEntity(std::string_view name, ModelID model_id) -> std::uint64_t
+  {
+    auto entity_id = m_mi_counter.GetValueAfterIncrease();
+    std::optional<material::Material> mat;
+    m_entities.emplace_back(entity_id, gfx::Transform(), mat, name.data());
+    m_entity_models.try_emplace(entity_id, model_id);
+    return entity_id;
+  }
+
+  auto Scene::AddAttributeToEntity(scene::EntityID id, scene::Attribute attribute) -> bool
+  {
+    using namespace scene;
+    switch (attribute)
+    {
+      case Attribute::DirectionalLight:
+      {
+        auto res = SettingAttribute<light::DirectionalLight>(id, m_directional_lights);
+        return true;
+      }
+      case Attribute::PointLight:
+      {
+        auto res = SettingAttribute<light::PointLight>(id, m_point_lights);
+        return true;
+      }
+      case Attribute::SpotLight:
+      {
+        auto res = SettingAttribute<light::SpotLight>(id, m_spot_lights);
+        return true;
+      }
+      case Attribute::Camera:
+      {
+        std::unreachable();
+      }
+    }
+    return false;
+  }
+
+  auto Scene::GetModelID(scene::EntityID id) const noexcept -> std::optional<ModelID>
+  {
+    return Find<EntityComponentMap<ModelID>>(id, m_entity_models);
+  }
+
+  decltype(auto) Scene::GetAttribute(scene::EntityID id, scene::Attribute attribute) const noexcept
+  {
+    
+  }
 } // namespace avion::core

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string_view>
+#include <cstdint>
 
 #include "AvionEngineCore/macro.h"
 
@@ -47,6 +48,11 @@ namespace avion::core
     class IRenderApp;
     class EventQueue;
   }
+
+  namespace scene
+  {
+    struct SceneWrapper;
+  }
 }
 
 namespace avion::controller
@@ -64,6 +70,7 @@ namespace avion::core::engine
       using ResManager          = resman::ResourceManager;
 
       using SceneRenderer       = gfx::SceneRenderer;
+      using SceneWrapper        = scene::SceneWrapper;
 
       using Window              = core::Window;
       using ModelManager        = core::modelmanager::ModelManager;
@@ -89,13 +96,16 @@ namespace avion::core::engine
       void AddRenderApp(std::unique_ptr<IRenderApp>&& u_ptr);
 
       // Public API for control Scene
-      AV_ATTR_NODISCARD auto AddEntityToScene(std::string_view) -> bool;
+      AV_ATTR_NODISCARD auto AddEntityToScene(std::string_view) -> std::uint64_t;
+      AV_ATTR_NODISCARD auto RemoveEntityFromScene(std::uint64_t id) -> bool;
+      
+      auto GetSceneWrapper() -> SceneWrapper;
     
       auto SaveSceneToJson() -> void;
       auto LoadSceneFromJson(const std::string& name = "scene.json") -> void;
 
       ResManager&     GetResourceManager();
-      SceneRenderer&  GetSceneRenderer();
+      SceneRenderer&  GetSceneRenderer(); 
       Profiler&       GetProfiler();
       Scene&          GetScene();
       Window&         GetWindow() noexcept;

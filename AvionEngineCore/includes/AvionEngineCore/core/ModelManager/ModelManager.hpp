@@ -24,11 +24,17 @@
   {
     class ModelManager
     {
+      private:
+        struct StringHash : public std::hash<std::string_view>
+        {
+          using is_transparent = void;
+        };
+
       public:
         // NEW API
-        using ModelId      = std::uint64_t;
-        using ModelStorage = std::unordered_map<ModelId, gfx::Model>;
-        using ModelNames   = std::unordered_map<std::string, ModelId>;
+        using ModelId         = std::uint64_t;
+        using ModelMap        = std::unordered_map<ModelId, gfx::Model>;
+        using NameModelIdMap  = std::unordered_map<std::string, ModelId, StringHash, std::equal_to<>>;
 
         struct ModelItem;
 
@@ -73,12 +79,20 @@
 
         ~ModelManager() = default;
 
+        // BEGIN NEW API !!!!
         AV_ATTR_NODISCARD 
         auto Load(std::string_view name) -> std::optional<CpuModelData>;
 
         AV_ATTR_NODISCARD
         auto CreateModel(std::string_view filename, CpuModelData& cpu_model_data, Material& material)
           -> ModelId;
+
+        AV_ATTR_NODISCARD
+        auto GetModelID(std::string_view name) const noexcept -> std::optional<ModelId>;
+
+        AV_ATTR_NODISCARD
+        auto Contains(std::string_view name) const noexcept -> bool;
+        // END NEW API !!!!
 
         LoadModelResult Load(const std::string& filename);
         LoadModelResult Load(PrimitiveType type) noexcept;
@@ -109,8 +123,8 @@
 
       private:
         common::MiCounter<ModelId>  m_mi_counter;
-        ModelStorage                m_models;
-        ModelNames                  m_models_names;
+        ModelMap                    m_models;
+        NameModelIdMap              m_models_names;
         
         ResmanCallback              m_cb_resman;
         BackendCallback             m_cb_backend;

@@ -40,10 +40,15 @@ namespace avion::core::engine
     m_impl->AddRenderAppImpl(std::move(u_ptr));
   }
   
-  auto Engine::AddEntityToScene(std::string_view name) -> bool
+  auto Engine::AddEntityToScene(std::string_view name) -> std::uint64_t
   {
     auto result = m_impl->AddEntityToSceneImpl(name);
     return result;
+  }
+
+  auto Engine::RemoveEntityFromScene(std::uint64_t id) -> bool
+  {
+    return m_impl->RemoveEntityFromSceneImpl(id);
   }
 
   auto Engine::SaveSceneToJson() -> void
@@ -54,6 +59,11 @@ namespace avion::core::engine
   auto Engine::LoadSceneFromJson(const std::string& name) -> void
   {
     m_impl->LoadSceneFromJsonImpl(name);
+  }
+
+  auto Engine::GetSceneWrapper() -> SceneWrapper
+  {
+    return m_impl->GetSceneWrapper();
   }
 
   Engine::ResManager& Engine::GetResourceManager()
